@@ -325,45 +325,6 @@ int ModApiServer::l_get_player_window_information(lua_State *L)
 	return 1;
 }
 
-// get_ban_list()
-int ModApiServer::l_get_ban_list(lua_State *L)
-{
-	NO_MAP_LOCK_REQUIRED;
-	lua_pushstring(L, getServer(L)->getBanDescription("").c_str());
-	return 1;
-}
-
-// get_ban_description()
-int ModApiServer::l_get_ban_description(lua_State *L)
-{
-	NO_MAP_LOCK_REQUIRED;
-	const char * ip_or_name = luaL_checkstring(L, 1);
-	lua_pushstring(L, getServer(L)->getBanDescription(std::string(ip_or_name)).c_str());
-	return 1;
-}
-
-// ban_player()
-int ModApiServer::l_ban_player(lua_State *L)
-{
-	NO_MAP_LOCK_REQUIRED;
-
-	if (!getEnv(L))
-		throw LuaError("Can't ban player before server has started up");
-
-	Server *server = getServer(L);
-	const char *name = luaL_checkstring(L, 1);
-	RemotePlayer *player = server->getEnv().getPlayer(name);
-	if (!player) {
-		lua_pushboolean(L, false); // no such player
-		return 1;
-	}
-
-	std::string ip_str = server->getPeerAddress(player->getPeerId()).serializeString();
-	server->setIpBanned(ip_str, name);
-	lua_pushboolean(L, true);
-	return 1;
-}
-
 // disconnect_player(name, [reason]) -> success
 int ModApiServer::l_disconnect_player(lua_State *L)
 {
@@ -406,16 +367,6 @@ int ModApiServer::l_remove_player(lua_State *L)
 	else
 		lua_pushinteger(L, 2);
 
-	return 1;
-}
-
-// unban_player_or_ip()
-int ModApiServer::l_unban_player_or_ip(lua_State *L)
-{
-	NO_MAP_LOCK_REQUIRED;
-	const char * ip_or_name = luaL_checkstring(L, 1);
-	getServer(L)->unsetIpBanned(ip_or_name);
-	lua_pushboolean(L, true);
 	return 1;
 }
 
@@ -694,12 +645,8 @@ void ModApiServer::Initialize(lua_State *L, int top)
 	API_FCT(get_player_window_information);
 	API_FCT(get_player_privs);
 	API_FCT(get_player_ip);
-	API_FCT(get_ban_list);
-	API_FCT(get_ban_description);
-	API_FCT(ban_player);
 	API_FCT(disconnect_player);
 	API_FCT(remove_player);
-	API_FCT(unban_player_or_ip);
 	API_FCT(notify_authentication_modified);
 
 	API_FCT(do_async_callback);

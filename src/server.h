@@ -591,9 +591,6 @@ private:
 	// server connection
 	std::shared_ptr<con::Connection> m_con;
 
-	// Ban checking
-	BanManager *m_banmanager = nullptr;
-
 	// Rollback manager (behind m_env_mutex)
 	IRollbackManager *m_rollback = nullptr;
 

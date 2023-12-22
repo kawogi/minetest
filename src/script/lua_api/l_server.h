@@ -91,18 +91,6 @@ private:
 	// get_player_window_information(name)
 	static int l_get_player_window_information(lua_State *L);
 
-	// get_ban_list()
-	static int l_get_ban_list(lua_State *L);
-
-	// get_ban_description()
-	static int l_get_ban_description(lua_State *L);
-
-	// ban_player()
-	static int l_ban_player(lua_State *L);
-
-	// unban_player_or_ip()
-	static int l_unban_player_or_ip(lua_State *L);
-
 	// disconnect_player(name, [reason]) -> success
 	static int l_disconnect_player(lua_State *L);
 
