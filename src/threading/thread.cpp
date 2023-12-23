@@ -54,9 +54,6 @@ DEALINGS IN THE SOFTWARE.
 #elif defined(_AIX)
 	#include <sys/processor.h>
 	#include <sys/thread.h>
-#elif defined(__APPLE__)
-	#include <mach/mach_init.h>
-	#include <mach/thread_act.h>
 #endif
 
 
@@ -207,10 +204,6 @@ void Thread::setName(const std::string &name)
 
 	pthread_setname_np(pthread_self(), "%s", const_cast<char*>(name.c_str()));
 
-#elif defined(__APPLE__)
-
-	pthread_setname_np(name.c_str());
-
 #elif defined(__HAIKU__)
 
 	rename_thread(find_thread(NULL), name.c_str());
@@ -289,16 +282,6 @@ bool Thread::bindToProcessor(unsigned int proc_number)
 
 	return pthread_processor_bind_np(PTHREAD_BIND_ADVISORY_NP,
 			&answer, proc_number, getThreadHandle()) == 0;
-
-#elif defined(__APPLE__)
-
-	struct thread_affinity_policy tapol;
-
-	thread_port_t threadport = pthread_mach_thread_np(getThreadHandle());
-	tapol.affinity_tag = proc_number + 1;
-	return thread_policy_set(threadport, THREAD_AFFINITY_POLICY,
-			(thread_policy_t)&tapol,
-			THREAD_AFFINITY_POLICY_COUNT) == KERN_SUCCESS;
 
 #else
 

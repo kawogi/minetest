@@ -75,7 +75,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 // too small.
 #if defined(__FreeBSD__) || defined(__NetBSD__)    || \
 	defined(__OpenBSD__) || defined(__DragonFly__) || \
-	defined(__APPLE__)   ||                           \
 	defined(__sun)       || defined(sun)           || \
 	defined(__QNX__)     || defined(__QNXNTO__)
 	#define HAVE_STRLCPY
@@ -89,9 +88,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #ifndef _WIN32 // POSIX
 	#include <sys/time.h>
 	#include <ctime>
-    #if defined(__MACH__) && defined(__APPLE__)
-        #include <TargetConditionals.h>
-    #endif
 #endif
 
 namespace porting
@@ -263,14 +259,6 @@ inline const char *getPlatformName()
 #elif defined(__DragonFly__) || defined(__FreeBSD__) || \
 		defined(__NetBSD__) || defined(__OpenBSD__)
 	"BSD"
-#elif defined(__APPLE__) && defined(__MACH__)
-	#if TARGET_OS_MAC
-		"OSX"
-	#elif TARGET_OS_IPHONE
-		"iOS"
-	#else
-		"Apple"
-	#endif
 #elif defined(_AIX)
 	"AIX"
 #elif defined(__hpux)

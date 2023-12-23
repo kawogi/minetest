@@ -46,13 +46,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	#define _PSTAT64
 	#include <sys/pstat.h>
 #endif
-#if defined(__APPLE__)
-	#include <mach-o/dyld.h>
-	#include <CoreFoundation/CoreFoundation.h>
-	// For _NSGetEnviron()
-	// Related: https://gitlab.haskell.org/ghc/ghc/issues/2458
-	#include <crt_externs.h>
-#endif
 
 #if defined(__HAIKU__)
 	#include <FindDirectory.h>
@@ -304,20 +297,6 @@ bool getCurrentExecPath(char *buf, size_t len)
 	return true;
 }
 
-
-//// Mac OS X, Darwin
-#elif defined(__APPLE__)
-
-bool getCurrentExecPath(char *buf, size_t len)
-{
-	uint32_t lenb = (uint32_t)len;
-	if (_NSGetExecutablePath(buf, &lenb) == -1)
-		return false;
-
-	return true;
-}
-
-
 //// FreeBSD, NetBSD, DragonFlyBSD
 #elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 
@@ -500,35 +479,6 @@ bool setSystemPaths()
 
 	return true;
 }
-
-
-//// Mac OS X
-#elif defined(__APPLE__)
-
-bool setSystemPaths()
-{
-	CFBundleRef main_bundle = CFBundleGetMainBundle();
-	CFURLRef resources_url = CFBundleCopyResourcesDirectoryURL(main_bundle);
-	char path[PATH_MAX];
-	if (CFURLGetFileSystemRepresentation(resources_url,
-			TRUE, (UInt8 *)path, PATH_MAX)) {
-		path_share = std::string(path);
-	} else {
-		warningstream << "Could not determine bundle resource path" << std::endl;
-	}
-	CFRelease(resources_url);
-
-	const char *const minetest_user_path = getenv("MINETEST_USER_PATH");
-	if (minetest_user_path && minetest_user_path[0] != '\0') {
-		path_user = std::string(minetest_user_path);
-	} else {
-		path_user = std::string(getHomeOrFail())
-			+ "/Library/Application Support/"
-			+ PROJECT_NAME;
-	}
-	return true;
-}
-
 
 #else
 
@@ -788,10 +738,6 @@ static bool open_uri(const std::string &uri)
 
 #if defined(_WIN32)
 	return (intptr_t)ShellExecuteA(NULL, NULL, uri.c_str(), NULL, NULL, SW_SHOWNORMAL) > 32;
-#elif defined(__APPLE__)
-	const char *argv[] = {"open", uri.c_str(), NULL};
-	return posix_spawnp(NULL, "open", NULL, NULL, (char**)argv,
-		(*_NSGetEnviron())) == 0;
 #else
 	const char *argv[] = {"xdg-open", uri.c_str(), NULL};
 	return posix_spawnp(NULL, "xdg-open", NULL, NULL, (char**)argv, environ) == 0;

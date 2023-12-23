@@ -4087,54 +4087,6 @@ Value& Path::make(Value& root) const {
 #if !defined(isfinite)
 #define isfinite std::isfinite
 #endif
-
-#else
-#include <cmath>
-#include <cstdio>
-
-#if defined(_MSC_VER)
-#if !defined(isnan)
-#include <float.h>
-#define isnan _isnan
-#endif
-
-#if !defined(isfinite)
-#include <float.h>
-#define isfinite _finite
-#endif
-
-#if !defined(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES)
-#define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES 1
-#endif //_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES
-
-#endif //_MSC_VER
-
-#if defined(__sun) && defined(__SVR4) // Solaris
-#if !defined(isfinite)
-#include <ieeefp.h>
-#define isfinite finite
-#endif
-#endif
-
-#if defined(__hpux)
-#if !defined(isfinite)
-#if defined(__ia64) && !defined(finite)
-#define isfinite(x)                                                            \
-  ((sizeof(x) == sizeof(float) ? _Isfinitef(x) : _IsFinite(x)))
-#endif
-#endif
-#endif
-
-#if !defined(isnan)
-// IEEE standard states that NaN values will not compare to themselves
-#define isnan(x) (x != x)
-#endif
-
-#if !defined(__APPLE__)
-#if !defined(isfinite)
-#define isfinite finite
-#endif
-#endif
 #endif
 
 #if defined(_MSC_VER)

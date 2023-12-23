@@ -281,14 +281,10 @@ if(WIN32)
 else()
 	# Unix probably
 	set(PLATFORM_LIBS ${PLATFORM_LIBS} ${CMAKE_DL_LIBS})
-	if(APPLE)
-		set(PLATFORM_LIBS "-framework CoreFoundation" ${PLATFORM_LIBS})
-	else()
-		check_library_exists(rt clock_gettime "" HAVE_LIBRT)
-		if (HAVE_LIBRT)
-			set(PLATFORM_LIBS -lrt ${PLATFORM_LIBS})
-		endif(HAVE_LIBRT)
-	endif(APPLE)
+	check_library_exists(rt clock_gettime "" HAVE_LIBRT)
+	if (HAVE_LIBRT)
+		set(PLATFORM_LIBS -lrt ${PLATFORM_LIBS})
+	endif(HAVE_LIBRT)
 
 	find_library(ICONV_LIBRARY iconv)
 	mark_as_advanced(ICONV_LIBRARY)
@@ -859,14 +855,6 @@ if(BUILD_CLIENT)
 		ARCHIVE DESTINATION ${BINDIR}
 		BUNDLE DESTINATION .
 	)
-
-	if(APPLE)
-		install(CODE "
-			set(BU_CHMOD_BUNDLE_ITEMS ON)
-			include(BundleUtilities)
-			fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/${BUNDLE_PATH}\" \"\" \"\${CMAKE_INSTALL_PREFIX}/${BINDIR}\")
-		" COMPONENT Runtime)
-	endif()
 
 	if(USE_GETTEXT)
 		foreach(LOCALE ${GETTEXT_USED_LOCALES})

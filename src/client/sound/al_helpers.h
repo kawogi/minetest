@@ -32,11 +32,6 @@ with this program; ifnot, write to the Free Software Foundation, Inc.,
 	#include <al.h>
 	#include <alc.h>
 	//#include <alext.h>
-#elif defined(__APPLE__)
-	#define OPENAL_DEPRECATED
-	#include <OpenAL/al.h>
-	#include <OpenAL/alc.h>
-	//#include <OpenAL/alext.h>
 #else
 	#include <AL/al.h>
 	#include <AL/alc.h>

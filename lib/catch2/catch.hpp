@@ -66,18 +66,7 @@
 #if !defined(CATCH_CONFIG_IMPL_ONLY)
 // start catch_platform.h
 
-// See e.g.:
-// https://opensource.apple.com/source/CarbonHeaders/CarbonHeaders-18.1/TargetConditionals.h.auto.html
-#ifdef __APPLE__
-#  include <TargetConditionals.h>
-#  if (defined(TARGET_OS_OSX) && TARGET_OS_OSX == 1) || \
-      (defined(TARGET_OS_MAC) && TARGET_OS_MAC == 1)
-#    define CATCH_PLATFORM_MAC
-#  elif (defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE == 1)
-#    define CATCH_PLATFORM_IPHONE
-#  endif
-
-#elif defined(linux) || defined(__linux) || defined(__linux__)
+#if defined(linux) || defined(__linux) || defined(__linux__)
 #  define CATCH_PLATFORM_LINUX
 
 #elif defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || defined(_MSC_VER) || defined(__MINGW32__)
@@ -389,9 +378,7 @@ namespace Catch {
 #   define CATCH_INTERNAL_IGNORE_BUT_WARN(...)
 #endif
 
-#if defined(__APPLE__) && defined(__apple_build_version__) && (__clang_major__ < 10)
-#   undef CATCH_INTERNAL_SUPPRESS_UNUSED_TEMPLATE_WARNINGS
-#elif defined(__clang__) && (__clang_major__ < 5)
+#if defined(__clang__) && (__clang_major__ < 5)
 #   undef CATCH_INTERNAL_SUPPRESS_UNUSED_TEMPLATE_WARNINGS
 #endif
 
@@ -10344,55 +10331,11 @@ namespace Catch {
 #  include <cstddef>
 #  include <ostream>
 
-#ifdef __apple_build_version__
-    // These headers will only compile with AppleClang (XCode)
-    // For other compilers (Clang, GCC, ... ) we need to exclude them
-#  include <sys/sysctl.h>
-#endif
-
     namespace Catch {
-        #ifdef __apple_build_version__
-        // The following function is taken directly from the following technical note:
-        // https://developer.apple.com/library/archive/qa/qa1361/_index.html
-
-        // Returns true if the current process is being debugged (either
-        // running under the debugger or has a debugger attached post facto).
-        bool isDebuggerActive(){
-            int                 mib[4];
-            struct kinfo_proc   info;
-            std::size_t         size;
-
-            // Initialize the flags so that, if sysctl fails for some bizarre
-            // reason, we get a predictable result.
-
-            info.kp_proc.p_flag = 0;
-
-            // Initialize mib, which tells sysctl the info we want, in this case
-            // we're looking for information about a specific process ID.
-
-            mib[0] = CTL_KERN;
-            mib[1] = KERN_PROC;
-            mib[2] = KERN_PROC_PID;
-            mib[3] = getpid();
-
-            // Call sysctl.
-
-            size = sizeof(info);
-            if( sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, nullptr, 0) != 0 ) {
-                Catch::cerr() << "\n** Call to sysctl failed - unable to determine if debugger is active **\n" << std::endl;
-                return false;
-            }
-
-            // We're being debugged if the P_TRACED flag is set.
-
-            return ( (info.kp_proc.p_flag & P_TRACED) != 0 );
-        }
-        #else
         bool isDebuggerActive() {
             // We need to find another way to determine this for non-appleclang compilers on macOS
             return false;
         }
-        #endif
     } // namespace Catch
 
 #elif defined(CATCH_PLATFORM_LINUX)

@@ -2,7 +2,6 @@
 
 - [Compiling on GNU/Linux](linux.md)
 - [Compiling on Windows](windows.md)
-- [Compiling on MacOS](macos.md)
 
 
 ## CMake options

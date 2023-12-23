@@ -456,10 +456,5 @@ void set_default_settings()
 	settings->setDefault("screen_dpi", "72");
 	settings->setDefault("display_density_factor", "1");
 
-	// Altered settings for macOS
-#if defined(__MACH__) && defined(__APPLE__)
-	settings->setDefault("keymap_sneak", "KEY_SHIFT");
-#endif
-
 	settings->setDefault("clickable_chat_weblinks", "true");
 }

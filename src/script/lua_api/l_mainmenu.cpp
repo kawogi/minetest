@@ -975,7 +975,6 @@ int ModApiMainMenu::l_get_active_irrlicht_device(lua_State *L)
 		switch (RenderingEngine::get_raw_device()->getType()) {
 		case EIDT_WIN32: return "WIN32";
 		case EIDT_X11: return "X11";
-		case EIDT_OSX: return "OSX";
 		case EIDT_SDL: return "SDL";
 		default: return "Unknown";
 		}
