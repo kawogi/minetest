@@ -26,9 +26,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <fstream>
 #include <thread>
 #include <mutex>
-#if !defined(_WIN32)  // POSIX
-	#include <unistd.h>
-#endif
+#include <unistd.h>
 #include "threading/mutex_auto_lock.h"
 #include "util/basic_macros.h"
 #include "util/stream.h"
@@ -123,12 +121,10 @@ public:
 	StreamLogOutput(std::ostream &stream) :
 		m_stream(stream)
 	{
-#if !defined(_WIN32)
 		if (&stream == &std::cout)
 			is_tty = isatty(STDOUT_FILENO);
 		else if (&stream == &std::cerr)
 			is_tty = isatty(STDERR_FILENO);
-#endif
 	}
 
 	void logRaw(LogLevel lev, const std::string &line);

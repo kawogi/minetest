@@ -144,9 +144,7 @@
  */
 #undef ROTATE
 #ifndef PEDANTIC
-# if defined(_MSC_VER)
-#  define ROTATE(a,n)   _lrotl(a,n)
-# elif defined(__ICC)
+# if defined(__ICC)
 #  define ROTATE(a,n)   _rotl(a,n)
 # elif defined(__MWERKS__)
 #  if defined(__POWERPC__)

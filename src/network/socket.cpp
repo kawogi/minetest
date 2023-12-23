@@ -30,14 +30,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "debug.h"
 #include "log.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#define LAST_SOCKET_ERR() WSAGetLastError()
-#define SOCKET_ERR_STR(e) itos(e)
-typedef int socklen_t;
-#else
 #include <cerrno>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -48,7 +40,6 @@ typedef int socklen_t;
 #include <arpa/inet.h>
 #define LAST_SOCKET_ERR() (errno)
 #define SOCKET_ERR_STR(e) strerror(e)
-#endif
 
 // Set to true to enable verbose debug output
 bool socket_enable_debug_output = false; // yuck
@@ -58,21 +49,11 @@ static bool g_sockets_initialized = false;
 // Initialize sockets
 void sockets_init()
 {
-#ifdef _WIN32
-	// Windows needs sockets to be initialized before use
-	WSADATA WsaData;
-	if (WSAStartup(MAKEWORD(2, 2), &WsaData) != NO_ERROR)
-		throw SocketException("WSAStartup failed");
-#endif
 	g_sockets_initialized = true;
 }
 
 void sockets_cleanup()
 {
-#ifdef _WIN32
-	// On Windows, cleanup sockets after use
-	WSACleanup();
-#endif
 }
 
 /*
@@ -131,11 +112,7 @@ UDPSocket::~UDPSocket()
 			<< std::endl;
 	}
 
-#ifdef _WIN32
-	closesocket(m_handle);
-#else
 	close(m_handle);
-#endif
 }
 
 void UDPSocket::Bind(Address addr)
@@ -342,11 +319,7 @@ bool UDPSocket::WaitData(int timeout_ms)
 		return false;
 
 	int e = LAST_SOCKET_ERR();
-#ifdef _WIN32
-	if (result < 0 && (e == WSAEINTR || e == WSAEBADF)) {
-#else
 	if (result < 0 && (e == EINTR || e == EBADF)) {
-#endif
 		// N.B. select() fails when sockets are destroyed on Connection's dtor
 		// with EBADF.  Instead of doing tricky synchronization, allow this
 		// thread to exit but don't throw an exception.

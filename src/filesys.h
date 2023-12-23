@@ -24,17 +24,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <vector>
 #include "exceptions.h"
 
-#ifdef _WIN32
-#define DIR_DELIM "\\"
-#define DIR_DELIM_CHAR '\\'
-#define FILESYS_CASE_INSENSITIVE true
-#define PATH_DELIM ";"
-#else
 #define DIR_DELIM "/"
 #define DIR_DELIM_CHAR '/'
 #define FILESYS_CASE_INSENSITIVE false
 #define PATH_DELIM ":"
-#endif
 
 namespace irr::io {
 class IFileSystem;

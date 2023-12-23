@@ -638,13 +638,8 @@ protected:
 						&write_fd_set, &exc_fd_set,
 						&select_tv);
 				if (retval == -1) {
-					#ifdef _WIN32
-					errorstream<<"select returned error code "
-						<<WSAGetLastError()<<std::endl;
-					#else
 					errorstream<<"select returned error code "
 						<<errno<<std::endl;
-					#endif
 				}
 			}
 			else {

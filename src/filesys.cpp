@@ -35,187 +35,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace fs
 {
 
-#ifdef _WIN32
-
-/***********
- * Windows *
- ***********/
-
-#include <windows.h>
-#include <shlwapi.h>
-#include <io.h>
-#include <direct.h>
-
-std::vector<DirListNode> GetDirListing(const std::string &pathstring)
-{
-	std::vector<DirListNode> listing;
-
-	WIN32_FIND_DATA FindFileData;
-	HANDLE hFind = INVALID_HANDLE_VALUE;
-	DWORD dwError;
-
-	std::string dirSpec = pathstring + "\\*";
-
-	// Find the first file in the directory.
-	hFind = FindFirstFile(dirSpec.c_str(), &FindFileData);
-
-	if (hFind == INVALID_HANDLE_VALUE) {
-		dwError = GetLastError();
-		if (dwError != ERROR_FILE_NOT_FOUND && dwError != ERROR_PATH_NOT_FOUND) {
-			errorstream << "GetDirListing: FindFirstFile error."
-					<< " Error is " << dwError << std::endl;
-		}
-	} else {
-		// NOTE:
-		// Be very sure to not include '..' in the results, it will
-		// result in an epic failure when deleting stuff.
-
-		DirListNode node;
-		node.name = FindFileData.cFileName;
-		node.dir = FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY;
-		if (node.name != "." && node.name != "..")
-			listing.push_back(node);
-
-		// List all the other files in the directory.
-		while (FindNextFile(hFind, &FindFileData) != 0) {
-			DirListNode node;
-			node.name = FindFileData.cFileName;
-			node.dir = FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY;
-			if(node.name != "." && node.name != "..")
-				listing.push_back(node);
-		}
-
-		dwError = GetLastError();
-		FindClose(hFind);
-		if (dwError != ERROR_NO_MORE_FILES) {
-			errorstream << "GetDirListing: FindNextFile error."
-					<< " Error is " << dwError << std::endl;
-			listing.clear();
-			return listing;
- 		}
-	}
-	return listing;
-}
-
-bool CreateDir(const std::string &path)
-{
-	bool r = CreateDirectory(path.c_str(), NULL);
-	if(r == true)
-		return true;
-	if(GetLastError() == ERROR_ALREADY_EXISTS)
-		return true;
-	return false;
-}
-
-bool PathExists(const std::string &path)
-{
-	return (GetFileAttributes(path.c_str()) != INVALID_FILE_ATTRIBUTES);
-}
-
-bool IsPathAbsolute(const std::string &path)
-{
-	return !PathIsRelative(path.c_str());
-}
-
-bool IsDir(const std::string &path)
-{
-	DWORD attr = GetFileAttributes(path.c_str());
-	return (attr != INVALID_FILE_ATTRIBUTES &&
-			(attr & FILE_ATTRIBUTE_DIRECTORY));
-}
-
-bool IsExecutable(const std::string &path)
-{
-	DWORD type;
-	return GetBinaryType(path.c_str(), &type) != 0;
-}
-
-bool IsDirDelimiter(char c)
-{
-	return c == '/' || c == '\\';
-}
-
-bool RecursiveDelete(const std::string &path)
-{
-	infostream << "Recursively deleting \"" << path << "\"" << std::endl;
-	if (!IsDir(path)) {
-		infostream << "RecursiveDelete: Deleting file  " << path << std::endl;
-		if (!DeleteFile(path.c_str())) {
-			errorstream << "RecursiveDelete: Failed to delete file "
-					<< path << std::endl;
-			return false;
-		}
-		return true;
-	}
-	infostream << "RecursiveDelete: Deleting content of directory "
-			<< path << std::endl;
-	std::vector<DirListNode> content = GetDirListing(path);
-	for (const DirListNode &n: content) {
-		std::string fullpath = path + DIR_DELIM + n.name;
-		if (!RecursiveDelete(fullpath)) {
-			errorstream << "RecursiveDelete: Failed to recurse to "
-					<< fullpath << std::endl;
-			return false;
-		}
-	}
-	infostream << "RecursiveDelete: Deleting directory " << path << std::endl;
-	if (!RemoveDirectory(path.c_str())) {
-		errorstream << "Failed to recursively delete directory "
-				<< path << std::endl;
-		return false;
-	}
-	return true;
-}
-
-bool DeleteSingleFileOrEmptyDirectory(const std::string &path)
-{
-	DWORD attr = GetFileAttributes(path.c_str());
-	bool is_directory = (attr != INVALID_FILE_ATTRIBUTES &&
-			(attr & FILE_ATTRIBUTE_DIRECTORY));
-	if(!is_directory)
-	{
-		bool did = DeleteFile(path.c_str());
-		return did;
-	}
-	else
-	{
-		bool did = RemoveDirectory(path.c_str());
-		return did;
-	}
-}
-
-std::string TempPath()
-{
-	DWORD bufsize = GetTempPath(0, NULL);
-	if(bufsize == 0){
-		errorstream<<"GetTempPath failed, error = "<<GetLastError()<<std::endl;
-		return "";
-	}
-	std::string buf;
-	buf.resize(bufsize);
-	DWORD len = GetTempPath(bufsize, &buf[0]);
-	if(len == 0 || len > bufsize){
-		errorstream<<"GetTempPath failed, error = "<<GetLastError()<<std::endl;
-		return "";
-	}
-	buf.resize(len);
-	return buf;
-}
-
-std::string CreateTempFile()
-{
-	std::string path = TempPath() + DIR_DELIM "MT_XXXXXX";
-	_mktemp_s(&path[0], path.size() + 1); // modifies path
-	HANDLE file = CreateFile(path.c_str(), GENERIC_WRITE, 0, nullptr,
-		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-	if (file == INVALID_HANDLE_VALUE)
-		return "";
-	CloseHandle(file);
-	return path;
-}
-
-#else
-
 /*********
  * POSIX *
  *********/
@@ -403,8 +222,6 @@ std::string CreateTempFile()
 	close(fd);
 	return path;
 }
-
-#endif
 
 /****************************
  * portable implementations *
@@ -722,11 +539,7 @@ std::string RemoveRelativePathComponents(std::string path)
 
 std::string AbsolutePath(const std::string &path)
 {
-#ifdef _WIN32
-	char *abs_path = _fullpath(NULL, path.c_str(), MAX_PATH);
-#else
 	char *abs_path = realpath(path.c_str(), NULL);
-#endif
 	if (!abs_path) return "";
 	std::string abs_path_str(abs_path);
 	free(abs_path);
@@ -752,19 +565,6 @@ bool safeWriteToFile(const std::string &path, const std::string &content)
 	// Write to a tmp file
 	bool tmp_success = false;
 
-#ifdef _WIN32
-	// We've observed behavior suggesting that the MSVC implementation of std::ofstream::flush doesn't
-	// actually flush, so we use win32 APIs.
-	HANDLE tmp_handle = CreateFile(
-		tmp_file.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-	if (tmp_handle == INVALID_HANDLE_VALUE) {
-		return false;
-	}
-	DWORD bytes_written;
-	tmp_success = (WriteFile(tmp_handle, content.c_str(), content.size(), &bytes_written, nullptr) &&
-					FlushFileBuffers(tmp_handle));
-	CloseHandle(tmp_handle);
-#else
 	std::ofstream os(tmp_file.c_str(), std::ios::binary);
 	if (!os.good()) {
 		return false;
@@ -773,7 +573,6 @@ bool safeWriteToFile(const std::string &path, const std::string &content)
 	os.flush();
 	os.close();
 	tmp_success = !os.fail();
-#endif
 
 	if (!tmp_success) {
 		remove(tmp_file.c_str());
@@ -783,23 +582,10 @@ bool safeWriteToFile(const std::string &path, const std::string &content)
 	bool rename_success = false;
 
 	// Move the finished temporary file over the real file
-#ifdef _WIN32
-	// When creating the file, it can cause Windows Search indexer, virus scanners and other apps
-	// to query the file. This can make the move file call below fail.
-	// We retry up to 5 times, with a 1ms sleep between, before we consider the whole operation failed
-	for (int attempt = 0; attempt < 5; attempt++) {
-		rename_success = MoveFileEx(tmp_file.c_str(), path.c_str(),
-				MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
-		if (rename_success)
-			break;
-		sleep_ms(1);
-	}
-#else
 	// On POSIX compliant systems rename() is specified to be able to swap the
 	// file in place of the destination file, making this a truly error-proof
 	// transaction.
 	rename_success = rename(tmp_file.c_str(), path.c_str()) == 0;
-#endif
 	if (!rename_success) {
 		warningstream << "Failed to write to file: " << path.c_str() << std::endl;
 		// Remove the temporary file because moving it over the target file

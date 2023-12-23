@@ -415,20 +415,7 @@ endif()
 if(WIN32)
 	set(WINRESOURCE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../misc/winresource.rc")
 	set(MINETEST_EXE_MANIFEST_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../misc/minetest.exe.manifest")
-	if(MINGW)
-		if(NOT CMAKE_RC_COMPILER)
-			set(CMAKE_RC_COMPILER "windres.exe")
-		endif()
-		ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/winresource_rc.o
-			COMMAND ${CMAKE_RC_COMPILER} -I${CMAKE_CURRENT_SOURCE_DIR} -I${CMAKE_CURRENT_BINARY_DIR}
-			-i${WINRESOURCE_FILE}
-			-o ${CMAKE_CURRENT_BINARY_DIR}/winresource_rc.o
-			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-			DEPENDS ${WINRESOURCE_FILE} ${MINETEST_EXE_MANIFEST_FILE})
-		SET(extra_windows_SRCS ${CMAKE_CURRENT_BINARY_DIR}/winresource_rc.o)
-	else(MINGW) # Probably MSVC
-		set(extra_windows_SRCS ${WINRESOURCE_FILE} ${MINETEST_EXE_MANIFEST_FILE})
-	endif(MINGW)
+	set(extra_windows_SRCS ${WINRESOURCE_FILE} ${MINETEST_EXE_MANIFEST_FILE})
 endif()
 
 
@@ -691,94 +678,50 @@ elseif(NOT MSVC)
 	endif()
 endif()
 
-if(MSVC)
-	# Visual Studio
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D _WIN32_WINNT=0x0601 /D WIN32_LEAN_AND_MEAN")
-	# EHa enables SEH exceptions (used for catching segfaults)
-	set(CMAKE_CXX_FLAGS_RELEASE "/EHa /Ox /MD /GS- /Zi /fp:fast /D NDEBUG /D _HAS_ITERATOR_DEBUGGING=0")
-	if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /arch:SSE")
-	endif()
 
-	set(CMAKE_EXE_LINKER_FLAGS_RELEASE "/INCREMENTAL:NO /DEBUG /OPT:REF /OPT:ICF /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-
-	set(CMAKE_CXX_FLAGS_SEMIDEBUG "/MDd /Zi /Ob0 /O1 /RTC1")
-
-	# Debug build doesn't catch exceptions by itself
-	# Add some optimizations because otherwise it's VERY slow
-	set(CMAKE_CXX_FLAGS_DEBUG "/MDd /Zi /Ob0 /Od /RTC1")
-
-	# Flags for C files (sqlite)
-	# /MD = dynamically link to MSVCRxxx.dll
-	set(CMAKE_C_FLAGS_RELEASE "/O2 /Ob2 /MD")
-
-	# Flags that cannot be shared between cl and clang-cl
-	# https://clang.llvm.org/docs/UsersManual.html#clang-cl
-	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=lld")
-
-		# Disable pragma-pack warning
-		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-pragma-pack")
-	else()
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /TP /FD /GL")
-		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /LTCG")
-	endif()
+# GCC or compatible compilers such as Clang
+set(WARNING_FLAGS "-Wall -Wextra")
+set(WARNING_FLAGS "${WARNING_FLAGS} -Wno-unused-parameter")
+if(WARN_ALL)
+	set(RELEASE_WARNING_FLAGS "${WARNING_FLAGS}")
 else()
-	# GCC or compatible compilers such as Clang
-	set(WARNING_FLAGS "-Wall -Wextra")
-	set(WARNING_FLAGS "${WARNING_FLAGS} -Wno-unused-parameter")
-	if(WARN_ALL)
-		set(RELEASE_WARNING_FLAGS "${WARNING_FLAGS}")
-	else()
-		set(RELEASE_WARNING_FLAGS "")
-	endif()
+	set(RELEASE_WARNING_FLAGS "")
+endif()
 
-	if(MINGW)
-		set(OTHER_FLAGS "${OTHER_FLAGS} -mthreads -fexceptions")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WIN32_WINNT=0x0601 -DWIN32_LEAN_AND_MEAN")
-	endif()
+# Use a safe subset of flags to speed up math calculations:
+# - we don't need errno or math exceptions
+# - we don't deal with signed zero
+set(MATH_FLAGS "-fno-math-errno -fno-trapping-math -fno-signed-zeros")
 
-	# Use a safe subset of flags to speed up math calculations:
-	# - we don't need errno or math exceptions
-	# - we don't deal with signed zero
-	set(MATH_FLAGS "-fno-math-errno -fno-trapping-math -fno-signed-zeros")
-
-	# Enable SSE for floating point math on 32-bit x86 by default
-	# reasoning see minetest issue #11810 and https://gcc.gnu.org/wiki/FloatingPointMath
-	if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-		check_c_source_compiles("#ifndef __i686__\n#error\n#endif\nint main(){}" IS_I686)
-		if(IS_I686)
-			message(STATUS "Detected Intel x86: using SSE instead of x87 FPU")
-			set(OTHER_FLAGS "${OTHER_FLAGS} -mfpmath=sse -msse")
-		endif()
-	endif()
-
-	set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG ${RELEASE_WARNING_FLAGS} ${OTHER_FLAGS} -pipe -funroll-loops -O3 -fomit-frame-pointer")
-	if(CMAKE_SYSTEM_NAME STREQUAL "Linux"
-			AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
-			AND CMAKE_CXX_COMPILER_VERSION MATCHES "^9\\.")
-		# Clang 9 has broken -ffast-math on glibc
-	else()
-		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MATH_FLAGS}")
-	endif()
-	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} -g")
-	set(CMAKE_CXX_FLAGS_SEMIDEBUG "-g -O1 ${WARNING_FLAGS} ${OTHER_FLAGS}")
-	set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 ${WARNING_FLAGS} ${OTHER_FLAGS}")
-
-	if(UNIX)
-		# enable assertions for libstdc++ or libc++
-		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wp,-D_GLIBCXX_ASSERTIONS -Wp,-D_LIBCPP_ENABLE_ASSERTIONS=1")
-	endif()
-	if(USE_GPROF)
-		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pg")
-	endif()
-
-	if(MINGW)
-		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -mwindows")
+# Enable SSE for floating point math on 32-bit x86 by default
+# reasoning see minetest issue #11810 and https://gcc.gnu.org/wiki/FloatingPointMath
+if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+	check_c_source_compiles("#ifndef __i686__\n#error\n#endif\nint main(){}" IS_I686)
+	if(IS_I686)
+		message(STATUS "Detected Intel x86: using SSE instead of x87 FPU")
+		set(OTHER_FLAGS "${OTHER_FLAGS} -mfpmath=sse -msse")
 	endif()
 endif()
 
+set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG ${RELEASE_WARNING_FLAGS} ${OTHER_FLAGS} -pipe -funroll-loops -O3 -fomit-frame-pointer")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux"
+		AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
+		AND CMAKE_CXX_COMPILER_VERSION MATCHES "^9\\.")
+	# Clang 9 has broken -ffast-math on glibc
+else()
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MATH_FLAGS}")
+endif()
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} -g")
+set(CMAKE_CXX_FLAGS_SEMIDEBUG "-g -O1 ${WARNING_FLAGS} ${OTHER_FLAGS}")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 ${WARNING_FLAGS} ${OTHER_FLAGS}")
+
+if(UNIX)
+	# enable assertions for libstdc++ or libc++
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wp,-D_GLIBCXX_ASSERTIONS -Wp,-D_LIBCPP_ENABLE_ASSERTIONS=1")
+endif()
+if(USE_GPROF)
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pg")
+endif()
 
 # Installation
 

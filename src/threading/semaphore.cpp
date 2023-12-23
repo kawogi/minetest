@@ -25,79 +25,48 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #define UNUSED(expr) do { (void)(expr); } while (0)
 
-#ifdef _WIN32
-	#include <climits>
-	#define MAX_SEMAPHORE_COUNT LONG_MAX - 1
-#else
-	#include <cerrno>
-	#include <sys/time.h>
-	#include <pthread.h>
-#endif
+#include <cerrno>
+#include <sys/time.h>
+#include <pthread.h>
 
 
 Semaphore::Semaphore(int val)
 {
-#ifdef _WIN32
-	semaphore = CreateSemaphore(NULL, val, MAX_SEMAPHORE_COUNT, NULL);
-#else
 	int ret = sem_init(&semaphore, 0, val);
 	assert(!ret);
 	UNUSED(ret);
-#endif
 }
 
 
 Semaphore::~Semaphore()
 {
-#ifdef _WIN32
-	CloseHandle(semaphore);
-#else
 	int ret = sem_destroy(&semaphore);
 	assert(!ret);
 	UNUSED(ret);
-#endif
 }
 
 
 void Semaphore::post(unsigned int num)
 {
 	assert(num > 0);
-#ifdef _WIN32
-	ReleaseSemaphore(semaphore, num, NULL);
-#else
 	for (unsigned i = 0; i < num; i++) {
 		int ret = sem_post(&semaphore);
 		assert(!ret);
 		UNUSED(ret);
 	}
-#endif
 }
 
 
 void Semaphore::wait()
 {
-#ifdef _WIN32
-	WaitForSingleObject(semaphore, INFINITE);
-#else
 	int ret = sem_wait(&semaphore);
 	assert(!ret);
 	UNUSED(ret);
-#endif
 }
 
 
 bool Semaphore::wait(unsigned int time_ms)
 {
-#ifdef _WIN32
-	unsigned int ret = WaitForSingleObject(semaphore, time_ms);
-
-	if (ret == WAIT_OBJECT_0) {
-		return true;
-	} else {
-		assert(ret == WAIT_TIMEOUT);
-		return false;
-	}
-#else
 	int ret;
 	if (time_ms > 0) {
 		struct timespec wait_time;
@@ -119,6 +88,5 @@ bool Semaphore::wait(unsigned int time_ms)
 
 	assert(!ret || (errno == ETIMEDOUT || errno == EINTR || errno == EAGAIN));
 	return !ret;
-#endif
 }
 

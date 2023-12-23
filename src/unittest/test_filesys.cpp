@@ -68,11 +68,6 @@ std::string p(std::string path)
 		}
 	}
 
-	#ifdef _WIN32
-	if (path[0] == '\\')
-		path = "C:" + path;
-	#endif
-
 	return path;
 }
 
@@ -82,11 +77,7 @@ void TestFileSys::testIsDirDelimiter()
 	UASSERT(fs::IsDirDelimiter('/') == true);
 	UASSERT(fs::IsDirDelimiter('A') == false);
 	UASSERT(fs::IsDirDelimiter(0) == false);
-#ifdef _WIN32
-	UASSERT(fs::IsDirDelimiter('\\') == true);
-#else
 	UASSERT(fs::IsDirDelimiter('\\') == false);
-#endif
 }
 
 
@@ -144,21 +135,12 @@ void TestFileSys::testPathStartsWith()
 		else if(expected == 1){
 			UASSERT(starts == true);
 		}
-		#ifdef _WIN32
-		else if(expected == 2){
-			UASSERT(starts == false);
-		}
-		else if(expected == 3){
-			UASSERT(starts == true);
-		}
-		#else
 		else if(expected == 2){
 			UASSERT(starts == true);
 		}
 		else if(expected == 3){
 			UASSERT(starts == false);
 		}
-		#endif
 		else if(expected == 4){
 			UASSERT(starts == (bool)FILESYS_CASE_INSENSITIVE);
 		}
@@ -194,11 +176,7 @@ void TestFileSys::testRemoveLastPathComponent()
 	UASSERT(result == p("/home"));
 	UASSERT(removed == p("user/minetest/bin/../worlds/world1"));
 	result = fs::RemoveLastPathComponent(path, &removed, 7);
-#ifdef _WIN32
-	UASSERT(result == "C:");
-#else
 	UASSERT(result == "");
-#endif
 	UASSERT(removed == p("home/user/minetest/bin/../worlds/world1"));
 }
 
@@ -230,11 +208,7 @@ void TestFileSys::testRemoveLastPathComponentWithTrailingDelimiter()
 	UASSERT(result == p("/home"));
 	UASSERT(removed == p("user/minetest/bin/../worlds/world1"));
 	result = fs::RemoveLastPathComponent(path, &removed, 7);
-#ifdef _WIN32
-	UASSERT(result == "C:");
-#else
 	UASSERT(result == "");
-#endif
 	UASSERT(removed == p("home/user/minetest/bin/../worlds/world1"));
 }
 

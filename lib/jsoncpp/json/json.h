@@ -261,38 +261,18 @@ bool operator!=(const SecureAllocator<T>&, const SecureAllocator<U>&) {
 
 // Export macros for DLL visibility
 #if defined(JSON_DLL_BUILD)
-#if defined(_MSC_VER) || defined(__MINGW32__)
-#define JSON_API __declspec(dllexport)
-#define JSONCPP_DISABLE_DLL_INTERFACE_WARNING
-#elif defined(__GNUC__) || defined(__clang__)
+#if defined(__GNUC__) || defined(__clang__)
 #define JSON_API __attribute__((visibility("default")))
-#endif // if defined(_MSC_VER)
+#endif
 
 #elif defined(JSON_DLL)
-#if defined(_MSC_VER) || defined(__MINGW32__)
-#define JSON_API __declspec(dllimport)
-#define JSONCPP_DISABLE_DLL_INTERFACE_WARNING
-#endif // if defined(_MSC_VER)
 #endif // ifdef JSON_DLL_BUILD
 
 #if !defined(JSON_API)
 #define JSON_API
 #endif
 
-#if defined(_MSC_VER) && _MSC_VER < 1800
-#error                                                                         \
-    "ERROR:  Visual Studio 12 (2013) with _MSC_VER=1800 is the oldest supported compiler with sufficient C++11 capabilities"
-#endif
-
-#if defined(_MSC_VER) && _MSC_VER < 1900
-// As recommended at
-// https://stackoverflow.com/questions/2915672/snprintf-and-visual-studio-2010
-extern JSON_API int msvc_pre1900_c99_snprintf(char* outBuf, size_t size,
-                                              const char* format, ...);
-#define jsoncpp_snprintf msvc_pre1900_c99_snprintf
-#else
 #define jsoncpp_snprintf std::snprintf
-#endif
 
 // If JSON_NO_INT64 is defined, then Json only support C++ "int" type for
 // integer
@@ -313,10 +293,7 @@ extern JSON_API int msvc_pre1900_c99_snprintf(char* outBuf, size_t size,
 #elif (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
 #define JSONCPP_DEPRECATED(message) __attribute__((__deprecated__))
 #endif                  // GNUC version
-#elif defined(_MSC_VER) // MSVC (after clang because clang on Windows emulates
-                        // MSVC)
-#define JSONCPP_DEPRECATED(message) __declspec(deprecated(message))
-#endif // __clang__ || __GNUC__ || _MSC_VER
+#endif // __clang__ || __GNUC__
 
 #if !defined(JSONCPP_DEPRECATED)
 #define JSONCPP_DEPRECATED(message)
@@ -342,13 +319,8 @@ using LargestUInt = unsigned int;
 #undef JSON_HAS_INT64
 #else                 // if defined(JSON_NO_INT64)
 // For Microsoft Visual use specific types as long long is not supported
-#if defined(_MSC_VER) // Microsoft Visual Studio
-using Int64 = __int64;
-using UInt64 = unsigned __int64;
-#else                 // if defined(_MSC_VER) // Other platforms, use long long
 using Int64 = int64_t;
 using UInt64 = uint64_t;
-#endif                // if defined(_MSC_VER)
 using LargestInt = Int64;
 using LargestUInt = UInt64;
 #define JSON_HAS_INT64
@@ -539,11 +511,7 @@ public:
 // a) suppress false positives from static code analysis
 // b) possibly improve optimization opportunities.
 #if !defined(JSONCPP_NORETURN)
-#if defined(_MSC_VER) && _MSC_VER == 1800
-#define JSONCPP_NORETURN __declspec(noreturn)
-#else
 #define JSONCPP_NORETURN [[noreturn]]
-#endif
 #endif
 
 // Support for '= delete' with template declarations was a late addition
@@ -1900,13 +1868,6 @@ JSON_API IStream& operator>>(IStream&, Value&);
 #include <string>
 #include <vector>
 
-// Disable warning C4251: <data member>: <type> needs to have dll-interface to
-// be used by...
-#if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING) && defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#endif // if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
-
 #pragma pack(push, 8)
 
 namespace Json {
@@ -2048,10 +2009,6 @@ public:
  * \sa Reader, Value
  * \deprecated Use StreamWriterBuilder.
  */
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4996) // Deriving from deprecated class
-#endif
 class JSONCPP_DEPRECATED("Use StreamWriterBuilder instead") JSON_API FastWriter
     : public Writer {
 public:
@@ -2080,9 +2037,6 @@ private:
   bool dropNullPlaceholders_{false};
   bool omitEndingLineFeed_{false};
 };
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
 
 /** \brief Writes a Value in <a HREF="http://www.json.org">JSON</a> format in a
  *human friendly way.
@@ -2108,10 +2062,6 @@ private:
  * \sa Reader, Value, Value::setComment()
  * \deprecated Use StreamWriterBuilder.
  */
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4996) // Deriving from deprecated class
-#endif
 class JSONCPP_DEPRECATED("Use StreamWriterBuilder instead") JSON_API
     StyledWriter : public Writer {
 public:
@@ -2148,9 +2098,6 @@ private:
   unsigned int indentSize_{3};
   bool addChildValues_{false};
 };
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
 
 /** \brief Writes a Value in <a HREF="http://www.json.org">JSON</a> format in a
  human friendly way,
@@ -2177,10 +2124,6 @@ private:
  * \sa Reader, Value, Value::setComment()
  * \deprecated Use StreamWriterBuilder.
  */
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4996) // Deriving from deprecated class
-#endif
 class JSONCPP_DEPRECATED("Use StreamWriterBuilder instead") JSON_API
     StyledStreamWriter {
 public:
@@ -2223,9 +2166,6 @@ private:
   bool addChildValues_ : 1;
   bool indented_ : 1;
 };
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
 
 #if defined(JSON_HAS_INT64)
 String JSON_API valueToString(Int value);

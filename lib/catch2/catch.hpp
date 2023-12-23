@@ -69,10 +69,6 @@
 #if defined(linux) || defined(__linux) || defined(__linux__)
 #  define CATCH_PLATFORM_LINUX
 
-#elif defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || defined(_MSC_VER) || defined(__MINGW32__)
-#  define CATCH_PLATFORM_WINDOWS
-#endif
-
 // end catch_platform.h
 
 #ifdef CATCH_IMPL
@@ -180,36 +176,10 @@ namespace Catch {
 
 ////////////////////////////////////////////////////////////////////////////////
 // Visual C++
-#if defined(_MSC_VER)
-
-// Universal Windows platform does not support SEH
-// Or console colours (or console at all...)
-#  if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
-#    define CATCH_CONFIG_COLOUR_NONE
-#  else
-#    define CATCH_INTERNAL_CONFIG_WINDOWS_SEH
-#  endif
-
-#  if !defined(__clang__) // Handle Clang masquerading for msvc
-
-// MSVC traditional preprocessor needs some workaround for __VA_ARGS__
-// _MSVC_TRADITIONAL == 0 means new conformant preprocessor
-// _MSVC_TRADITIONAL == 1 means old traditional non-conformant preprocessor
-#    if !defined(_MSVC_TRADITIONAL) || (defined(_MSVC_TRADITIONAL) && _MSVC_TRADITIONAL)
-#      define CATCH_INTERNAL_CONFIG_TRADITIONAL_MSVC_PREPROCESSOR
-#    endif // MSVC_TRADITIONAL
-
-// Only do this if we're not using clang on Windows, which uses `diagnostic push` & `diagnostic pop`
-#    define CATCH_INTERNAL_START_WARNINGS_SUPPRESSION __pragma( warning(push) )
-#    define CATCH_INTERNAL_STOP_WARNINGS_SUPPRESSION  __pragma( warning(pop) )
-#  endif // __clang__
-
-#endif // _MSC_VER
-
-#if defined(_REENTRANT) || defined(_MSC_VER)
+#if defined(_REENTRANT)
 // Enable async processing, as -pthread is specified or no additional linking is required
 # define CATCH_INTERNAL_CONFIG_USE_ASYNC
-#endif // _MSC_VER
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // Check if we are compiled with -fno-exceptions or equivalent
@@ -1479,11 +1449,6 @@ inline id performOptionalSelector( id obj, SEL sel ) {
 // end catch_objc_arc.hpp
 #endif
 
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4180) // We attempt to stream a function (address) by const&, which MSVC complains about but is harmless
-#endif
-
 namespace Catch {
     namespace Detail {
 
@@ -2083,22 +2048,13 @@ struct ratio_string<std::milli> {
         static std::string convert(std::chrono::time_point<std::chrono::system_clock, Duration> const& time_point) {
             auto converted = std::chrono::system_clock::to_time_t(time_point);
 
-#ifdef _MSC_VER
-            std::tm timeInfo = {};
-            gmtime_s(&timeInfo, &converted);
-#else
             std::tm* timeInfo = std::gmtime(&converted);
-#endif
 
             auto const timeStampSize = sizeof("2017-01-16T17:06:45Z");
             char timeStamp[timeStampSize];
             const char * const fmt = "%Y-%m-%dT%H:%M:%SZ";
 
-#ifdef _MSC_VER
-            std::strftime(timeStamp, timeStampSize, fmt, &timeInfo);
-#else
             std::strftime(timeStamp, timeStampSize, fmt, timeInfo);
-#endif
             return std::string(timeStamp);
         }
     };
@@ -2117,21 +2073,8 @@ namespace Catch { \
 
 #define CATCH_REGISTER_ENUM( enumName, ... ) INTERNAL_CATCH_REGISTER_ENUM( enumName, __VA_ARGS__ )
 
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
 // end catch_tostring.h
 #include <iosfwd>
-
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4389) // '==' : signed/unsigned mismatch
-#pragma warning(disable:4018) // more "signed/unsigned mismatch"
-#pragma warning(disable:4312) // Converting int to T* using reinterpret_cast (issue on x64 platform)
-#pragma warning(disable:4180) // qualifier applied to function type has no meaning
-#pragma warning(disable:4800) // Forcing result to true or false
-#endif
 
 namespace Catch {
 
@@ -2359,10 +2302,6 @@ namespace Catch {
     };
 
 } // end namespace Catch
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
 
 // end catch_decomposer.h
 // start catch_interfaces_capture.h
@@ -6076,13 +6015,6 @@ namespace Catch {
 // end catch_reporter_compact.h
 // start catch_reporter_console.h
 
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable:4061) // Not all labels are EXPLICITLY handled in switch
-                              // Note that 4062 (not all labels are handled
-                              // and default is missing) is enabled
-#endif
-
 namespace Catch {
     // Fwd decls
     struct SummaryColumn;
@@ -6145,10 +6077,6 @@ namespace Catch {
     };
 
 } // end namespace Catch
-
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
 
 // end catch_reporter_console.h
 // start catch_reporter_junit.h
@@ -6418,10 +6346,6 @@ namespace Catch {
  // Hinting the optimizer
 
 
-#if defined(_MSC_VER)
-#   include <atomic> // atomic_thread_fence
-#endif
-
 namespace Catch {
     namespace Benchmark {
 #if defined(__GNUC__) || defined(__clang__)
@@ -6436,23 +6360,6 @@ namespace Catch {
         namespace Detail {
             inline void optimizer_barrier() { keep_memory(); }
         } // namespace Detail
-#elif defined(_MSC_VER)
-
-#pragma optimize("", off)
-        template <typename T>
-        inline void keep_memory(T* p) {
-            // thanks @milleniumbug
-            *reinterpret_cast<char volatile*>(p) = *reinterpret_cast<char const volatile*>(p);
-        }
-        // TODO equivalent keep_memory()
-#pragma optimize("", on)
-
-        namespace Detail {
-            inline void optimizer_barrier() {
-                std::atomic_thread_fence(std::memory_order_seq_cst);
-            }
-        } // namespace Detail
-
 #endif
 
         template <typename T>
@@ -7912,11 +7819,6 @@ namespace Catch {
 
         #define CATCH_TRAP() raise(SIGTRAP)
     #endif
-#elif defined(_MSC_VER)
-    #define CATCH_TRAP() __debugbreak()
-#elif defined(__MINGW32__)
-    extern "C" __declspec(dllimport) void __stdcall DebugBreak();
-    #define CATCH_TRAP() DebugBreak()
 #endif
 
 #ifndef CATCH_BREAK_INTO_DEBUGGER
@@ -8732,10 +8634,6 @@ inline auto Column::operator + (Column const& other) -> Columns {
 #include <memory>
 #include <set>
 #include <algorithm>
-
-#if !defined(CATCH_PLATFORM_WINDOWS) && ( defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || defined(_MSC_VER) )
-#define CATCH_PLATFORM_WINDOWS
-#endif
 
 namespace Catch { namespace clara {
 namespace detail {
@@ -10368,20 +10266,6 @@ namespace Catch {
             return false;
         }
     } // namespace Catch
-#elif defined(_MSC_VER)
-    extern "C" __declspec(dllimport) int __stdcall IsDebuggerPresent();
-    namespace Catch {
-        bool isDebuggerActive() {
-            return IsDebuggerPresent() != 0;
-        }
-    }
-#elif defined(__MINGW32__)
-    extern "C" __declspec(dllimport) int __stdcall IsDebuggerPresent();
-    namespace Catch {
-        bool isDebuggerActive() {
-            return IsDebuggerPresent() != 0;
-        }
-    }
 #else
     namespace Catch {
        bool isDebuggerActive() { return false; }
@@ -11901,8 +11785,6 @@ namespace Catch {
 
     private:
         std::FILE* m_file = nullptr;
-    #if defined(_MSC_VER)
-        char m_buffer[L_tmpnam] = { 0 };
     #endif
     };
 
@@ -11938,14 +11820,7 @@ namespace Catch {
 #include <stdexcept>
 
 #if defined(CATCH_CONFIG_NEW_CAPTURE)
-    #if defined(_MSC_VER)
-    #include <io.h>      //_dup and _dup2
-    #define dup _dup
-    #define dup2 _dup2
-    #define fileno _fileno
-    #else
     #include <unistd.h>  // dup and dup2
-    #endif
 #endif
 
 namespace Catch {
@@ -11983,20 +11858,6 @@ namespace Catch {
 
 #if defined(CATCH_CONFIG_NEW_CAPTURE)
 
-#if defined(_MSC_VER)
-    TempFile::TempFile() {
-        if (tmpnam_s(m_buffer)) {
-            CATCH_RUNTIME_ERROR("Could not get a temp filename");
-        }
-        if (fopen_s(&m_file, m_buffer, "w+")) {
-            char buffer[100];
-            if (strerror_s(buffer, errno)) {
-                CATCH_RUNTIME_ERROR("Could not translate errno to a string");
-            }
-            CATCH_RUNTIME_ERROR("Could not open the temp file: '" << m_buffer << "' because: " << buffer);
-        }
-    }
-#else
     TempFile::TempFile() {
         m_file = std::tmpfile();
         if (!m_file) {
@@ -12004,16 +11865,12 @@ namespace Catch {
         }
     }
 
-#endif
-
     TempFile::~TempFile() {
          // TBD: What to do about errors here?
          std::fclose(m_file);
          // We manually create the file on Windows only, on Linux
          // it will be autodeleted
-#if defined(_MSC_VER)
          std::remove(m_buffer);
-#endif
     }
 
     FILE* TempFile::getFile() {
@@ -12060,11 +11917,6 @@ namespace Catch {
 } // namespace Catch
 
 #if defined(CATCH_CONFIG_NEW_CAPTURE)
-    #if defined(_MSC_VER)
-    #undef dup
-    #undef dup2
-    #undef fileno
-    #endif
 #endif
 // end catch_output_redirect.cpp
 // start catch_polyfills.cpp
@@ -12098,20 +11950,12 @@ namespace Catch {
 
 namespace {
 
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable:4146) // we negate uint32 during the rotate
-#endif
         // Safe rotr implementation thanks to John Regehr
         uint32_t rotate_right(uint32_t val, uint32_t count) {
             const uint32_t mask = 31;
             count &= mask;
             return (val >> count) | (val << (-count & mask));
         }
-
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
 
 }
 
@@ -13106,9 +12950,6 @@ namespace Catch {
         void libIdentify();
 
         int applyCommandLine( int argc, char const * const * argv );
-    #if defined(CATCH_CONFIG_WCHAR) && defined(_WIN32) && defined(UNICODE)
-        int applyCommandLine( int argc, wchar_t const * const * argv );
-    #endif
 
         void useConfigData( ConfigData const& configData );
 
@@ -13365,30 +13206,6 @@ namespace Catch {
         m_config.reset();
         return 0;
     }
-
-#if defined(CATCH_CONFIG_WCHAR) && defined(_WIN32) && defined(UNICODE)
-    int Session::applyCommandLine( int argc, wchar_t const * const * argv ) {
-
-        char **utf8Argv = new char *[ argc ];
-
-        for ( int i = 0; i < argc; ++i ) {
-            int bufSize = WideCharToMultiByte( CP_UTF8, 0, argv[i], -1, nullptr, 0, nullptr, nullptr );
-
-            utf8Argv[ i ] = new char[ bufSize ];
-
-            WideCharToMultiByte( CP_UTF8, 0, argv[i], -1, utf8Argv[i], bufSize, nullptr, nullptr );
-        }
-
-        int returnCode = applyCommandLine( argc, utf8Argv );
-
-        for ( int i = 0; i < argc; ++i )
-            delete [] utf8Argv[ i ];
-
-        delete [] utf8Argv;
-
-        return returnCode;
-    }
-#endif
 
     void Session::useConfigData( ConfigData const& configData ) {
         m_configData = configData;
@@ -15205,12 +15022,6 @@ namespace Catch {
 #ifndef CATCH_CONFIG_UNCAUGHT_EXCEPTIONS_HPP
 #define CATCH_CONFIG_UNCAUGHT_EXCEPTIONS_HPP
 
-#if defined(_MSC_VER)
-#  if _MSC_VER >= 1900 // Visual Studio 2015 or newer
-#    define CATCH_INTERNAL_CONFIG_CPP17_UNCAUGHT_EXCEPTIONS
-#  endif
-#endif
-
 #include <exception>
 
 #if defined(__cpp_lib_uncaught_exceptions) \
@@ -15668,11 +15479,7 @@ namespace Catch {
 
         // Save previous errno, to prevent sprintf from overwriting it
         ErrnoGuard guard;
-#ifdef _MSC_VER
-        sprintf_s(buffer, "%.3f", duration);
-#else
         std::sprintf(buffer, "%.3f", duration);
-#endif
         return std::string(buffer);
     }
 
@@ -16001,12 +15808,6 @@ private:
 
 #include <cfloat>
 #include <cstdio>
-
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable:4061) // Not all labels are EXPLICITLY handled in switch
- // Note that 4062 (not all labels are handled and default is missing) is enabled
-#endif
 
 #if defined(__clang__)
 #  pragma clang diagnostic push
@@ -16673,10 +16474,6 @@ CATCH_REGISTER_REPORTER("console", ConsoleReporter)
 
 } // end namespace Catch
 
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
-
 #if defined(__clang__)
 #  pragma clang diagnostic pop
 #endif
@@ -16699,22 +16496,13 @@ namespace Catch {
             std::time(&rawtime);
             auto const timeStampSize = sizeof("2017-01-16T17:06:45Z");
 
-#ifdef _MSC_VER
-            std::tm timeInfo = {};
-            gmtime_s(&timeInfo, &rawtime);
-#else
             std::tm* timeInfo;
             timeInfo = std::gmtime(&rawtime);
-#endif
 
             char timeStamp[timeStampSize];
             const char * const fmt = "%Y-%m-%dT%H:%M:%SZ";
 
-#ifdef _MSC_VER
-            std::strftime(timeStamp, timeStampSize, fmt, &timeInfo);
-#else
             std::strftime(timeStamp, timeStampSize, fmt, timeInfo);
-#endif
             return std::string(timeStamp, timeStampSize-1);
         }
 
@@ -17124,13 +16912,6 @@ namespace Catch {
 // end catch_reporter_listening.cpp
 // start catch_reporter_xml.cpp
 
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable:4061) // Not all labels are EXPLICITLY handled in switch
-                              // Note that 4062 (not all labels are handled
-                              // and default is missing) is enabled
-#endif
-
 namespace Catch {
     XmlReporter::XmlReporter( ReporterConfig const& _config )
     :   StreamingReporterBase( _config ),
@@ -17388,9 +17169,6 @@ namespace Catch {
 
 } // end namespace Catch
 
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
 // end catch_reporter_xml.cpp
 
 namespace Catch {

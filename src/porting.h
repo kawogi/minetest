@@ -32,41 +32,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "constants.h"
 #include "gettime.h"
 
-#ifdef _MSC_VER
-	#define SWPRINTF_CHARSTRING L"%S"
-#else
-	#define SWPRINTF_CHARSTRING L"%s"
+#define SWPRINTF_CHARSTRING L"%s"
+
+#include <unistd.h>
+
+#if (defined(__linux__) || defined(__GNU__)) && !defined(_GNU_SOURCE)
+	#define _GNU_SOURCE
 #endif
 
-#ifdef _WIN32
-	#include <windows.h>
-
-	#define sleep_ms(x) Sleep(x)
-	#define sleep_us(x) Sleep((x)/1000)
-#else
-	#include <unistd.h>
-
-	#if (defined(__linux__) || defined(__GNU__)) && !defined(_GNU_SOURCE)
-		#define _GNU_SOURCE
-	#endif
-
-	#define sleep_ms(x) usleep((x)*1000)
-	#define sleep_us(x) usleep(x)
-#endif
-
-#ifdef _MSC_VER
-	#define strtok_r(x, y, z) strtok_s(x, y, z)
-	#define strtof(x, y) (float)strtod(x, y)
-	#define strtoll(x, y, z) _strtoi64(x, y, z)
-	#define strtoull(x, y, z) _strtoui64(x, y, z)
-	#define strcasecmp(x, y) stricmp(x, y)
-	#define strncasecmp(x, y, n) strnicmp(x, y, n)
-#endif
-
-#ifdef __MINGW32__
-	// was broken in 2013, unclear if still needed
-	#define strtok_r(x, y, z) mystrtok_r(x, y, z)
-#endif
+#define sleep_ms(x) usleep((x)*1000)
+#define sleep_us(x) usleep(x)
 
 // strlcpy is missing from glibc.  thanks a lot, drepper.
 // strlcpy is also missing from AIX and HP-UX because they aim to be weird.
@@ -85,10 +60,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	#define strlcpy(d, s, n) mystrlcpy(d, s, n)
 #endif
 
-#ifndef _WIN32 // POSIX
-	#include <sys/time.h>
-	#include <ctime>
-#endif
+#include <sys/time.h>
+#include <ctime>
 
 namespace porting
 {
@@ -155,26 +128,6 @@ std::string get_sysinfo();
 
 
 // Monotonic timer
-
-#ifdef _WIN32 // Windows
-
-extern double perf_freq;
-
-inline u64 os_get_time(double mult)
-{
-	LARGE_INTEGER t;
-	QueryPerformanceCounter(&t);
-	return static_cast<double>(t.QuadPart) / (perf_freq / mult);
-}
-
-// Resolution is <1us.
-inline u64 getTimeS() { return os_get_time(1); }
-inline u64 getTimeMs() { return os_get_time(1000); }
-inline u64 getTimeUs() { return os_get_time(1000*1000); }
-inline u64 getTimeNs() { return os_get_time(1000*1000*1000); }
-
-#else // POSIX
-
 inline void os_get_clock(struct timespec *ts)
 {
 #if defined(CLOCK_MONOTONIC_RAW)
@@ -221,7 +174,6 @@ inline u64 getTimeNs()
 	return ((u64) ts.tv_sec) * 1000000000LL + ((u64) ts.tv_nsec);
 }
 
-#endif
 
 inline u64 getTime(TimePrecision prec)
 {
@@ -254,8 +206,6 @@ inline const char *getPlatformName()
 	return
 #if defined(__linux__)
 	"Linux"
-#elif defined(_WIN32) || defined(_WIN64)
-	"Windows"
 #elif defined(__DragonFly__) || defined(__FreeBSD__) || \
 		defined(__NetBSD__) || defined(__OpenBSD__)
 	"BSD"
@@ -289,11 +239,6 @@ bool secure_rand_fill_buf(void *buf, size_t len);
 
 // This attaches to the parents process console, or creates a new one if it doesnt exist.
 void attachOrCreateConsole();
-
-#ifdef _WIN32
-// Quotes an argument for use in a CreateProcess() commandline (not cmd.exe!!)
-std::string QuoteArgv(const std::string &arg);
-#endif
 
 int mt_snprintf(char *buf, const size_t buf_size, const char *fmt, ...);
 

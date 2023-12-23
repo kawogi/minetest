@@ -64,14 +64,6 @@ extern "C" {
 #error Minetest cannot be built without exceptions or RTTI
 #endif
 
-#if defined(__MINGW32__) && !defined(__MINGW64__) && !defined(__clang__) && \
-	(__GNUC__ < 11 || (__GNUC__ == 11 && __GNUC_MINOR__ < 1))
-// see e.g. https://github.com/minetest/minetest/issues/10137
-#warning ==================================
-#warning 32-bit MinGW gcc before 11.1 has known issues with crashes on thread exit, you should upgrade.
-#warning ==================================
-#endif
-
 #define DEBUGFILE "debug.txt"
 #define DEFAULT_SERVER_PORT 30000
 
@@ -275,12 +267,10 @@ int main(int argc, char *argv[])
 
 static void get_env_opts(Settings &args)
 {
-#if !defined(_WIN32)
 	const char *mt_logcolor = std::getenv(ENV_MT_LOGCOLOR);
 	if (mt_logcolor) {
 		args.set("color", mt_logcolor);
 	}
-#endif
 
 	// CLICOLOR is a de-facto standard option for colors <https://bixense.com/clicolors/>
 	// CLICOLOR != 0: ANSI colors are supported (auto-detection, this is the default)
@@ -547,11 +537,7 @@ namespace {
 		return "";
 	}
 
-#ifdef _WIN32
-	const char *debuggerNames[] = {"gdb.exe", "lldb.exe"};
-#else
 	[[maybe_unused]] const char *debuggerNames[] = {"gdb", "lldb"};
-#endif
 
 	template <class T>
 	void getDebuggerArgs(T &out, int i) {
@@ -568,13 +554,6 @@ namespace {
 
 static bool use_debugger(int argc, char *argv[])
 {
-#ifdef _WIN32
-	if (IsDebuggerPresent()) {
-		warningstream << "Process is already being debugged." << std::endl;
-		return false;
-	}
-#endif
-
 	char exec_path[1024];
 	if (!porting::getCurrentExecPath(exec_path, sizeof(exec_path)))
 		return false;
@@ -614,35 +593,10 @@ static bool use_debugger(int argc, char *argv[])
 	}
 	new_args.push_back(nullptr);
 
-#ifdef _WIN32
-	// Special treatment for Windows
-	std::string cmdline;
-	for (int i = 1; new_args[i]; i++) {
-		if (i > 1)
-			cmdline += ' ';
-		cmdline += porting::QuoteArgv(new_args[i]);
-	}
-
-	STARTUPINFO startup_info = {};
-	PROCESS_INFORMATION process_info = {};
-	bool ok = CreateProcess(new_args[0], cmdline.empty() ? nullptr : &cmdline[0],
-		nullptr, nullptr, false, CREATE_UNICODE_ENVIRONMENT,
-		nullptr, nullptr, &startup_info, &process_info);
-	if (!ok) {
-		warningstream << "CreateProcess: " << GetLastError() << std::endl;
-		return false;
-	}
-	DWORD exitcode = 0;
-	WaitForSingleObject(process_info.hProcess, INFINITE);
-	GetExitCodeProcess(process_info.hProcess, &exitcode);
-	exit(exitcode);
-	// not reached
-#else
 	errno = 0;
 	execv(new_args[0], const_cast<char**>(new_args.data()));
 	warningstream << "execv: " << strerror(errno) << std::endl;
 	return false;
-#endif
 }
 
 static bool init_common(const Settings &cmd_args, int argc, char *argv[])

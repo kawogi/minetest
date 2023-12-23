@@ -25,11 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "gettime.h"
 #include "log.h"
 
-#ifdef _MSC_VER
-	#define FUNCTION_NAME __FUNCTION__
-#else
-	#define FUNCTION_NAME __PRETTY_FUNCTION__
-#endif
+#define FUNCTION_NAME __PRETTY_FUNCTION__
 
 // Whether to catch all std::exceptions.
 // When "catching", the program will abort with an error message.

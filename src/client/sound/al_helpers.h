@@ -28,15 +28,9 @@ with this program; ifnot, write to the Free Software Foundation, Inc.,
 #include "util/basic_macros.h"
 #include "irr_v3d.h"
 
-#if defined(_WIN32)
-	#include <al.h>
-	#include <alc.h>
-	//#include <alext.h>
-#else
-	#include <AL/al.h>
-	#include <AL/alc.h>
-	#include <AL/alext.h>
-#endif
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/alext.h>
 
 #include <utility>
 

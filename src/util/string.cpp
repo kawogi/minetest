@@ -33,13 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <iomanip>
 #include <unordered_map>
 
-#ifndef _WIN32
-	#include <iconv.h>
-#else
-	#include <windows.h>
-#endif
-
-#ifndef _WIN32
+#include <iconv.h>
 
 static bool convert(const char *to, const char *from, char *outbuf,
 		size_t *outbuf_size, char *inbuf, size_t inbuf_size)
@@ -125,35 +119,6 @@ std::string wide_to_utf8(const std::wstring &input)
 	out.resize(outbuf_size);
 	return out;
 }
-
-#else // _WIN32
-
-std::wstring utf8_to_wide(const std::string &input)
-{
-	size_t outbuf_size = input.size() + 1;
-	wchar_t *outbuf = new wchar_t[outbuf_size];
-	memset(outbuf, 0, outbuf_size * sizeof(wchar_t));
-	MultiByteToWideChar(CP_UTF8, 0, input.c_str(), input.size(),
-		outbuf, outbuf_size);
-	std::wstring out(outbuf);
-	delete[] outbuf;
-	return out;
-}
-
-std::string wide_to_utf8(const std::wstring &input)
-{
-	size_t outbuf_size = (input.size() + 1) * 6;
-	char *outbuf = new char[outbuf_size];
-	memset(outbuf, 0, outbuf_size);
-	WideCharToMultiByte(CP_UTF8, 0, input.c_str(), input.size(),
-		outbuf, outbuf_size, NULL, NULL);
-	std::string out(outbuf);
-	delete[] outbuf;
-	return out;
-}
-
-#endif // _WIN32
-
 
 std::string urlencode(const std::string &str)
 {

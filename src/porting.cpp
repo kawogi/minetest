@@ -29,19 +29,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	#include <sys/types.h>
 	#include <sys/sysctl.h>
 	extern char **environ;
-#elif defined(_WIN32)
-	#include <windows.h>
-	#include <wincrypt.h>
-	#include <algorithm>
-	#include <shlwapi.h>
-	#include <shellapi.h>
-	#include <mmsystem.h>
 #endif
-#if !defined(_WIN32)
-	#include <unistd.h>
-	#include <sys/utsname.h>
-	#include <spawn.h>
-#endif
+#include <unistd.h>
+#include <sys/utsname.h>
+#include <spawn.h>
 #if defined(__hpux)
 	#define _PSTAT64
 	#include <sys/pstat.h>
@@ -60,15 +51,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <cstdarg>
 #include <cstdio>
 
-#if !defined(SERVER) && defined(_WIN32)
-// On Windows export some driver-specific variables to encourage Minetest to be
-// executed on the discrete GPU in case of systems with two. Portability is fun.
-extern "C" {
-	__declspec(dllexport) DWORD NvOptimusEnablement = 1;
-	__declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = 1;
-}
-#endif
-
 namespace porting
 {
 
@@ -83,8 +65,7 @@ bool *signal_handler_killstatus()
 	return &g_killed;
 }
 
-#if !defined(_WIN32) // POSIX
-	#include <signal.h>
+#include <signal.h>
 
 void signal_handler(int sig)
 {
@@ -113,40 +94,6 @@ void signal_handler_init(void)
 	(void)signal(SIGINT, signal_handler);
 	(void)signal(SIGTERM, signal_handler);
 }
-
-#else // _WIN32
-	#include <signal.h>
-
-BOOL WINAPI event_handler(DWORD sig)
-{
-	switch (sig) {
-	case CTRL_C_EVENT:
-	case CTRL_CLOSE_EVENT:
-	case CTRL_LOGOFF_EVENT:
-	case CTRL_SHUTDOWN_EVENT:
-		if (!g_killed) {
-			dstream << "INFO: event_handler(): "
-				<< "Ctrl+C, Close Event, Logoff Event or Shutdown Event,"
-				" shutting down." << std::endl;
-			g_killed = true;
-		} else {
-			(void)signal(SIGINT, SIG_DFL);
-		}
-		break;
-	case CTRL_BREAK_EVENT:
-		break;
-	}
-
-	return TRUE;
-}
-
-void signal_handler_init(void)
-{
-	SetConsoleCtrlHandler((PHANDLER_ROUTINE)event_handler, TRUE);
-}
-
-#endif
-
 
 /*
 	Path mangler
@@ -191,73 +138,21 @@ bool detectMSVCBuildDir(const std::string &path)
 
 std::string get_sysinfo()
 {
-#ifdef _WIN32
-	std::ostringstream oss;
-	LPSTR filePath = new char[MAX_PATH];
-	UINT blockSize;
-	VS_FIXEDFILEINFO *fixedFileInfo;
-
-	GetSystemDirectoryA(filePath, MAX_PATH);
-	PathAppendA(filePath, "kernel32.dll");
-
-	DWORD dwVersionSize = GetFileVersionInfoSizeA(filePath, NULL);
-	LPBYTE lpVersionInfo = new BYTE[dwVersionSize];
-
-	GetFileVersionInfoA(filePath, 0, dwVersionSize, lpVersionInfo);
-	VerQueryValueA(lpVersionInfo, "\\", (LPVOID *)&fixedFileInfo, &blockSize);
-
-	oss << "Windows/"
-		<< HIWORD(fixedFileInfo->dwProductVersionMS) << '.' // Major
-		<< LOWORD(fixedFileInfo->dwProductVersionMS) << '.' // Minor
-		<< HIWORD(fixedFileInfo->dwProductVersionLS) << ' '; // Build
-
-	SYSTEM_INFO info;
-	GetNativeSystemInfo(&info);
-	switch (info.wProcessorArchitecture) {
-	case PROCESSOR_ARCHITECTURE_AMD64:
-		oss << "x86_64";
-		break;
-	case PROCESSOR_ARCHITECTURE_ARM:
-		oss << "arm";
-		break;
-	case PROCESSOR_ARCHITECTURE_ARM64:
-		oss << "arm64";
-		break;
-	case PROCESSOR_ARCHITECTURE_INTEL:
-		oss << "x86";
-		break;
-	default:
-		oss << "unknown";
-		break;
-	}
-
-	delete[] lpVersionInfo;
-	delete[] filePath;
-
-	return oss.str();
-#else
 	struct utsname osinfo;
 	uname(&osinfo);
 	return std::string(osinfo.sysname) + "/"
 		+ osinfo.release + " " + osinfo.machine;
-#endif
 }
 
 
 bool getCurrentWorkingDir(char *buf, size_t len)
 {
-#ifdef _WIN32
-	DWORD ret = GetCurrentDirectory(len, buf);
-	return (ret != 0) && (ret <= len);
-#else
 	return getcwd(buf, len);
-#endif
 }
 
 
 bool getExecPathFromProcfs(char *buf, size_t buflen)
 {
-#ifndef _WIN32
 	buflen--;
 
 	ssize_t len;
@@ -268,26 +163,10 @@ bool getExecPathFromProcfs(char *buf, size_t buflen)
 
 	buf[len] = '\0';
 	return true;
-#else
-	return false;
-#endif
 }
 
 //// Windows
-#if defined(_WIN32)
-
-bool getCurrentExecPath(char *buf, size_t len)
-{
-	DWORD written = GetModuleFileNameA(NULL, buf, len);
-	if (written == 0 || written == len)
-		return false;
-
-	return true;
-}
-
-
-//// Linux
-#elif defined(__linux__)
+#if defined(__linux__)
 
 bool getCurrentExecPath(char *buf, size_t len)
 {
@@ -371,8 +250,6 @@ bool getCurrentExecPath(char *buf, size_t len)
 
 
 //// Non-Windows
-#if !defined(_WIN32)
-
 const char *getHomeOrFail()
 {
 	const char *home = getenv("HOME");
@@ -382,49 +259,9 @@ const char *getHomeOrFail()
 	return home;
 }
 
-#endif
-
-
-//// Windows
-#if defined(_WIN32)
-
-bool setSystemPaths()
-{
-	char buf[BUFSIZ];
-
-	// Find path of executable and set path_share relative to it
-	FATAL_ERROR_IF(!getCurrentExecPath(buf, sizeof(buf)),
-		"Failed to get current executable path");
-	pathRemoveFile(buf, '\\');
-
-	std::string exepath(buf);
-
-	// Use ".\bin\.."
-	path_share = exepath + "\\..";
-	if (detectMSVCBuildDir(exepath)) {
-		// The msvc build dir schould normaly not be present if properly installed,
-		// but its useful for debugging.
-		path_share += DIR_DELIM "..";
-	}
-
-	// Use %MINETEST_USER_PATH%
-	DWORD len = GetEnvironmentVariable("MINETEST_USER_PATH", buf, sizeof(buf));
-	FATAL_ERROR_IF(len > sizeof(buf), "Failed to get MINETEST_USER_PATH (too large for buffer)");
-	if (len == 0) {
-		// Use "C:\Users\<user>\AppData\Roaming\<PROJECT_NAME_C>"
-		len = GetEnvironmentVariable("APPDATA", buf, sizeof(buf));
-		FATAL_ERROR_IF(len == 0 || len > sizeof(buf), "Failed to get APPDATA");
-		path_user = std::string(buf) + DIR_DELIM + PROJECT_NAME_C;
-	} else {
-		path_user = std::string(buf);
-	}
-
-	return true;
-}
-
 
 //// Linux
-#elif defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+#if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 
 bool setSystemPaths()
 {
@@ -569,9 +406,6 @@ void initializePaths()
 		errorstream << "Failed to get one or more system-wide path" << std::endl;
 
 
-#  ifdef _WIN32
-	path_cache = path_user + DIR_DELIM + "cache";
-#  else
 	// Initialize path_cache
 	// First try $XDG_CACHE_HOME/PROJECT_NAME
 	const char *cache_dir = getenv("XDG_CACHE_HOME");
@@ -588,7 +422,6 @@ void initializePaths()
 	}
 	// Migrate cache folder to new location if possible
 	migrateCachePath();
-#  endif // _WIN32
 #endif // RUN_IN_PLACE
 
 	infostream << "Detected share path: " << path_share << std::endl;
@@ -664,48 +497,7 @@ bool secure_rand_fill_buf(void *buf, size_t len)
 
 void attachOrCreateConsole()
 {
-#ifdef _WIN32
-	static bool consoleAllocated = false;
-	const bool redirected = (_fileno(stdout) == -2 || _fileno(stdout) == -1); // If output is redirected to e.g a file
-	if (!consoleAllocated && redirected && (AttachConsole(ATTACH_PARENT_PROCESS) || AllocConsole())) {
-		freopen("CONOUT$", "w", stdout);
-		freopen("CONOUT$", "w", stderr);
-		consoleAllocated = true;
-	}
-#endif
 }
-
-#ifdef _WIN32
-std::string QuoteArgv(const std::string &arg)
-{
-	// Quoting rules on Windows are batshit insane, can differ between applications
-	// and there isn't even a stdlib function to deal with it.
-	// Ref: https://learn.microsoft.com/archive/blogs/twistylittlepassagesallalike/everyone-quotes-command-line-arguments-the-wrong-way
-	if (!arg.empty() && arg.find_first_of(" \t\n\v\"") == std::string::npos)
-		return arg;
-
-	std::string ret;
-	ret.reserve(arg.size()+2);
-	ret.push_back('"');
-	for (auto it = arg.begin(); it != arg.end(); ++it) {
-		u32 back = 0;
-		while (it != arg.end() && *it == '\\')
-			++back, ++it;
-
-		if (it == arg.end()) {
-			ret.append(2 * back, '\\');
-			break;
-		} else if (*it == '"') {
-			ret.append(2 * back + 1, '\\');
-		} else {
-			ret.append(back, '\\');
-		}
-		ret.push_back(*it);
-	}
-	ret.push_back('"');
-	return ret;
-}
-#endif
 
 int mt_snprintf(char *buf, const size_t buf_size, const char *fmt, ...)
 {
@@ -718,13 +510,7 @@ int mt_snprintf(char *buf, const size_t buf_size, const char *fmt, ...)
 	//  above FFmpeg link).
 	va_list args;
 	va_start(args, fmt);
-#ifndef _MSC_VER
 	int c = vsnprintf(buf, buf_size, fmt, args);
-#else  // _MSC_VER
-	int c = _vsprintf_p(buf, buf_size, fmt, args);
-	if (c == -1)
-		c = _vscprintf_p(fmt, args);
-#endif // _MSC_VER
 	va_end(args);
 	return c;
 }
@@ -736,12 +522,8 @@ static bool open_uri(const std::string &uri)
 		return false;
 	}
 
-#if defined(_WIN32)
-	return (intptr_t)ShellExecuteA(NULL, NULL, uri.c_str(), NULL, NULL, SW_SHOWNORMAL) > 32;
-#else
 	const char *argv[] = {"xdg-open", uri.c_str(), NULL};
 	return posix_spawnp(NULL, "xdg-open", NULL, NULL, (char**)argv, environ) == 0;
-#endif
 }
 
 bool open_url(const std::string &url)
@@ -763,22 +545,5 @@ bool open_directory(const std::string &path)
 
 	return open_uri(path);
 }
-
-// Load performance counter frequency only once at startup
-#ifdef _WIN32
-
-inline double get_perf_freq()
-{
-	// Also use this opportunity to enable high-res timers
-	timeBeginPeriod(1);
-
-	LARGE_INTEGER freq;
-	QueryPerformanceFrequency(&freq);
-	return freq.QuadPart;
-}
-
-double perf_freq = get_perf_freq();
-
-#endif
 
 } //namespace porting

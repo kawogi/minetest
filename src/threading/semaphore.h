@@ -19,11 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #pragma once
 
-#if defined(_WIN32)
-#include <windows.h>
-#else
 #include <semaphore.h>
-#endif
 
 #include "util/basic_macros.h"
 

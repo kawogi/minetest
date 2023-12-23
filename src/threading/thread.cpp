@@ -35,13 +35,6 @@ DEALINGS IN THE SOFTWARE.
 	#include <pthread_np.h>
 #elif defined(__NetBSD__)
 	#include <sched.h>
-#elif defined(_MSC_VER)
-	struct THREADNAME_INFO {
-		DWORD dwType;     // Must be 0x1000
-		LPCSTR szName;    // Pointer to name (in user addr space)
-		DWORD dwThreadID; // Thread ID (-1=caller thread)
-		DWORD dwFlags;    // Reserved for future use, must be zero
-	};
 #endif
 
 // for bindToProcessor
@@ -77,14 +70,8 @@ Thread::~Thread()
 
 		m_running = false;
 
-#if defined(_WIN32)
-		// See https://msdn.microsoft.com/en-us/library/hh920601.aspx#thread__native_handle_method
-		TerminateThread((HANDLE) m_thread_obj->native_handle(), 0);
-		CloseHandle((HANDLE) m_thread_obj->native_handle());
-#else
 		pthread_cancel(getThreadHandle());
 		wait();
-#endif
 	}
 
 	// Make sure start finished mutex is unlocked before it's destroyed
@@ -208,28 +195,6 @@ void Thread::setName(const std::string &name)
 
 	rename_thread(find_thread(NULL), name.c_str());
 
-#elif defined(_MSC_VER)
-
-	// Windows itself doesn't support thread names,
-	// but the MSVC debugger does...
-	THREADNAME_INFO info;
-
-	info.dwType = 0x1000;
-	info.szName = name.c_str();
-	info.dwThreadID = -1;
-	info.dwFlags = 0;
-
-	__try {
-		RaiseException(0x406D1388, 0,
-			sizeof(info) / sizeof(DWORD), (ULONG_PTR *)&info);
-	} __except (EXCEPTION_CONTINUE_EXECUTION) {
-	}
-
-#elif defined(_WIN32) || defined(__GNU__)
-
-	// These platforms are known to not support thread names.
-	// Silently ignore the request.
-
 #else
 	#warning "Unrecognized platform, thread names will not be available."
 #endif
@@ -244,15 +209,7 @@ unsigned int Thread::getNumberOfProcessors()
 
 bool Thread::bindToProcessor(unsigned int proc_number)
 {
-#if _MSC_VER
-
-	return SetThreadAffinityMask(getThreadHandle(), 1 << proc_number);
-
-#elif __MINGW32__
-
-	return SetThreadAffinityMask(pthread_gethandle(getThreadHandle()), 1 << proc_number);
-
-#elif __FreeBSD_version >= 702106 || defined(__linux__) || defined(__DragonFly__)
+#if __FreeBSD_version >= 702106 || defined(__linux__) || defined(__DragonFly__)
 
 	cpu_set_t cpuset;
 
@@ -293,16 +250,6 @@ bool Thread::bindToProcessor(unsigned int proc_number)
 
 bool Thread::setPriority(int prio)
 {
-#ifdef _MSC_VER
-
-	return SetThreadPriority(getThreadHandle(), prio);
-
-#elif __MINGW32__
-
-	return SetThreadPriority(pthread_gethandle(getThreadHandle()), prio);
-
-#else
-
 	struct sched_param sparam;
 	int policy;
 
@@ -314,7 +261,5 @@ bool Thread::setPriority(int prio)
 
 	sparam.sched_priority = min + prio * (max - min) / THREAD_PRIORITY_HIGHEST;
 	return pthread_setschedparam(getThreadHandle(), policy, &sparam) == 0;
-
-#endif
 }
 
