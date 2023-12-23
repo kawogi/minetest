@@ -236,15 +236,8 @@ local function make_path(setting)
 	}
 end
 
-if PLATFORM == "Android" then
-	-- The Irrlicht file picker doesn't work on Android.
-	make.path = make.string
-	make.filepath = make.string
-else
-	make.path = make_path
-	make.filepath = make_path
-end
-
+make.path = make_path
+make.filepath = make_path
 
 function make.v3f(setting)
 	return {

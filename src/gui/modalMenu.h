@@ -53,10 +53,6 @@ public:
 	virtual bool preprocessEvent(const SEvent &event);
 	virtual bool OnEvent(const SEvent &event) { return false; };
 	virtual bool pausesGame() { return false; } // Used for pause menu
-#ifdef __ANDROID__
-	virtual bool getAndroidUIInput() { return false; }
-	bool hasAndroidUIInput();
-#endif
 
 protected:
 	virtual std::wstring getLabelByID(s32 id) = 0;
@@ -73,14 +69,6 @@ protected:
 	v2s32 m_old_pointer;  // Mouse position after previous mouse event
 	v2u32 m_screensize_old;
 	float m_gui_scale;
-#ifdef __ANDROID__
-	std::string m_jni_field_name;
-#endif
-#ifdef HAVE_TOUCHSCREENGUI
-	// This is set to true if the menu is currently processing a second-touch event.
-	bool m_second_touch = false;
-	bool m_touchscreen_visible = true;
-#endif
 
 private:
 	struct clickpos
@@ -101,12 +89,4 @@ private:
 	// This might be necessary to expose to the implementation if it
 	// wants to launch other menus
 	bool m_allow_focus_removal = false;
-
-#ifdef HAVE_TOUCHSCREENGUI
-	irr_ptr<gui::IGUIElement> m_hovered;
-
-	bool simulateMouseEvent(gui::IGUIElement *target, ETOUCH_INPUT_EVENT touch_event);
-	void enter(gui::IGUIElement *element);
-	void leave();
-#endif
 };

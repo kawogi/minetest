@@ -50,9 +50,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "gui/guiEngine.h"
 #include "gui/mainmenumanager.h"
 #endif
-#ifdef HAVE_TOUCHSCREENGUI
-	#include "gui/touchscreengui.h"
-#endif
 
 // for version information only
 extern "C" {
@@ -171,13 +168,7 @@ int main(int argc, char *argv[])
 	}
 
 	porting::signal_handler_init();
-
-#ifdef __ANDROID__
-	porting::initAndroid();
-	porting::initializePathsAndroid();
-#else
 	porting::initializePaths();
-#endif
 
 	if (!create_userdata_path()) {
 		errorstream << "Cannot create user data directory" << std::endl;
@@ -215,7 +206,6 @@ int main(int argc, char *argv[])
 	if (g_settings->getBool("enable_console"))
 		porting::attachOrCreateConsole();
 
-#ifndef __ANDROID__
 	// Run unit tests
 	if (cmd_args.getFlag("run-unittests")) {
 #if BUILD_UNITTESTS
@@ -223,12 +213,6 @@ int main(int argc, char *argv[])
 			return run_tests(cmd_args.get("test-module")) ? 0 : 1;
 		else
 			return run_tests() ? 0 : 1;
-#else
-		errorstream << "Unittest support is not enabled in this binary. "
-			<< "If you want to enable it, compile project with BUILD_UNITTESTS=1 flag."
-			<< std::endl;
-		return 1;
-#endif
 	}
 
 	// Run benchmarks
@@ -245,7 +229,7 @@ int main(int argc, char *argv[])
 		return 1;
 #endif
 	}
-#endif // __ANDROID__
+#endif
 
 	GameStartData game_params;
 #ifdef SERVER
@@ -540,17 +524,8 @@ static bool create_userdata_path()
 {
 	bool success;
 
-#ifdef __ANDROID__
-	if (!fs::PathExists(porting::path_user)) {
-		success = fs::CreateDir(porting::path_user);
-	} else {
-		success = true;
-	}
-#else
 	// Create user data directory
 	success = fs::CreateAllDirs(porting::path_user);
-#endif
-
 	return success;
 }
 
@@ -593,9 +568,6 @@ namespace {
 
 static bool use_debugger(int argc, char *argv[])
 {
-#if defined(__ANDROID__)
-	return false;
-#else
 #ifdef _WIN32
 	if (IsDebuggerPresent()) {
 		warningstream << "Process is already being debugged." << std::endl;
@@ -670,7 +642,6 @@ static bool use_debugger(int argc, char *argv[])
 	execv(new_args[0], const_cast<char**>(new_args.data()));
 	warningstream << "execv: " << strerror(errno) << std::endl;
 	return false;
-#endif
 #endif
 }
 

@@ -199,13 +199,6 @@ private:
 	Logger &m_logger;
 };
 
-#ifdef __ANDROID__
-class AndroidLogOutput : public ICombinedLogOutput {
-public:
-	void logRaw(LogLevel lev, const std::string &line);
-};
-#endif
-
 /*
  * LogTarget
  *
@@ -337,13 +330,8 @@ private:
 
 };
 
-#ifdef __ANDROID__
-extern AndroidLogOutput stdout_output;
-extern AndroidLogOutput stderr_output;
-#else
 extern StreamLogOutput stdout_output;
 extern StreamLogOutput stderr_output;
-#endif
 
 extern Logger g_logger;
 

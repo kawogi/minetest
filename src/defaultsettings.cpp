@@ -90,12 +90,7 @@ void set_default_settings()
 	settings->setDefault("keymap_cmd_local", ".");
 	settings->setDefault("keymap_minimap", "KEY_KEY_V");
 	settings->setDefault("keymap_console", "KEY_F10");
-#if HAVE_TOUCHSCREENGUI
-	// See https://github.com/minetest/minetest/issues/12792
-	settings->setDefault("keymap_rangeselect", "KEY_KEY_R");
-#else
 	settings->setDefault("keymap_rangeselect", "");
-#endif
 	settings->setDefault("keymap_freemove", "KEY_KEY_K");
 	settings->setDefault("keymap_pitchmove", "");
 	settings->setDefault("keymap_fastmove", "KEY_KEY_J");
@@ -296,11 +291,7 @@ void set_default_settings()
 	settings->setDefault("aux1_descends", "false");
 	settings->setDefault("doubletap_jump", "false");
 	settings->setDefault("always_fly_fast", "true");
-#ifdef HAVE_TOUCHSCREENGUI
-	settings->setDefault("autojump", "true");
-#else
 	settings->setDefault("autojump", "false");
-#endif
 	settings->setDefault("continuous_forward", "false");
 	settings->setDefault("enable_joysticks", "false");
 	settings->setDefault("joystick_id", "0");
@@ -339,11 +330,7 @@ void set_default_settings()
 	settings->setDefault("contentdb_url", "https://content.minetest.net");
 	settings->setDefault("contentdb_max_concurrent_downloads", "3");
 
-#ifdef __ANDROID__
-	settings->setDefault("contentdb_flag_blacklist", "nonfree, android_default");
-#else
 	settings->setDefault("contentdb_flag_blacklist", "nonfree, desktop_default");
-#endif
 
 	settings->setDefault("update_information_url", "https://www.minetest.net/release_info.json");
 #if ENABLE_UPDATE_CHECKER
@@ -474,52 +461,5 @@ void set_default_settings()
 	settings->setDefault("keymap_sneak", "KEY_SHIFT");
 #endif
 
-#ifdef HAVE_TOUCHSCREENGUI
-	settings->setDefault("touchscreen_threshold", "20");
-	settings->setDefault("touchscreen_sensitivity", "0.2");
-	settings->setDefault("touch_use_crosshair", "false");
-	settings->setDefault("fixed_virtual_joystick", "false");
-	settings->setDefault("virtual_joystick_triggers_aux1", "false");
-	settings->setDefault("clickable_chat_weblinks", "false");
-#else
 	settings->setDefault("clickable_chat_weblinks", "true");
-#endif
-	// Altered settings for Android
-#ifdef __ANDROID__
-	settings->setDefault("screen_w", "0");
-	settings->setDefault("screen_h", "0");
-	settings->setDefault("fullscreen", "true");
-	settings->setDefault("performance_tradeoffs", "true");
-	settings->setDefault("max_simultaneous_block_sends_per_client", "10");
-	settings->setDefault("emergequeue_limit_diskonly", "16");
-	settings->setDefault("emergequeue_limit_generate", "16");
-	settings->setDefault("max_block_generate_distance", "5");
-	settings->setDefault("sqlite_synchronous", "1");
-	settings->setDefault("server_map_save_interval", "15");
-	settings->setDefault("client_mapblock_limit", "1000");
-	settings->setDefault("active_block_range", "2");
-	settings->setDefault("viewing_range", "50");
-	settings->setDefault("leaves_style", "simple");
-	settings->setDefault("debanding", "false");
-	settings->setDefault("curl_verify_cert", "false");
-
-	// Apply settings according to screen size
-	float x_inches = (float) porting::getDisplaySize().X /
-			(160.f * porting::getDisplayDensity());
-
-	if (x_inches < 3.7f) {
-		settings->setDefault("hud_scaling", "0.6");
-		settings->setDefault("font_size", "14");
-		settings->setDefault("mono_font_size", "14");
-	} else if (x_inches < 4.5f) {
-		settings->setDefault("hud_scaling", "0.7");
-		settings->setDefault("font_size", "14");
-		settings->setDefault("mono_font_size", "14");
-	} else if (x_inches < 6.0f) {
-		settings->setDefault("hud_scaling", "0.85");
-		settings->setDefault("font_size", "14");
-		settings->setDefault("mono_font_size", "14");
-	}
-	// Tablets >= 6.0 use non-Android defaults for these settings
-#endif
 }

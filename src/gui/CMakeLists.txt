@@ -1,7 +1,4 @@
 set(extra_gui_SRCS "")
-if(ENABLE_TOUCH)
-	set(extra_gui_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/touchscreengui.cpp)
-endif()
 
 set(gui_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/guiAnimatedImage.cpp

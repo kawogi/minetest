@@ -256,9 +256,7 @@ inline u64 getDeltaMs(u64 old_time_ms, u64 new_time_ms)
 inline const char *getPlatformName()
 {
 	return
-#if defined(ANDROID)
-	"Android"
-#elif defined(__linux__)
+#if defined(__linux__)
 	"Linux"
 #elif defined(_WIN32) || defined(_WIN64)
 	"Windows"
@@ -332,7 +330,3 @@ bool open_url(const std::string &url);
 bool open_directory(const std::string &path);
 
 } // namespace porting
-
-#ifdef __ANDROID__
-#include "porting_android.h"
-#endif

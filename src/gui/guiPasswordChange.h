@@ -44,9 +44,6 @@ public:
 	bool processInput();
 
 	bool OnEvent(const SEvent &event);
-#ifdef __ANDROID__
-	bool getAndroidUIInput();
-#endif
 
 protected:
 	std::wstring getLabelByID(s32 id) { return L""; }

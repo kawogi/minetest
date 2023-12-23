@@ -25,10 +25,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <IGUIStaticText.h>
 #include <IGUIFont.h>
 
-#ifdef HAVE_TOUCHSCREENGUI
-	#include "client/renderingengine.h"
-#endif
-
 #include "porting.h"
 #include "gettext.h"
 
@@ -66,11 +62,7 @@ void GUIPasswordChange::regenerateGui(v2u32 screensize)
 	/*
 		Calculate new sizes and positions
 	*/
-#ifdef HAVE_TOUCHSCREENGUI
-	const float s = m_gui_scale * RenderingEngine::getDisplayDensity() / 2;
-#else
 	const float s = m_gui_scale;
-#endif
 	DesiredRect = core::rect<s32>(
 		screensize.X / 2 - 580 * s / 2,
 		screensize.Y / 2 - 300 * s / 2,
@@ -165,9 +157,6 @@ void GUIPasswordChange::drawMenu()
 	driver->draw2DRectangle(bgcolor, AbsoluteRect, &AbsoluteClippingRect);
 
 	gui::IGUIElement::draw();
-#ifdef __ANDROID__
-	getAndroidUIInput();
-#endif
 }
 
 void GUIPasswordChange::acceptInput()
@@ -262,31 +251,3 @@ std::string GUIPasswordChange::getNameByID(s32 id)
 	}
 	return "";
 }
-
-#ifdef __ANDROID__
-bool GUIPasswordChange::getAndroidUIInput()
-{
-	if (!hasAndroidUIInput())
-		return false;
-
-	// still waiting
-	if (porting::getInputDialogState() == -1)
-		return true;
-
-	gui::IGUIElement *e = nullptr;
-	if (m_jni_field_name == "old_password")
-		e = getElementFromId(ID_oldPassword);
-	else if (m_jni_field_name == "new_password_1")
-		e = getElementFromId(ID_newPassword1);
-	else if (m_jni_field_name == "new_password_2")
-		e = getElementFromId(ID_newPassword2);
-	m_jni_field_name.clear();
-
-	if (!e || e->getType() != irr::gui::EGUIET_EDIT_BOX)
-		return false;
-
-	std::string text = porting::getInputDialogValue();
-	e->setText(utf8_to_wide(text).c_str());
-	return false;
-}
-#endif

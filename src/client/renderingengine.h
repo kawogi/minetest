@@ -142,11 +142,7 @@ public:
 	{
 		// On Android, pause rendering while the app is in background (generally not visible).
 		// Don't do this on desktop because windows can be partially visible.
-#ifdef __ANDROID__
-		return get_raw_device()->isWindowActive();
-#else
 		return true;
-#endif
 	};
 
 private:

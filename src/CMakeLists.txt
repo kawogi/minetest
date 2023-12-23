@@ -109,11 +109,6 @@ if(BUILD_CLIENT AND ENABLE_SOUND)
 	endif()
 endif()
 
-option(ENABLE_TOUCH "Enable Touchscreen support" FALSE)
-if(ENABLE_TOUCH)
-	add_definitions(-DHAVE_TOUCHSCREENGUI)
-endif()
-
 if(BUILD_CLIENT)
 	find_package(Freetype REQUIRED)
 endif()
@@ -304,14 +299,6 @@ else()
 	if (HAIKU)
 		set(PLATFORM_LIBS ${PLATFORM_LIBS} network)
 	endif()
-
-	if (ANDROID)
-		include_directories(${ANDROID_NDK}/sources/android/native_app_glue)
-		add_library(native_app_glue OBJECT ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
-		set(PLATFORM_LIBS ${PLATFORM_LIBS} native_app_glue)
-
-		set(PLATFORM_LIBS ${PLATFORM_LIBS} android log)
-	endif()
 endif()
 
 check_include_files(endian.h HAVE_ENDIAN_H)
@@ -420,10 +407,6 @@ set(common_SRCS
 	${UTIL_SRCS}
 )
 
-if(ANDROID)
-	set(common_SRCS ${common_SRCS} porting_android.cpp)
-endif()
-
 if(BUILD_UNITTESTS)
 	set(common_SRCS ${common_SRCS} ${UNITTEST_SRCS})
 endif()
@@ -528,11 +511,7 @@ if(NOT CMAKE_CROSSCOMPILING)
 endif()
 
 if(BUILD_CLIENT)
-	if(ANDROID)
-		add_library(${PROJECT_NAME} SHARED ${client_SRCS})
-	else()
-		add_executable(${PROJECT_NAME} ${client_SRCS} ${extra_windows_SRCS})
-	endif()
+	add_executable(${PROJECT_NAME} ${client_SRCS} ${extra_windows_SRCS})
 	add_dependencies(${PROJECT_NAME} GenerateVersion)
 	target_link_libraries(
 		${PROJECT_NAME}
@@ -873,7 +852,7 @@ if(WIN32)
 	endif()
 endif()
 
-if(BUILD_CLIENT AND NOT ANDROID)
+if(BUILD_CLIENT)
 	install(TARGETS ${PROJECT_NAME}
 		RUNTIME DESTINATION ${BINDIR}
 		LIBRARY DESTINATION ${BINDIR}
@@ -905,10 +884,7 @@ if(BUILD_SERVER)
 	install(TARGETS ${PROJECT_NAME}server DESTINATION ${BINDIR})
 endif()
 
-if (ANDROID)
-	# Android does this manually in app/build.gradle -> prepareAssets
-	# for now!
-elseif (USE_GETTEXT)
+if (USE_GETTEXT)
 	set(MO_FILES)
 
 	foreach(LOCALE ${GETTEXT_USED_LOCALES})

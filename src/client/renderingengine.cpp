@@ -112,14 +112,9 @@ RenderingEngine::RenderingEngine(IEventReceiver *receiver)
 
 	// Resolution selection
 	bool fullscreen = g_settings->getBool("fullscreen");
-#ifdef __ANDROID__
-	u16 screen_w = 0, screen_h = 0;
-	bool window_maximized = false;
-#else
 	u16 screen_w = std::max<u16>(g_settings->getU16("screen_w"), 1);
 	u16 screen_h = std::max<u16>(g_settings->getU16("screen_h"), 1);
 	bool window_maximized = g_settings->getBool("window_maximized");
-#endif
 
 	// bpp, fsaa, vsync
 	bool vsync = g_settings->getBool("vsync");
@@ -140,9 +135,6 @@ RenderingEngine::RenderingEngine(IEventReceiver *receiver)
 	params.Stencilbuffer = false;
 	params.Vsync = vsync;
 	params.EventReceiver = receiver;
-#ifdef __ANDROID__
-	params.PrivateData = porting::app_global;
-#endif
 	// there is no standardized path for these on desktop
 	std::string rel_path = std::string("client") + DIR_DELIM
 			+ "shaders" + DIR_DELIM + "Irrlicht";
@@ -246,17 +238,10 @@ void RenderingEngine::draw_load_screen(const std::wstring &text,
 				tsrc->getTexture("progress_bar_bg.png");
 
 		if (progress_img && progress_img_bg) {
-#ifndef __ANDROID__
 			const core::dimension2d<u32> &img_size =
 					progress_img_bg->getSize();
 			u32 imgW = rangelim(img_size.Width, 200, 600) * getDisplayDensity();
 			u32 imgH = rangelim(img_size.Height, 24, 72) * getDisplayDensity();
-#else
-			const core::dimension2d<u32> img_size(256, 48);
-			float imgRatio = (float)img_size.Height / img_size.Width;
-			u32 imgW = screensize.X / 2.2f;
-			u32 imgH = floor(imgW * imgRatio);
-#endif
 			v2s32 img_pos((screensize.X - imgW) / 2,
 					(screensize.Y - imgH) / 2);
 
@@ -334,7 +319,6 @@ const VideoDriverInfo &RenderingEngine::getVideoDriverInfo(irr::video::E_DRIVER_
 
 float RenderingEngine::getDisplayDensity()
 {
-#ifndef __ANDROID__
 	static float cached_display_density = [&] {
 		float dpi = get_raw_device()->getDisplayDensity();
 		// fall back to manually specified dpi
@@ -343,10 +327,6 @@ float RenderingEngine::getDisplayDensity()
 		return dpi / 96.0f;
 	}();
 	return std::max(cached_display_density * g_settings->getFloat("display_density_factor"), 0.5f);
-
-#else // __ANDROID__
-	return porting::getDisplayDensity();
-#endif // __ANDROID__
 }
 
 void RenderingEngine::autosaveScreensizeAndCo(

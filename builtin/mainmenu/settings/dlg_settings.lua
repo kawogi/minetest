@@ -314,8 +314,8 @@ local function check_requirements(name, requires)
 	local video_driver = core.get_active_driver()
 	local shaders_support = video_driver == "opengl" or video_driver == "ogles2"
 	local special = {
-		android = PLATFORM == "Android",
-		desktop = PLATFORM ~= "Android",
+		android = false,
+		desktop = true,
 		touchscreen_gui = TOUCHSCREEN_GUI,
 		keyboard_mouse = not TOUCHSCREEN_GUI,
 		shaders_support = shaders_support,

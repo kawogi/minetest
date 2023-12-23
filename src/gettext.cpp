@@ -127,10 +127,6 @@ void init_gettext(const char *path, const std::string &configured_language,
 		// Add user specified locale to environment
 		setenv("LANGUAGE", configured_language.c_str(), 1);
 
-#ifdef __ANDROID__
-		setenv("LANG", configured_language.c_str(), 1);
-#endif
-
 		// Reload locale with changed environment
 		setlocale(LC_ALL, "");
 #elif defined(_MSC_VER)
@@ -203,9 +199,6 @@ void init_gettext(const char *path, const std::string &configured_language,
 #endif // ifndef _WIN32
 	}
 	else {
-#ifdef __ANDROID__
-		setenv("LANG", porting::getLanguageAndroid().c_str(), 1);
-#endif
 		/* set current system default locale */
 		setlocale(LC_ALL, "");
 	}

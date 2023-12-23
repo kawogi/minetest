@@ -977,7 +977,6 @@ int ModApiMainMenu::l_get_active_irrlicht_device(lua_State *L)
 		case EIDT_X11: return "X11";
 		case EIDT_OSX: return "OSX";
 		case EIDT_SDL: return "SDL";
-		case EIDT_ANDROID: return "ANDROID";
 		default: return "Unknown";
 		}
 	}();
@@ -1017,13 +1016,7 @@ int ModApiMainMenu::l_open_dir(lua_State *L)
 /******************************************************************************/
 int ModApiMainMenu::l_share_file(lua_State *L)
 {
-#ifdef __ANDROID__
-	std::string path = luaL_checkstring(L, 1);
-	porting::shareFileAndroid(path);
-	lua_pushboolean(L, true);
-#else
 	lua_pushboolean(L, false);
-#endif
 	return 1;
 }
 

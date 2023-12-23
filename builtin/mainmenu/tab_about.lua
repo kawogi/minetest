@@ -175,14 +175,10 @@ return {
 			"button[0.1,6.5;5.3,0.5;label_button3;" .. irrlicht_device_info .. "]"..
 			"tooltip[label_button3;" .. irrlicht_device_info .. "]"
 
-		if PLATFORM == "Android" then
-			fs = fs .. "button[0.5,5.1;4.5,0.8;share_debug;" .. fgettext("Share debug log") .. "]"
-		else
-			fs = fs .. "tooltip[userdata;" ..
-					fgettext("Opens the directory that contains user-provided worlds, games, mods,\n" ..
-							"and texture packs in a file manager / explorer.") .. "]"
-			fs = fs .. "button[0.5,5.1;4.5,0.8;userdata;" .. fgettext("Open User Data Directory") .. "]"
-		end
+		fs = fs .. "tooltip[userdata;" ..
+				fgettext("Opens the directory that contains user-provided worlds, games, mods,\n" ..
+						"and texture packs in a file manager / explorer.") .. "]"
+		fs = fs .. "button[0.5,5.1;4.5,0.8;userdata;" .. fgettext("Open User Data Directory") .. "]"
 
 		return fs
 	end,

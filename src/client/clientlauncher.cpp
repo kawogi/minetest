@@ -256,11 +256,6 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 			m_rendering_engine->get_video_driver()->setTextureCreationFlag(
 					video::ETCF_CREATE_MIP_MAPS, g_settings->getBool("mip_map"));
 
-#ifdef HAVE_TOUCHSCREENGUI
-			receiver->m_touchscreengui = new TouchScreenGUI(m_rendering_engine->get_raw_device(), receiver);
-			g_touchscreengui = receiver->m_touchscreengui;
-#endif
-
 			the_game(
 				kill,
 				input,
@@ -285,12 +280,6 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 #endif
 
 		m_rendering_engine->get_scene_manager()->clear();
-
-#ifdef HAVE_TOUCHSCREENGUI
-		delete g_touchscreengui;
-		g_touchscreengui = NULL;
-		receiver->m_touchscreengui = NULL;
-#endif
 
 		// If no main menu, show error and exit
 		if (skip_main_menu) {
@@ -542,13 +531,11 @@ void ClientLauncher::main_menu(MainMenuData *menudata)
 	}
 	infostream << "Waited for other menus" << std::endl;
 
-#ifndef ANDROID
 	// Cursor can be non-visible when coming from the game
 	m_rendering_engine->get_raw_device()->getCursorControl()->setVisible(true);
 
 	// Set absolute mouse mode
 	m_rendering_engine->get_raw_device()->getCursorControl()->setRelativeMode(false);
-#endif
 
 	/* show main menu */
 	GUIEngine mymenu(&input->joystick, guiroot, m_rendering_engine, &g_menumgr, menudata, *kill);

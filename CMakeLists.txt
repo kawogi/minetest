@@ -72,17 +72,8 @@ set(ENABLE_UPDATE_CHECKER (NOT ${DEVELOPMENT_BUILD}) CACHE BOOL
 # Included stuff
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
-# Load default options for Android
-if(ANDROID)
-	cmake_minimum_required(VERSION 3.20)
-	include(MinetestAndroidLibs)
-endif()
-
-
 set(IRRLICHTMT_BUILD_DIR "" CACHE PATH "Path to IrrlichtMt build directory.")
-if(ANDROID)
-	# currently manually provided
-elseif(NOT "${IRRLICHTMT_BUILD_DIR}" STREQUAL "")
+if(NOT "${IRRLICHTMT_BUILD_DIR}" STREQUAL "")
 	find_package(IrrlichtMt QUIET
 		PATHS "${IRRLICHTMT_BUILD_DIR}"
 		NO_DEFAULT_PATH
@@ -131,9 +122,7 @@ else()
 	endif()
 endif()
 
-if(ANDROID)
-	# skipped for now
-elseif(BUILD_CLIENT AND TARGET IrrlichtMt::IrrlichtMt)
+if(BUILD_CLIENT AND TARGET IrrlichtMt::IrrlichtMt)
 	# retrieve version somehow
 	if(NOT IrrlichtMt_VERSION)
 		get_target_property(IrrlichtMt_VERSION IrrlichtMt VERSION)

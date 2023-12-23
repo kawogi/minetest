@@ -40,10 +40,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "client/renderingengine.h"
 #include "client/minimap.h"
 
-#ifdef HAVE_TOUCHSCREENGUI
-#include "gui/touchscreengui.h"
-#endif
-
 #define OBJECT_CROSSHAIR_LINE_SIZE 8
 #define CROSSHAIR_LINE_SIZE 10
 
@@ -291,11 +287,6 @@ void Hud::drawItems(v2s32 upperleftpos, v2s32 screen_offset, s32 itemcount,
 		core::rect<s32> item_rect = imgrect + pos + steppos;
 
 		drawItem(mainlist->getItem(i), item_rect, (i + 1) == selectitem);
-
-#ifdef HAVE_TOUCHSCREENGUI
-		if (is_hotbar && g_touchscreengui)
-			g_touchscreengui->registerHotbarRect(i, item_rect);
-#endif
 	}
 }
 
@@ -363,12 +354,6 @@ void Hud::drawLuaElements(const v3s16 &camera_offset)
 				if (e->size.X > 0)
 					font_size *= e->size.X;
 
-#ifdef __ANDROID__
-				// The text size on Android is not proportional with the actual scaling
-				// FIXME: why do we have such a weird unportable hack??
-				if (font_size > 3 && e->offset.X < -20)
-					font_size -= 3;
-#endif
 				auto textfont = g_fontengine->getFont(FontSpec(font_size,
 					(e->style & HUD_STYLE_MONO) ? FM_Mono : FM_Unspecified,
 					e->style & HUD_STYLE_BOLD, e->style & HUD_STYLE_ITALIC));
@@ -739,11 +724,6 @@ void Hud::drawStatbar(v2s32 pos, u16 corner, u16 drawdir,
 
 void Hud::drawHotbar(u16 playeritem)
 {
-#ifdef HAVE_TOUCHSCREENGUI
-	if (g_touchscreengui)
-		g_touchscreengui->resetHotbarRects();
-#endif
-
 	InventoryList *mainlist = inventory->getList("main");
 	if (mainlist == NULL) {
 		// Silently ignore this. We may not be initialized completely.

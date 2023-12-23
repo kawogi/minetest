@@ -285,10 +285,6 @@ public:
 	// This will only return a meaningful value if called after drawMenu().
 	core::rect<s32> getAbsoluteRect();
 
-#ifdef __ANDROID__
-	bool getAndroidUIInput();
-#endif
-
 protected:
 	v2s32 getBasePos() const
 	{

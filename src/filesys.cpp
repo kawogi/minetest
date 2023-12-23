@@ -336,11 +336,7 @@ bool RecursiveDelete(const std::string &path)
 	{
 		// Child
 		const char *argv[4] = {
-#ifdef __ANDROID__
-			"/system/bin/rm",
-#else
 			"/bin/rm",
-#endif
 			"-rf",
 			path.c_str(),
 			NULL
@@ -395,11 +391,7 @@ std::string TempPath()
 		configuration hardcodes mkstemp("/tmp/lua_XXXXXX").
 	*/
 
-#ifdef __ANDROID__
-	return porting::path_cache;
-#else
 	return DIR_DELIM "tmp";
-#endif
 }
 
 std::string CreateTempFile()

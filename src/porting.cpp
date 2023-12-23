@@ -40,16 +40,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #if !defined(_WIN32)
 	#include <unistd.h>
 	#include <sys/utsname.h>
-	#if !defined(__ANDROID__)
-		#include <spawn.h>
-	#endif
+	#include <spawn.h>
 #endif
 #if defined(__hpux)
 	#define _PSTAT64
 	#include <sys/pstat.h>
-#endif
-#if defined(__ANDROID__)
-	#include "porting_android.h"
 #endif
 #if defined(__APPLE__)
 	#include <mach-o/dyld.h>
@@ -457,11 +452,7 @@ bool setSystemPaths()
 	char buf[BUFSIZ];
 
 	if (!getCurrentExecPath(buf, sizeof(buf))) {
-#ifdef __ANDROID__
-		errorstream << "Unable to read bindir "<< std::endl;
-#else
 		FATAL_ERROR("Unable to read bindir");
-#endif
 		return false;
 	}
 
@@ -478,10 +469,6 @@ bool setSystemPaths()
 	trylist.push_back(bindir + DIR_DELIM ".." DIR_DELIM "share"
 		DIR_DELIM + PROJECT_NAME);
 	trylist.push_back(bindir + DIR_DELIM "..");
-
-#ifdef __ANDROID__
-	trylist.push_back(path_user);
-#endif
 
 	for (std::list<std::string>::const_iterator
 			i = trylist.begin(); i != trylist.end(); ++i) {
@@ -503,7 +490,6 @@ bool setSystemPaths()
 		break;
 	}
 
-#ifndef __ANDROID__
 	const char *const minetest_user_path = getenv("MINETEST_USER_PATH");
 	if (minetest_user_path && minetest_user_path[0] != '\0') {
 		path_user = std::string(minetest_user_path);
@@ -511,7 +497,6 @@ bool setSystemPaths()
 		path_user = std::string(getHomeOrFail()) + DIR_DELIM "."
 			+ PROJECT_NAME;
 	}
-#endif
 
 	return true;
 }
@@ -803,9 +788,6 @@ static bool open_uri(const std::string &uri)
 
 #if defined(_WIN32)
 	return (intptr_t)ShellExecuteA(NULL, NULL, uri.c_str(), NULL, NULL, SW_SHOWNORMAL) > 32;
-#elif defined(__ANDROID__)
-	openURIAndroid(uri);
-	return true;
 #elif defined(__APPLE__)
 	const char *argv[] = {"open", uri.c_str(), NULL};
 	return posix_spawnp(NULL, "open", NULL, NULL, (char**)argv,
