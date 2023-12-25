@@ -21,7 +21,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "irrlicht.h" // createDevice
 #include "irrlichttypes_extrabloated.h"
 #include "irrlicht_changes/printing.h"
-#include "benchmark/benchmark.h"
 #include "chat_interface.h"
 #include "debug.h"
 #include "unittest/test.h"
@@ -206,21 +205,6 @@ int main(int argc, char *argv[])
 		else
 			return run_tests() ? 0 : 1;
 	}
-
-	// Run benchmarks
-	if (cmd_args.getFlag("run-benchmarks")) {
-#if BUILD_BENCHMARKS
-		if (cmd_args.exists("test-module"))
-			return run_benchmarks(cmd_args.get("test-module").c_str()) ? 0 : 1;
-		else
-			return run_benchmarks() ? 0 : 1;
-#else
-		errorstream << "Benchmark support is not enabled in this binary. "
-			<< "If you want to enable it, compile project with BUILD_BENCHMARKS=1 flag."
-			<< std::endl;
-		return 1;
-#endif
-	}
 #endif
 
 	GameStartData game_params;
@@ -314,10 +298,8 @@ static void set_allowed_options(OptionList *allowed_options)
 			_("Set network port (UDP)"))));
 	allowed_options->insert(std::make_pair("run-unittests", ValueSpec(VALUETYPE_FLAG,
 			_("Run the unit tests and exit"))));
-	allowed_options->insert(std::make_pair("run-benchmarks", ValueSpec(VALUETYPE_FLAG,
-			_("Run the benchmarks and exit"))));
 	allowed_options->insert(std::make_pair("test-module", ValueSpec(VALUETYPE_STRING,
-			_("Only run the specified test module or benchmark"))));
+			_("Only run the specified test module"))));
 	allowed_options->insert(std::make_pair("map-dir", ValueSpec(VALUETYPE_STRING,
 			_("Same as --world (deprecated)"))));
 	allowed_options->insert(std::make_pair("world", ValueSpec(VALUETYPE_STRING,

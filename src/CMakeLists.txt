@@ -324,7 +324,6 @@ add_subdirectory(mapgen)
 add_subdirectory(network)
 add_subdirectory(script)
 add_subdirectory(unittest)
-add_subdirectory(benchmark)
 add_subdirectory(util)
 add_subdirectory(irrlicht_changes)
 add_subdirectory(server)
@@ -407,10 +406,6 @@ if(BUILD_UNITTESTS)
 	set(common_SRCS ${common_SRCS} ${UNITTEST_SRCS})
 endif()
 
-if(BUILD_BENCHMARKS)
-	set(common_SRCS ${common_SRCS} ${BENCHMARK_SRCS})
-endif()
-
 # This gives us the icon and file version information
 if(WIN32)
 	set(WINRESOURCE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../misc/winresource.rc")
@@ -435,10 +430,6 @@ set(client_SRCS
 
 if(BUILD_UNITTESTS)
 	set(client_SRCS ${client_SRCS} ${UNITTEST_CLIENT_SRCS})
-endif()
-
-if(BUILD_BENCHMARKS)
-	set(client_SRCS ${client_SRCS} ${BENCHMARK_CLIENT_SRCS})
 endif()
 
 list(SORT client_SRCS)
@@ -554,9 +545,6 @@ if(BUILD_CLIENT)
 	if (USE_SPATIAL)
 		target_link_libraries(${PROJECT_NAME} ${SPATIAL_LIBRARY})
 	endif()
-	if(BUILD_BENCHMARKS)
-		target_link_libraries(${PROJECT_NAME} catch2)
-	endif()
 endif(BUILD_CLIENT)
 
 
@@ -615,9 +603,6 @@ if(BUILD_SERVER)
 			${PROJECT_NAME}server
 			${CURL_LIBRARY}
 		)
-	endif()
-	if(BUILD_BENCHMARKS)
-		target_link_libraries(${PROJECT_NAME}server catch2)
 	endif()
 endif(BUILD_SERVER)
 
