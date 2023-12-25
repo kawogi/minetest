@@ -41,14 +41,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "util/directiontables.h"
 #include "filesys.h"
 #include "log.h"
-#include "mapgen_carpathian.h"
 #include "mapgen_flat.h"
-#include "mapgen_fractal.h"
-#include "mapgen_v5.h"
-#include "mapgen_v6.h"
 #include "mapgen_v7.h"
-#include "mapgen_valleys.h"
-#include "mapgen_singlenode.h"
 #include "cavegen.h"
 #include "dungeongen.h"
 
@@ -83,20 +77,13 @@ struct MapgenDesc {
 ////
 
 // Order used here defines the order of appearance in mainmenu.
-// v6 always last to discourage selection.
 // Special mapgens flat, fractal, singlenode, next to last. Of these, singlenode
 // last to discourage selection.
 // Of the remaining, v5 last due to age, v7 first due to being the default.
 // The order of 'enum MapgenType' in mapgen.h must match this order.
 static MapgenDesc g_reg_mapgens[] = {
 	{"v7",         true},
-	{"valleys",    true},
-	{"carpathian", true},
-	{"v5",         true},
 	{"flat",       true},
-	{"fractal",    true},
-	{"singlenode", true},
-	{"v6",         true},
 };
 
 static_assert(
@@ -166,22 +153,10 @@ Mapgen *Mapgen::createMapgen(MapgenType mgtype, MapgenParams *params,
 	EmergeParams *emerge)
 {
 	switch (mgtype) {
-	case MAPGEN_CARPATHIAN:
-		return new MapgenCarpathian((MapgenCarpathianParams *)params, emerge);
 	case MAPGEN_FLAT:
 		return new MapgenFlat((MapgenFlatParams *)params, emerge);
-	case MAPGEN_FRACTAL:
-		return new MapgenFractal((MapgenFractalParams *)params, emerge);
-	case MAPGEN_SINGLENODE:
-		return new MapgenSinglenode((MapgenSinglenodeParams *)params, emerge);
-	case MAPGEN_V5:
-		return new MapgenV5((MapgenV5Params *)params, emerge);
-	case MAPGEN_V6:
-		return new MapgenV6((MapgenV6Params *)params, emerge);
 	case MAPGEN_V7:
 		return new MapgenV7((MapgenV7Params *)params, emerge);
-	case MAPGEN_VALLEYS:
-		return new MapgenValleys((MapgenValleysParams *)params, emerge);
 	default:
 		return nullptr;
 	}
@@ -191,22 +166,10 @@ Mapgen *Mapgen::createMapgen(MapgenType mgtype, MapgenParams *params,
 MapgenParams *Mapgen::createMapgenParams(MapgenType mgtype)
 {
 	switch (mgtype) {
-	case MAPGEN_CARPATHIAN:
-		return new MapgenCarpathianParams;
 	case MAPGEN_FLAT:
 		return new MapgenFlatParams;
-	case MAPGEN_FRACTAL:
-		return new MapgenFractalParams;
-	case MAPGEN_SINGLENODE:
-		return new MapgenSinglenodeParams;
-	case MAPGEN_V5:
-		return new MapgenV5Params;
-	case MAPGEN_V6:
-		return new MapgenV6Params;
 	case MAPGEN_V7:
 		return new MapgenV7Params;
-	case MAPGEN_VALLEYS:
-		return new MapgenValleysParams;
 	default:
 		return nullptr;
 	}

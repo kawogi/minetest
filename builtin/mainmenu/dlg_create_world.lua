@@ -33,9 +33,6 @@ local cb_caverns = { "caverns", fgettext("Caverns"),
 	fgettext("Very large caverns deep in the underground") }
 
 local flag_checkboxes = {
-	v5 = {
-		cb_caverns,
-	},
 	v7 = {
 		cb_caverns,
 		{ "ridges", fgettext("Rivers"), fgettext("Sea level rivers") },
@@ -43,34 +40,10 @@ local flag_checkboxes = {
 		{ "floatlands", fgettext("Floatlands (experimental)"),
 		fgettext("Floating landmasses in the sky") },
 	},
-	carpathian = {
-		cb_caverns,
-		{ "rivers", fgettext("Rivers"), fgettext("Sea level rivers") },
-	},
-	valleys = {
-		{ "altitude_chill", fgettext("Altitude chill"),
-		fgettext("Reduces heat with altitude") },
-		{ "altitude_dry", fgettext("Altitude dry"),
-		fgettext("Reduces humidity with altitude") },
-		{ "humid_rivers", fgettext("Humid rivers"),
-		fgettext("Increases humidity around rivers") },
-		{ "vary_river_depth", fgettext("Vary river depth"),
-		fgettext("Low humidity and high heat causes shallow or dry rivers") },
-	},
 	flat = {
 		cb_caverns,
 		{ "hills", fgettext("Hills") },
 		{ "lakes", fgettext("Lakes") },
-	},
-	fractal = {
-		{ "terrain", fgettext("Additional terrain"),
-		fgettext("Generate non-fractal terrain: Oceans and underground") },
-	},
-	v6 = {
-		{ "trees", fgettext("Trees and jungle grass") },
-		{ "flat", fgettext("Flat terrain") },
-		{ "mudflow", fgettext("Mud flow"), fgettext("Terrain surface erosion") },
-		-- Biome settings are in mgv6_biomes below
 	},
 }
 
@@ -385,12 +358,7 @@ local function create_world_buttonhandler(this, fields)
 				fixed_map_seed = this.data.seed,
 				mg_name = this.data.mg,
 				mg_flags = table_to_flags(this.data.flags.main),
-				mgv5_spflags = table_to_flags(this.data.flags.v5),
-				mgv6_spflags = table_to_flags(this.data.flags.v6),
 				mgv7_spflags = table_to_flags(this.data.flags.v7),
-				mgfractal_spflags = table_to_flags(this.data.flags.fractal),
-				mgcarpathian_spflags = table_to_flags(this.data.flags.carpathian),
-				mgvalleys_spflags = table_to_flags(this.data.flags.valleys),
 				mgflat_spflags = table_to_flags(this.data.flags.flat),
 			}
 			message = core.create_world(worldname, game.id, settings)
@@ -468,12 +436,7 @@ function create_create_world_dlg()
 		mg = core.settings:get("mg_name"),
 		flags = {
 			main = core.settings:get_flags("mg_flags"),
-			v5 = core.settings:get_flags("mgv5_spflags"),
-			v6 = core.settings:get_flags("mgv6_spflags"),
 			v7 = core.settings:get_flags("mgv7_spflags"),
-			fractal = core.settings:get_flags("mgfractal_spflags"),
-			carpathian = core.settings:get_flags("mgcarpathian_spflags"),
-			valleys = core.settings:get_flags("mgvalleys_spflags"),
 			flat = core.settings:get_flags("mgflat_spflags"),
 		}
 	}

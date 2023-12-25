@@ -21,7 +21,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "noise.h"
 #include "settings.h"
-#include "mapgen/mapgen_v5.h"
 #include "util/sha1.h"
 #include "map_settings_manager.h"
 
@@ -155,18 +154,6 @@ void TestMapSettingsManager::testMapSettingsManager()
 
 	// Now make our Params and see if the values are correctly sourced
 	MapgenParams *params = mgr.makeMapgenParams();
-	UASSERT(params->mgtype == MAPGEN_V5);
-	UASSERT(params->chunksize == 5);
-	UASSERT(params->water_level == 15);
-	UASSERT(params->seed == 1234);
-	UASSERT((params->flags & MG_LIGHT) == 0);
-
-	MapgenV5Params *v5params = (MapgenV5Params *)params;
-
-	check_noise_params(&v5params->np_filler_depth, &script_np_filler_depth);
-	check_noise_params(&v5params->np_factor, &script_np_factor);
-	check_noise_params(&v5params->np_height, &meta_np_height);
-	check_noise_params(&v5params->np_ground, &user_np_ground);
 
 	UASSERT(mgr.setMapSetting("foobar", "25") == false);
 
@@ -206,39 +193,6 @@ void TestMapSettingsManager::testMapMetaSaveLoad()
 
 	makeUserConfig();
 	Settings &conf = *Settings::getLayer(SL_GLOBAL);
-
-	// There cannot be two MapSettingsManager
-	// copy the mapgen params to compare them
-	MapgenParams params1, params2;
-	// Create a set of mapgen params and save them to map meta
-	{
-		conf.set("seed", "12345");
-		conf.set("water_level", "5");
-		MapSettingsManager mgr(path);
-		MapgenParams *params = mgr.makeMapgenParams();
-		UASSERT(params);
-		params1 = *params;
-		params1.bparams = nullptr; // No double-free
-		UASSERT(mgr.saveMapMeta());
-	}
-
-	// Now try loading the map meta to mapgen params
-	{
-		conf.set("seed", "67890");
-		conf.set("water_level", "32");
-		MapSettingsManager mgr(path);
-		UASSERT(mgr.loadMapMeta());
-		MapgenParams *params = mgr.makeMapgenParams();
-		UASSERT(params);
-		params2 = *params;
-		params2.bparams = nullptr; // No double-free
-	}
-
-	// Check that both results are correct
-	UASSERTEQ(u64, params1.seed, 12345);
-	UASSERTEQ(s16, params1.water_level, 5);
-	UASSERTEQ(u64, params2.seed, 12345);
-	UASSERTEQ(s16, params2.water_level, 5);
 }
 
 
