@@ -69,8 +69,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #if USE_POSTGRESQL
 #include "database/database-postgresql.h"
 #endif
-#include "database/database-files.h"
-#include "database/database-dummy.h"
 #include "gameparams.h"
 #include "particles.h"
 #include "gettext.h"
@@ -4053,12 +4051,6 @@ ModStorageDatabase *Server::openModStorageDatabase(const std::string &backend,
 		return new ModStorageDatabasePostgreSQL(connect_string);
 	}
 #endif // USE_POSTGRESQL
-
-	if (backend == "files")
-		return new ModStorageDatabaseFiles(world_path);
-
-	if (backend == "dummy")
-		return new Database_Dummy();
 
 	throw BaseException("Mod storage database backend " + backend + " not supported");
 }

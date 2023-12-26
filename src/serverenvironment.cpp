@@ -39,8 +39,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "threading/mutex_auto_lock.h"
 #include "filesys.h"
 #include "gameparams.h"
-#include "database/database-dummy.h"
-#include "database/database-files.h"
 #include "database/database-sqlite3.h"
 #if USE_POSTGRESQL
 #include "database/database-postgresql.h"
@@ -2236,9 +2234,6 @@ PlayerDatabase *ServerEnvironment::openPlayerDatabase(const std::string &name,
 	if (name == "sqlite3")
 		return new PlayerDatabaseSQLite3(savedir);
 
-	if (name == "dummy")
-		return new Database_Dummy();
-
 #if USE_POSTGRESQL
 	if (name == "postgresql") {
 		std::string connect_string;
@@ -2251,9 +2246,6 @@ PlayerDatabase *ServerEnvironment::openPlayerDatabase(const std::string &name,
 	if (name == "leveldb")
 		return new PlayerDatabaseLevelDB(savedir);
 #endif
-
-	if (name == "files")
-		return new PlayerDatabaseFiles(savedir + DIR_DELIM + "players");
 
 	throw BaseException(std::string("Database backend ") + name + " not supported.");
 }
@@ -2358,9 +2350,6 @@ AuthDatabase *ServerEnvironment::openAuthDatabase(
 		return new AuthDatabasePostgreSQL(connect_string);
 	}
 #endif
-
-	if (name == "files")
-		return new AuthDatabaseFiles(savedir);
 
 #if USE_LEVELDB
 	if (name == "leveldb")

@@ -26,8 +26,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include <algorithm>
 #include <cstdlib>
-#include "database/database-dummy.h"
-#include "database/database-files.h"
 #include "database/database-sqlite3.h"
 #if USE_POSTGRESQL
 #include "database/database-postgresql.h"
@@ -61,33 +59,6 @@ public:
 
 private:
 	ModStorageDatabase *m_db;
-};
-
-class FilesProvider : public ModStorageDatabaseProvider
-{
-public:
-	FilesProvider(const std::string &dir): m_dir(dir) {}
-
-	~FilesProvider()
-	{
-		if (m_db)
-			m_db->endSave();
-		delete m_db;
-	}
-
-	ModStorageDatabase *getModStorageDatabase() override
-	{
-		if (m_db)
-			m_db->endSave();
-		delete m_db;
-		m_db = new ModStorageDatabaseFiles(m_dir);
-		m_db->beginSave();
-		return m_db;
-	}
-
-private:
-	std::string m_dir;
-	ModStorageDatabase *m_db = nullptr;
 };
 
 class SQLite3Provider : public ModStorageDatabaseProvider
@@ -193,37 +164,6 @@ void TestModStorageDatabase::runTests(IGameDef *gamedef)
 	// Since the dummy database is only in-memory, it has no persistence to test.
 
 	ModStorageDatabase *mod_storage_db;
-
-	rawstream << "-------- Dummy database (same object only)" << std::endl;
-
-	mod_storage_db = new Database_Dummy();
-	mod_storage_provider = new FixedProvider(mod_storage_db);
-
-	runTestsForCurrentDB();
-
-	delete mod_storage_db;
-	delete mod_storage_provider;
-
-	rawstream << "-------- Files database (same object)" << std::endl;
-
-	mod_storage_db = new ModStorageDatabaseFiles(test_dir);
-	mod_storage_provider = new FixedProvider(mod_storage_db);
-
-	runTestsForCurrentDB();
-
-	delete mod_storage_db;
-	delete mod_storage_provider;
-
-	// reset database
-	fs::RecursiveDelete(test_dir + DIR_DELIM + "mod_storage");
-
-	rawstream << "-------- Files database (new objects)" << std::endl;
-
-	mod_storage_provider = new FilesProvider(test_dir);
-
-	runTestsForCurrentDB();
-
-	delete mod_storage_provider;
 
 	rawstream << "-------- SQLite3 database (same object)" << std::endl;
 

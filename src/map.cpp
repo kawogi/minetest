@@ -40,7 +40,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "config.h"
 #include "server.h"
 #include "database/database.h"
-#include "database/database-dummy.h"
 #include "database/database-sqlite3.h"
 #include "script/scripting_server.h"
 #include "irrlicht_changes/printing.h"
@@ -1744,8 +1743,6 @@ MapDatabase *ServerMap::createDatabase(
 {
 	if (name == "sqlite3")
 		return new MapDatabaseSQLite3(savedir);
-	if (name == "dummy")
-		return new Database_Dummy();
 	#if USE_LEVELDB
 	if (name == "leveldb")
 		return new Database_LevelDB(savedir);

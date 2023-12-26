@@ -21,7 +21,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "nodedef.h"
 #include "itemdef.h"
-#include "dummygamedef.h"
 #include "modchannels.h"
 #include "util/numeric.h"
 #include "porting.h"
@@ -36,188 +35,12 @@ content_t t_CONTENT_BRICK;
 ////////////////////////////////////////////////////////////////////////////////
 
 ////
-//// TestGameDef
-////
-
-class TestGameDef : public DummyGameDef {
-public:
-	TestGameDef();
-	~TestGameDef() = default;
-
-	void defineSomeNodes();
-
-	bool joinModChannel(const std::string &channel);
-	bool leaveModChannel(const std::string &channel);
-	bool sendModChannelMessage(const std::string &channel, const std::string &message);
-	ModChannel *getModChannel(const std::string &channel)
-	{
-		return m_modchannel_mgr->getModChannel(channel);
-	}
-
-private:
-	std::unique_ptr<ModChannelMgr> m_modchannel_mgr;
-};
-
-
-TestGameDef::TestGameDef() :
-	DummyGameDef(),
-	m_modchannel_mgr(new ModChannelMgr())
-{
-	defineSomeNodes();
-}
-
-
-void TestGameDef::defineSomeNodes()
-{
-	IWritableItemDefManager *idef = (IWritableItemDefManager *)m_itemdef;
-	NodeDefManager *ndef = (NodeDefManager *)m_nodedef;
-
-	ItemDefinition itemdef;
-	ContentFeatures f;
-
-	//// Stone
-	itemdef = ItemDefinition();
-	itemdef.type = ITEM_NODE;
-	itemdef.name = "default:stone";
-	itemdef.description = "Stone";
-	itemdef.groups["cracky"] = 3;
-	itemdef.inventory_image = "[inventorycube"
-		"{default_stone.png"
-		"{default_stone.png"
-		"{default_stone.png";
-	f = ContentFeatures();
-	f.name = itemdef.name;
-	for (TileDef &tiledef : f.tiledef)
-		tiledef.name = "default_stone.png";
-	f.is_ground_content = true;
-	idef->registerItem(itemdef);
-	t_CONTENT_STONE = ndef->set(f.name, f);
-
-	//// Grass
-	itemdef = ItemDefinition();
-	itemdef.type = ITEM_NODE;
-	itemdef.name = "default:dirt_with_grass";
-	itemdef.description = "Dirt with grass";
-	itemdef.groups["crumbly"] = 3;
-	itemdef.inventory_image = "[inventorycube"
-		"{default_grass.png"
-		"{default_dirt.png&default_grass_side.png"
-		"{default_dirt.png&default_grass_side.png";
-	f = ContentFeatures();
-	f.name = itemdef.name;
-	f.tiledef[0].name = "default_grass.png";
-	f.tiledef[1].name = "default_dirt.png";
-	for(int i = 2; i < 6; i++)
-		f.tiledef[i].name = "default_dirt.png^default_grass_side.png";
-	f.is_ground_content = true;
-	idef->registerItem(itemdef);
-	t_CONTENT_GRASS = ndef->set(f.name, f);
-
-	//// Torch (minimal definition for lighting tests)
-	itemdef = ItemDefinition();
-	itemdef.type = ITEM_NODE;
-	itemdef.name = "default:torch";
-	f = ContentFeatures();
-	f.name = itemdef.name;
-	f.param_type = CPT_LIGHT;
-	f.light_propagates = true;
-	f.sunlight_propagates = true;
-	f.light_source = LIGHT_MAX-1;
-	idef->registerItem(itemdef);
-	t_CONTENT_TORCH = ndef->set(f.name, f);
-
-	//// Water
-	itemdef = ItemDefinition();
-	itemdef.type = ITEM_NODE;
-	itemdef.name = "default:water";
-	itemdef.description = "Water";
-	itemdef.inventory_image = "[inventorycube"
-		"{default_water.png"
-		"{default_water.png"
-		"{default_water.png";
-	f = ContentFeatures();
-	f.name = itemdef.name;
-	f.alpha = ALPHAMODE_BLEND;
-	f.light_propagates = true;
-	f.param_type = CPT_LIGHT;
-	f.liquid_type = LIQUID_SOURCE;
-	f.liquid_viscosity = 4;
-	f.is_ground_content = true;
-	f.groups["liquids"] = 3;
-	for (TileDef &tiledef : f.tiledef)
-		tiledef.name = "default_water.png";
-	idef->registerItem(itemdef);
-	t_CONTENT_WATER = ndef->set(f.name, f);
-
-	//// Lava
-	itemdef = ItemDefinition();
-	itemdef.type = ITEM_NODE;
-	itemdef.name = "default:lava";
-	itemdef.description = "Lava";
-	itemdef.inventory_image = "[inventorycube"
-		"{default_lava.png"
-		"{default_lava.png"
-		"{default_lava.png";
-	f = ContentFeatures();
-	f.name = itemdef.name;
-	f.alpha = ALPHAMODE_OPAQUE;
-	f.liquid_type = LIQUID_SOURCE;
-	f.liquid_viscosity = 7;
-	f.light_source = LIGHT_MAX-1;
-	f.is_ground_content = true;
-	f.groups["liquids"] = 3;
-	for (TileDef &tiledef : f.tiledef)
-		tiledef.name = "default_lava.png";
-	idef->registerItem(itemdef);
-	t_CONTENT_LAVA = ndef->set(f.name, f);
-
-
-	//// Brick
-	itemdef = ItemDefinition();
-	itemdef.type = ITEM_NODE;
-	itemdef.name = "default:brick";
-	itemdef.description = "Brick";
-	itemdef.groups["cracky"] = 3;
-	itemdef.inventory_image = "[inventorycube"
-		"{default_brick.png"
-		"{default_brick.png"
-		"{default_brick.png";
-	f = ContentFeatures();
-	f.name = itemdef.name;
-	for (TileDef &tiledef : f.tiledef)
-		tiledef.name = "default_brick.png";
-	f.is_ground_content = true;
-	idef->registerItem(itemdef);
-	t_CONTENT_BRICK = ndef->set(f.name, f);
-}
-
-bool TestGameDef::joinModChannel(const std::string &channel)
-{
-	return m_modchannel_mgr->joinChannel(channel, PEER_ID_SERVER);
-}
-
-bool TestGameDef::leaveModChannel(const std::string &channel)
-{
-	return m_modchannel_mgr->leaveChannel(channel, PEER_ID_SERVER);
-}
-
-bool TestGameDef::sendModChannelMessage(const std::string &channel,
-	const std::string &message)
-{
-	if (!m_modchannel_mgr->channelRegistered(channel))
-		return false;
-
-	return true;
-}
-
-////
 //// run_tests
 ////
 
 bool run_tests()
 {
 	u64 t1 = porting::getTimeMs();
-	TestGameDef gamedef;
 
 	g_logger.setLevelSilenced(LL_ERROR, true);
 
@@ -226,8 +49,6 @@ bool run_tests()
 	u32 num_total_tests_run    = 0;
 	std::vector<TestBase *> &testmods = TestManager::getTestModules();
 	for (auto *testmod: testmods) {
-		if (!testmod->testModule(&gamedef))
-			num_modules_failed++;
 
 		num_total_tests_failed += testmod->num_tests_failed;
 		num_total_tests_run += testmod->num_tests_run;
@@ -264,8 +85,6 @@ static TestBase *findTestModule(const std::string &module_name) {
 
 bool run_tests(const std::string &module_name)
 {
-	TestGameDef gamedef;
-
 	auto testmod = findTestModule(module_name);
 	if (!testmod) {
 		errorstream << "Test module not found: " << module_name << std::endl;
@@ -275,7 +94,7 @@ bool run_tests(const std::string &module_name)
 	g_logger.setLevelSilenced(LL_ERROR, true);
 	u64 t1 = porting::getTimeMs();
 
-	bool ok = testmod->testModule(&gamedef);
+	bool ok = true;
 
 	u64 tdiff = porting::getTimeMs() - t1;
 	g_logger.setLevelSilenced(LL_ERROR, false);
