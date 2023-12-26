@@ -45,16 +45,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "irrlicht_changes/printing.h"
 #include <deque>
 #include <queue>
-#if USE_LEVELDB
-#include "database/database-leveldb.h"
-#endif
-#if USE_REDIS
-#include "database/database-redis.h"
-#endif
-#if USE_POSTGRESQL
-#include "database/database-postgresql.h"
-#endif
-
 
 /*
 	Map
@@ -1743,21 +1733,6 @@ MapDatabase *ServerMap::createDatabase(
 {
 	if (name == "sqlite3")
 		return new MapDatabaseSQLite3(savedir);
-	#if USE_LEVELDB
-	if (name == "leveldb")
-		return new Database_LevelDB(savedir);
-	#endif
-	#if USE_REDIS
-	if (name == "redis")
-		return new Database_Redis(conf);
-	#endif
-	#if USE_POSTGRESQL
-	if (name == "postgresql") {
-		std::string connect_string;
-		conf.getNoEx("pgsql_connection", connect_string);
-		return new MapDatabasePostgreSQL(connect_string);
-	}
-	#endif
 
 	throw BaseException(std::string("Database backend ") + name + " not supported.");
 }

@@ -66,9 +66,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "server/serverinventorymgr.h"
 #include "translation.h"
 #include "database/database-sqlite3.h"
-#if USE_POSTGRESQL
-#include "database/database-postgresql.h"
-#endif
 #include "gameparams.h"
 #include "particles.h"
 #include "gettext.h"
@@ -4043,14 +4040,6 @@ ModStorageDatabase *Server::openModStorageDatabase(const std::string &backend,
 {
 	if (backend == "sqlite3")
 		return new ModStorageDatabaseSQLite3(world_path);
-
-#if USE_POSTGRESQL
-	if (backend == "postgresql") {
-		std::string connect_string;
-		world_mt.getNoEx("pgsql_mod_storage_connection", connect_string);
-		return new ModStorageDatabasePostgreSQL(connect_string);
-	}
-#endif // USE_POSTGRESQL
 
 	throw BaseException("Mod storage database backend " + backend + " not supported");
 }

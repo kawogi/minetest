@@ -3,10 +3,10 @@
 # Linux build only
 install_linux_deps() {
 	local pkgs=(
-		cmake gettext postgresql
+		cmake gettext
 		libpng-dev libjpeg-dev libxi-dev libgl1-mesa-dev
-		libsqlite3-dev libhiredis-dev libogg-dev libgmp-dev libvorbis-dev
-		libopenal-dev libpq-dev libleveldb-dev libcurl4-openssl-dev libzstd-dev
+		libsqlite3-dev libogg-dev libgmp-dev libvorbis-dev
+		libopenal-dev libpq-dev libcurl4-openssl-dev libzstd-dev
 	)
 
 	if [[ "$1" == "--no-irr" ]]; then
@@ -19,10 +19,4 @@ install_linux_deps() {
 
 	sudo apt-get update
 	sudo apt-get install -y --no-install-recommends "${pkgs[@]}" "$@"
-
-	sudo systemctl start postgresql.service
-	sudo -u postgres psql <<<"
-		CREATE USER minetest WITH PASSWORD 'minetest';
-		CREATE DATABASE minetest;
-	"
 }

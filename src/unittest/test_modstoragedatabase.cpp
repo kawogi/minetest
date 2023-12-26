@@ -27,9 +27,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <algorithm>
 #include <cstdlib>
 #include "database/database-sqlite3.h"
-#if USE_POSTGRESQL
-#include "database/database-postgresql.h"
-#endif
 #include "filesys.h"
 
 namespace
@@ -88,45 +85,6 @@ private:
 	ModStorageDatabase *m_db = nullptr;
 };
 
-#if USE_POSTGRESQL
-void clearPostgreSQLDatabase(const std::string &connect_string)
-{
-	ModStorageDatabasePostgreSQL db(connect_string);
-	std::vector<std::string> modnames;
-	db.beginSave();
-	db.listMods(&modnames);
-	for (const std::string &modname : modnames)
-		db.removeModEntries(modname);
-	db.endSave();
-}
-
-class PostgreSQLProvider : public ModStorageDatabaseProvider
-{
-public:
-	PostgreSQLProvider(const std::string &connect_string): m_connect_string(connect_string) {}
-
-	~PostgreSQLProvider()
-	{
-		if (m_db)
-			m_db->endSave();
-		delete m_db;
-	}
-
-	ModStorageDatabase *getModStorageDatabase() override
-	{
-		if (m_db)
-			m_db->endSave();
-		delete m_db;
-		m_db = new ModStorageDatabasePostgreSQL(m_connect_string);
-		m_db->beginSave();
-		return m_db;
-	};
-
-private:
-	std::string m_connect_string;
-	ModStorageDatabase *m_db = nullptr;
-};
-#endif // USE_POSTGRESQL
 }
 
 class TestModStorageDatabase : public TestBase
@@ -186,32 +144,6 @@ void TestModStorageDatabase::runTests(IGameDef *gamedef)
 
 	delete mod_storage_provider;
 
-#if USE_POSTGRESQL
-	const char *env_postgresql_connect_string = getenv("MINETEST_POSTGRESQL_CONNECT_STRING");
-	if (env_postgresql_connect_string) {
-		std::string connect_string(env_postgresql_connect_string);
-
-		rawstream << "-------- PostgreSQL database (same object)" << std::endl;
-
-		clearPostgreSQLDatabase(connect_string);
-		mod_storage_db = new ModStorageDatabasePostgreSQL(connect_string);
-		mod_storage_provider = new FixedProvider(mod_storage_db);
-
-		runTestsForCurrentDB();
-
-		delete mod_storage_db;
-		delete mod_storage_provider;
-
-		rawstream << "-------- PostgreSQL database (new objects)" << std::endl;
-
-		clearPostgreSQLDatabase(connect_string);
-		mod_storage_provider = new PostgreSQLProvider(connect_string);
-
-		runTestsForCurrentDB();
-
-		delete mod_storage_provider;
-	}
-#endif // USE_POSTGRESQL
 }
 
 ////////////////////////////////////////////////////////////////////////////////
