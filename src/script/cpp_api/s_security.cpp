@@ -22,7 +22,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "filesys.h"
 #include "porting.h"
 #include "server.h"
-#include "client/client.h"
 #include "settings.h"
 
 #include <cerrno>
@@ -411,12 +410,6 @@ void ScriptApiSecurity::setLuaEnv(lua_State *L, int thread)
 
 bool ScriptApiSecurity::isSecure(lua_State *L)
 {
-#ifndef SERVER
-	auto script = ModApiBase::getScriptApiBase(L);
-	// CSM keeps no globals backup but is always secure
-	if (script->getType() == ScriptingType::Client)
-		return true;
-#endif
 	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_GLOBALS_BACKUP);
 	bool secure = !lua_isnil(L, -1);
 	lua_pop(L, 1);
@@ -712,30 +705,6 @@ int ScriptApiSecurity::sl_g_load(lua_State *L)
 
 int ScriptApiSecurity::sl_g_loadfile(lua_State *L)
 {
-#ifndef SERVER
-	ScriptApiBase *script = ModApiBase::getScriptApiBase(L);
-
-	// Client implementation
-	if (script->getType() == ScriptingType::Client) {
-		std::string path = readParam<std::string>(L, 1);
-		const std::string *contents = script->getClient()->getModFile(path);
-		if (!contents) {
-			std::string error_msg = "Coudln't find script called: " + path;
-			lua_pushnil(L);
-			lua_pushstring(L, error_msg.c_str());
-			return 2;
-		}
-
-		std::string chunk_name = "@" + path;
-		if (!safeLoadString(L, *contents, chunk_name.c_str())) {
-			lua_pushnil(L);
-			lua_insert(L, -2);
-			return 2;
-		}
-		return 1;
-	}
-#endif
-
 	// Server implementation
 	const char *path = NULL;
 	if (lua_isstring(L, 1)) {

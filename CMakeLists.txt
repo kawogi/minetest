@@ -38,8 +38,6 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug)
 endif()
 
 # Configuration options
-set(BUILD_CLIENT TRUE CACHE BOOL "Build client")
-set(BUILD_SERVER FALSE CACHE BOOL "Build server")
 set(BUILD_UNITTESTS TRUE CACHE BOOL "Build unittests")
 set(BUILD_DOCUMENTATION TRUE CACHE BOOL "Build documentation")
 
@@ -51,8 +49,6 @@ set(RUN_IN_PLACE ${DEFAULT_RUN_IN_PLACE} CACHE BOOL
 	"Run directly in source directory structure")
 
 message(STATUS "*** Will build version ${VERSION_STRING} ***")
-message(STATUS "BUILD_CLIENT: " ${BUILD_CLIENT})
-message(STATUS "BUILD_SERVER: " ${BUILD_SERVER})
 message(STATUS "BUILD_UNITTESTS: " ${BUILD_UNITTESTS})
 message(STATUS "BUILD_DOCUMENTATION: " ${BUILD_DOCUMENTATION})
 message(STATUS "RUN_IN_PLACE: " ${RUN_IN_PLACE})
@@ -83,30 +79,16 @@ if(NOT "${IRRLICHTMT_BUILD_DIR}" STREQUAL "")
 		# IrrlichtMtConfig.cmake
 		message(FATAL_ERROR "Could not find IrrlichtMtConfig.cmake in ${IRRLICHTMT_BUILD_DIR}/cmake.")
 	endif()
-elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lib/irrlichtmt")
-	message(STATUS "Using user-provided IrrlichtMt at subdirectory 'lib/irrlichtmt'")
-	if(BUILD_CLIENT)
-		# tell IrrlichtMt to create a static library
-		set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared library" FORCE)
-		add_subdirectory(lib/irrlichtmt EXCLUDE_FROM_ALL)
-		unset(BUILD_SHARED_LIBS CACHE)
-
-		if(NOT TARGET IrrlichtMt)
-			message(FATAL_ERROR "IrrlichtMt project is missing a CMake target?!")
-		endif()
-	else()
-		add_library(IrrlichtMt::IrrlichtMt INTERFACE IMPORTED)
-		set_target_properties(IrrlichtMt::IrrlichtMt PROPERTIES
-			INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/lib/irrlichtmt/include")
-	endif()
+elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lib/irrlichtmt-server")
+	message(STATUS "Using user-provided IrrlichtMt at subdirectory 'lib/irrlichtmt-server'")
+	add_library(IrrlichtMt::IrrlichtMt INTERFACE IMPORTED)
+	set_target_properties(IrrlichtMt::IrrlichtMt PROPERTIES
+		INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/lib/irrlichtmt-server/include")
 else()
 	find_package(IrrlichtMt QUIET)
 	if(NOT TARGET IrrlichtMt::IrrlichtMt)
 		string(CONCAT explanation_msg
 			"You must install IrrlichMt as described in docs/compiling/\n")
-		if(BUILD_CLIENT)
-			message(FATAL_ERROR "IrrlichtMt is required to build the client, but it was not found.\n${explanation_msg}")
-		endif()
 
 		include(MinetestFindIrrlichtHeaders)
 		if(NOT IRRLICHT_INCLUDE_DIR)
@@ -117,22 +99,6 @@ else()
 		# Note that we can't use target_include_directories() since that doesn't work for IMPORTED targets before CMake 3.11
 		set_target_properties(IrrlichtMt::IrrlichtMt PROPERTIES
 			INTERFACE_INCLUDE_DIRECTORIES "${IRRLICHT_INCLUDE_DIR}")
-	endif()
-endif()
-
-if(BUILD_CLIENT AND TARGET IrrlichtMt::IrrlichtMt)
-	# retrieve version somehow
-	if(NOT IrrlichtMt_VERSION)
-		get_target_property(IrrlichtMt_VERSION IrrlichtMt VERSION)
-	endif()
-	message(STATUS "Found IrrlichtMt ${IrrlichtMt_VERSION}")
-
-	set(TARGET_VER_S 1.9.0mt13)
-	string(REPLACE "mt" "." TARGET_VER ${TARGET_VER_S})
-	if(IrrlichtMt_VERSION VERSION_LESS ${TARGET_VER})
-		message(FATAL_ERROR "At least IrrlichtMt ${TARGET_VER_S} is required to build")
-	elseif(NOT DEVELOPMENT_BUILD AND IrrlichtMt_VERSION VERSION_GREATER ${TARGET_VER})
-		message(FATAL_ERROR "IrrlichtMt ${TARGET_VER_S} is required to build")
 	endif()
 endif()
 
@@ -244,15 +210,6 @@ set(INSTALL_DEVTEST FALSE CACHE BOOL "Install Development Test")
 if(INSTALL_DEVTEST)
 	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/games/devtest" DESTINATION "${SHAREDIR}/games/"
 		PATTERN ".git*" EXCLUDE )
-endif()
-
-if(BUILD_CLIENT)
-	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/client/shaders" DESTINATION "${SHAREDIR}/client")
-	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/textures/base/pack" DESTINATION "${SHAREDIR}/textures/base")
-	if(RUN_IN_PLACE)
-		install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/clientmods" DESTINATION "${SHAREDIR}")
-		install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/client/serverlist" DESTINATION "${SHAREDIR}/client")
-	endif()
 endif()
 
 install(FILES "README.md" DESTINATION "${DOCDIR}" COMPONENT "Docs")

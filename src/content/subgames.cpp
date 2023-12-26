@@ -28,10 +28,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "map_settings_manager.h"
 #include "util/string.h"
 
-#ifndef SERVER
-#include "client/tile.h" // getImagePath
-#endif
-
 // The maximum number of identical world names allowed
 #define MAX_WORLD_NAMES 100
 
@@ -158,10 +154,6 @@ SubgameSpec findSubgame(const std::string &id)
 		game_release = conf.getS32("release");
 
 	std::string menuicon_path;
-#ifndef SERVER
-	menuicon_path = getImagePath(
-			game_path + DIR_DELIM + "menu" + DIR_DELIM + "icon.png");
-#endif
 
 	SubgameSpec spec(id, game_path, gamemod_path, mods_paths, game_title,
 			menuicon_path, game_author, game_release);

@@ -65,9 +65,6 @@ enum class ScriptingType: u8 {
 };
 
 class Server;
-#ifndef SERVER
-class Client;
-#endif
 class IGameDef;
 class Environment;
 class GUIEngine;
@@ -89,10 +86,6 @@ public:
 	void loadMod(const std::string &script_path, const std::string &mod_name);
 	void loadScript(const std::string &script_path);
 
-#ifndef SERVER
-	void loadModFromMemory(const std::string &mod_name);
-#endif
-
 	void runCallbacksRaw(int nargs,
 		RunCallbacksMode mode, const char *fxn);
 
@@ -104,9 +97,6 @@ public:
 
 	IGameDef *getGameDef() { return m_gamedef; }
 	Server* getServer();
-#ifndef SERVER
-	Client* getClient();
-#endif
 
 	// IMPORTANT: these cannot be used for any security-related uses, they exist
 	// only to enrich error messages
@@ -153,11 +143,6 @@ protected:
 	Environment* getEnv() { return m_environment; }
 	void setEnv(Environment* env) { m_environment = env; }
 
-#ifndef SERVER
-	GUIEngine* getGuiEngine() { return m_guiengine; }
-	void setGuiEngine(GUIEngine* guiengine) { m_guiengine = guiengine; }
-#endif
-
 	void objectrefGetOrCreate(lua_State *L, ServerActiveObject *cobj);
 
 	void pushPlayerHPChangeReason(lua_State *L, const PlayerHPChangeReason& reason);
@@ -177,8 +162,5 @@ private:
 
 	IGameDef       *m_gamedef = nullptr;
 	Environment    *m_environment = nullptr;
-#ifndef SERVER
-	GUIEngine      *m_guiengine = nullptr;
-#endif
 	ScriptingType  m_type;
 };

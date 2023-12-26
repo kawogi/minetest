@@ -23,10 +23,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "map.h"
 #include "nodedef.h"
 #include "gamedef.h"
-#ifndef SERVER
-#include "client/clientenvironment.h"
-#include "client/localplayer.h"
-#endif
 #include "serverenvironment.h"
 #include "server/serveractiveobject.h"
 #include "util/timetaker.h"
@@ -372,25 +368,6 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		/* add object boxes to cinfo */
 
 		std::vector<ActiveObject*> objects;
-#ifndef SERVER
-		ClientEnvironment *c_env = dynamic_cast<ClientEnvironment*>(env);
-		if (c_env != 0) {
-			// Calculate distance by speed, add own extent and 1.5m of tolerance
-			f32 distance = speed_f->getLength() * dtime +
-				box_0.getExtent().getLength() + 1.5f * BS;
-			std::vector<DistanceSortedActiveObject> clientobjects;
-			c_env->getActiveObjects(*pos_f, distance, clientobjects);
-
-			for (auto &clientobject : clientobjects) {
-				// Do collide with everything but itself and the parent CAO
-				if (!self || (self != clientobject.obj &&
-						self != clientobject.obj->getParent())) {
-					objects.push_back((ActiveObject*) clientobject.obj);
-				}
-			}
-		}
-		else
-#endif
 		{
 			if (s_env != NULL) {
 				// Calculate distance by speed, add own extent and 1.5m of tolerance
@@ -423,19 +400,6 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 					cinfo.emplace_back(object, 0, object_collisionbox);
 			}
 		}
-#ifndef SERVER
-		if (self && c_env) {
-			LocalPlayer *lplayer = c_env->getLocalPlayer();
-			if (lplayer->getParent() == nullptr) {
-				aabb3f lplayer_collisionbox = lplayer->getCollisionbox();
-				v3f lplayer_pos = lplayer->getPosition();
-				lplayer_collisionbox.MinEdge += lplayer_pos;
-				lplayer_collisionbox.MaxEdge += lplayer_pos;
-				ActiveObject *obj = (ActiveObject*) lplayer->getCAO();
-				cinfo.emplace_back(obj, 0, lplayer_collisionbox);
-			}
-		}
-#endif
 	} //tt3
 
 	/*

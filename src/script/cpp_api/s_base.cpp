@@ -28,9 +28,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "porting.h"
 #include "util/string.h"
 #include "server.h"
-#ifndef SERVER
-#include "client/client.h"
-#endif
 
 
 extern "C" {
@@ -253,41 +250,6 @@ void ScriptApiBase::loadScript(const std::string &script_path)
 	lua_pop(L, 1); // Pop error handler
 }
 
-#ifndef SERVER
-void ScriptApiBase::loadModFromMemory(const std::string &mod_name)
-{
-	ModNameStorer mod_name_storer(getStack(), mod_name);
-
-	sanity_check(m_type == ScriptingType::Client);
-
-	const std::string init_filename = mod_name + ":init.lua";
-	const std::string chunk_name = "@" + init_filename;
-
-	const std::string *contents = getClient()->getModFile(init_filename);
-	if (!contents)
-		throw ModError("Mod \"" + mod_name + "\" lacks init.lua");
-
-	verbosestream << "Loading and running script " << chunk_name << std::endl;
-
-	lua_State *L = getStack();
-
-	int error_handler = PUSH_ERROR_HANDLER(L);
-
-	bool ok = ScriptApiSecurity::safeLoadString(L, *contents, chunk_name.c_str());
-	if (ok)
-		ok = !lua_pcall(L, 0, 0, error_handler);
-	if (!ok) {
-		const char *error_msg = lua_tostring(L, -1);
-		if (!error_msg)
-			error_msg = "(error object is not a string)";
-		lua_pop(L, 2); // Pop error message and error handler
-		throw ModError("Failed to load and run mod \"" +
-				mod_name + "\":\n" + error_msg);
-	}
-	lua_pop(L, 1); // Pop error handler
-}
-#endif
-
 // Push the list of callbacks (a lua table).
 // Then push nargs arguments.
 // Then call this function, which
@@ -299,13 +261,6 @@ void ScriptApiBase::loadModFromMemory(const std::string &mod_name)
 void ScriptApiBase::runCallbacksRaw(int nargs,
 		RunCallbacksMode mode, const char *fxn)
 {
-#ifndef SERVER
-	// Hard fail for bad guarded callbacks
-	// Only run callbacks when the scripting enviroment is loaded
-	FATAL_ERROR_IF(m_type == ScriptingType::Client &&
-			!getClient()->modsLoaded(), fxn);
-#endif
-
 #ifdef SCRIPTAPI_LOCK_DEBUG
 	assert(m_lock_recursion_count > 0);
 #endif
@@ -507,10 +462,3 @@ Server* ScriptApiBase::getServer()
 	//assert(getType() == ScriptingType::Server);
 	return dynamic_cast<Server *>(m_gamedef);
 }
-
-#ifndef SERVER
-Client* ScriptApiBase::getClient()
-{
-	return dynamic_cast<Client *>(m_gamedef);
-}
-#endif

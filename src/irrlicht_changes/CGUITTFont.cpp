@@ -30,7 +30,7 @@
    john@suckerfreegames.com
 */
 
-#include <irrlicht.h>
+//#include <irrlicht.h>
 #include <iostream>
 #include "CGUITTFont.h"
 

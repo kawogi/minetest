@@ -3,9 +3,9 @@
 find_path(IRRLICHT_INCLUDE_DIR NAMES irrlicht.h
 	DOC "Path to the directory with IrrlichtMt includes"
 	PATHS
-	/usr/local/include/irrlichtmt
-	/usr/include/irrlichtmt
-	/system/develop/headers/irrlichtmt #Haiku
+	/usr/local/include/irrlichtmt-server
+	/usr/include/irrlichtmt-server
+	/system/develop/headers/irrlichtmt-server #Haiku
 	PATH_SUFFIXES "include/irrlichtmt"
 )
 

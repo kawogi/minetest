@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 */
 
 #include "irrlichttypes.h" // must be included before anything irrlicht, see comment in the file
-#include "irrlicht.h" // createDevice
+//#include "irrlicht.h" // createDevice
 #include "irrlichttypes_extrabloated.h"
 #include "irrlicht_changes/printing.h"
 #include "chat_interface.h"
@@ -27,7 +27,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "server.h"
 #include "filesys.h"
 #include "version.h"
-#include "client/game.h"
 #include "defaultsettings.h"
 #include "gettext.h"
 #include "log.h"
@@ -42,12 +41,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "mapblock.h"
 #if USE_CURSES
 	#include "terminal_chat_console.h"
-#endif
-#ifndef SERVER
-#include "gui/guiMainMenu.h"
-#include "client/clientlauncher.h"
-#include "gui/guiEngine.h"
-#include "gui/mainmenumanager.h"
 #endif
 
 // for version information only
@@ -208,15 +201,8 @@ int main(int argc, char *argv[])
 #endif
 
 	GameStartData game_params;
-#ifdef SERVER
 	porting::attachOrCreateConsole();
 	game_params.is_dedicated_server = true;
-#else
-	const bool isServer = cmd_args.getFlag("server");
-	if (isServer)
-		porting::attachOrCreateConsole();
-	game_params.is_dedicated_server = isServer;
-#endif
 
 	if (!game_configure(&game_params, cmd_args))
 		return 1;
@@ -226,11 +212,7 @@ int main(int argc, char *argv[])
 	if (game_params.is_dedicated_server)
 		return run_dedicated_server(game_params, cmd_args) ? 0 : 1;
 
-#ifndef SERVER
-	retval = ClientLauncher().run(game_params, cmd_args) ? 0 : 1;
-#else
 	retval = 0;
-#endif
 
 	// Update configuration file
 	if (!g_settings_path.empty())
@@ -338,27 +320,6 @@ static void set_allowed_options(OptionList *allowed_options)
 			_("Feature an interactive terminal (Only works when using minetestserver or with --server)"))));
 	allowed_options->insert(std::make_pair("recompress", ValueSpec(VALUETYPE_FLAG,
 			_("Recompress the blocks of the given map database."))));
-#ifndef SERVER
-	allowed_options->insert(std::make_pair("speedtests", ValueSpec(VALUETYPE_FLAG,
-			_("Run speed tests"))));
-	allowed_options->insert(std::make_pair("address", ValueSpec(VALUETYPE_STRING,
-			_("Address to connect to. ('' = local game)"))));
-	allowed_options->insert(std::make_pair("random-input", ValueSpec(VALUETYPE_FLAG,
-			_("Enable random user input, for testing"))));
-	allowed_options->insert(std::make_pair("server", ValueSpec(VALUETYPE_FLAG,
-			_("Run dedicated server"))));
-	allowed_options->insert(std::make_pair("name", ValueSpec(VALUETYPE_STRING,
-			_("Set player name"))));
-	allowed_options->insert(std::make_pair("password", ValueSpec(VALUETYPE_STRING,
-			_("Set password"))));
-	allowed_options->insert(std::make_pair("password-file", ValueSpec(VALUETYPE_STRING,
-			_("Set password from contents of file"))));
-	allowed_options->insert(std::make_pair("go", ValueSpec(VALUETYPE_FLAG,
-			_("Disable main menu"))));
-	allowed_options->insert(std::make_pair("console", ValueSpec(VALUETYPE_FLAG,
-		_("Starts with the console (Windows only)"))));
-#endif
-
 }
 
 static void print_help(const OptionList &allowed_options)
@@ -390,9 +351,6 @@ static void print_version()
 {
 	std::cout << PROJECT_NAME_C " " << g_version_hash
 		<< " (" << porting::getPlatformName() << ")" << std::endl;
-#ifndef SERVER
-	std::cout << "Using Irrlicht " IRRLICHT_SDK_VERSION << std::endl;
-#endif
 #if USE_LUAJIT
 	std::cout << "Using " << LUAJIT_VERSION << std::endl;
 #else

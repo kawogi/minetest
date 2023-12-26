@@ -457,12 +457,6 @@ private:
 	 */
 
 public:
-#ifndef SERVER // Only on client
-	MapBlockMesh *mesh = nullptr;
-
-	// marks the sides which are opaque: 00+Z-Z+Y-Y+X-X
-	u8 solid_sides = 0;
-#endif
 
 private:
 	// see isOrphan()

@@ -146,7 +146,7 @@ jobs:
         env:
           CC: clang-9
           CXX: clang++-9
-          CMAKE_FLAGS: "-DENABLE_PROMETHEUS=1 -DBUILD_CLIENT=0"
+          CMAKE_FLAGS: "-DENABLE_PROMETHEUS=1"
 
       - name: Test
         run: |

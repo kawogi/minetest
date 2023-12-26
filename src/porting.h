@@ -25,7 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include <string>
 #include <vector>
-#include "irrlicht.h"
+//#include "irrlicht.h"
 #include "irrlichttypes.h" // u32
 #include "irrlichttypes_extrabloated.h"
 #include "debug.h"

@@ -750,11 +750,7 @@ std::wstring translate_string(const std::wstring &s, Translations *translations)
 // Translate string client side
 std::wstring translate_string(const std::wstring &s)
 {
-#ifdef SERVER
 	return translate_string(s, nullptr);
-#else
-	return translate_string(s, g_client_translations);
-#endif
 }
 
 static const std::array<std::wstring, 30> disallowed_dir_names = {

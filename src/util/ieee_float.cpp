@@ -27,6 +27,7 @@
 #include "porting.h"
 #include <limits>
 #include <cmath>
+#include <cstring>
 
 // Given an unsigned 32-bit integer representing an IEEE-754 single-precision
 // float, return the float.

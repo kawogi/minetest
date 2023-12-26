@@ -54,10 +54,8 @@ WORKDIR /usr/src/minetest
 RUN cmake -B build \
 		-DCMAKE_INSTALL_PREFIX=/usr/local \
 		-DCMAKE_BUILD_TYPE=Release \
-		-DBUILD_SERVER=TRUE \
 		-DENABLE_PROMETHEUS=TRUE \
 		-DBUILD_UNITTESTS=FALSE \
-		-DBUILD_CLIENT=FALSE \
 		-GNinja && \
 	cmake --build build && \
 	cmake --install build

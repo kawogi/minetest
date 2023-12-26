@@ -37,12 +37,6 @@ set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING
 mark_as_advanced(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
 
-if(NOT (BUILD_CLIENT OR BUILD_SERVER))
-	message(WARNING "Neither BUILD_CLIENT nor BUILD_SERVER is set! Setting BUILD_SERVER=true")
-	set(BUILD_SERVER TRUE)
-endif()
-
-
 option(ENABLE_CURL "Enable cURL support for fetching media" TRUE)
 set(USE_CURL FALSE)
 
@@ -57,16 +51,10 @@ else()
 endif()
 
 if(NOT USE_CURL)
-	if(BUILD_CLIENT)
-		message(WARNING "cURL is required to load the server list")
-	endif()
-	if(BUILD_SERVER)
-		message(WARNING "cURL is required to announce to the server list")
-	endif()
+	message(WARNING "cURL is required to announce to the server list")
 endif()
 
-
-option(ENABLE_GETTEXT "Use GetText for internationalization" ${BUILD_CLIENT})
+option(ENABLE_GETTEXT "Use GetText for internationalization" FALSE)
 set(USE_GETTEXT FALSE)
 
 if(ENABLE_GETTEXT)
@@ -87,31 +75,6 @@ endif()
 
 option(ENABLE_SOUND "Enable sound" TRUE)
 set(USE_SOUND FALSE)
-
-if(BUILD_CLIENT AND ENABLE_SOUND)
-	# Sound libraries
-	find_package(OpenAL)
-	find_package(Vorbis)
-	if(NOT OPENAL_FOUND)
-		message(STATUS "Sound enabled, but OpenAL not found!")
-		mark_as_advanced(CLEAR OPENAL_LIBRARY OPENAL_INCLUDE_DIR)
-	endif()
-	if(NOT VORBIS_FOUND)
-		message(STATUS "Sound enabled, but Vorbis libraries not found!")
-		mark_as_advanced(CLEAR OGG_INCLUDE_DIR VORBIS_INCLUDE_DIR OGG_LIBRARY VORBIS_LIBRARY VORBISFILE_LIBRARY)
-	endif()
-	if(OPENAL_FOUND AND VORBIS_FOUND)
-		set(USE_SOUND TRUE)
-		message(STATUS "Sound enabled.")
-	else()
-		message(FATAL_ERROR "Sound enabled, but cannot be used.\n"
-			"To continue, either fill in the required paths or disable sound. (-DENABLE_SOUND=0)")
-	endif()
-endif()
-
-if(BUILD_CLIENT)
-	find_package(Freetype REQUIRED)
-endif()
 
 option(ENABLE_CURSES "Enable ncurses console" TRUE)
 set(USE_CURSES FALSE)
@@ -319,7 +282,6 @@ add_custom_target(GenerateVersion
 add_subdirectory(threading)
 add_subdirectory(content)
 add_subdirectory(database)
-add_subdirectory(gui)
 add_subdirectory(mapgen)
 add_subdirectory(network)
 add_subdirectory(script)
@@ -415,10 +377,6 @@ endif()
 
 
 # Client sources
-if (BUILD_CLIENT)
-	add_subdirectory(client)
-endif(BUILD_CLIENT)
-
 set(client_SRCS
 	${client_SRCS}
 	${common_SRCS}
@@ -466,13 +424,6 @@ if(USE_GETTEXT)
 	include_directories(${GETTEXT_INCLUDE_DIR})
 endif()
 
-if(BUILD_CLIENT)
-	include_directories(SYSTEM
-		${FREETYPE_INCLUDE_DIRS}
-		${SOUND_INCLUDE_DIRS}
-	)
-endif()
-
 if(USE_CURL)
 	include_directories(${CURL_INCLUDE_DIR})
 endif()
@@ -484,127 +435,61 @@ if(NOT CMAKE_CROSSCOMPILING)
 	set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin")
 endif()
 
-if(BUILD_CLIENT)
-	add_executable(${PROJECT_NAME} ${client_SRCS} ${extra_windows_SRCS})
-	add_dependencies(${PROJECT_NAME} GenerateVersion)
-	target_link_libraries(
-		${PROJECT_NAME}
-		${ZLIB_LIBRARIES}
-		IrrlichtMt::IrrlichtMt
-		${ZSTD_LIBRARY}
-		${SOUND_LIBRARIES}
-		${SQLITE3_LIBRARY}
-		${LUA_LIBRARY}
-		${GMP_LIBRARY}
-		${JSON_LIBRARY}
-		${LUA_BIT_LIBRARY}
-		${FREETYPE_LIBRARY}
-		${PLATFORM_LIBS}
+add_executable(${PROJECT_NAME}server ${server_SRCS} ${extra_windows_SRCS})
+add_dependencies(${PROJECT_NAME}server GenerateVersion)
+
+get_target_property(
+	IRRLICHT_INCLUDES IrrlichtMt::IrrlichtMt INTERFACE_INCLUDE_DIRECTORIES)
+# Doesn't work without PRIVATE/PUBLIC/INTERFACE mode specified.
+target_include_directories(${PROJECT_NAME}server PRIVATE ${IRRLICHT_INCLUDES})
+target_link_libraries(
+	${PROJECT_NAME}server
+	${ZLIB_LIBRARIES}
+	${ZSTD_LIBRARY}
+	${SQLITE3_LIBRARY}
+	${JSON_LIBRARY}
+	${LUA_LIBRARY}
+	${LUA_BIT_LIBRARY}
+	${GMP_LIBRARY}
+	${PLATFORM_LIBS}
+)
+set_target_properties(${PROJECT_NAME}server PROPERTIES
+	COMPILE_DEFINITIONS "SERVER")
+if(NOT USE_LUAJIT)
+	set_target_properties(${PROJECT_NAME}server PROPERTIES
+		# This is necessary for dynamic Lua modules
+		# to work when Lua is statically linked (issue #10806)
+		ENABLE_EXPORTS 1
 	)
-	if(NOT USE_LUAJIT)
-		set_target_properties(${PROJECT_NAME} PROPERTIES
-			# This is necessary for dynamic Lua modules
-			# to work when Lua is statically linked (issue #10806)
-			ENABLE_EXPORTS 1
-		)
-	endif()
+endif()
 
-	if(USE_GETTEXT)
-		target_link_libraries(
-			${PROJECT_NAME}
-			${GETTEXT_LIBRARY}
-		)
-	endif()
-	if(USE_CURL)
-		target_link_libraries(
-			${PROJECT_NAME}
-			${CURL_LIBRARY}
-		)
-	endif()
-	if(FREETYPE_PKGCONFIG_FOUND)
-		set_target_properties(${PROJECT_NAME}
-			PROPERTIES
-			COMPILE_FLAGS "${FREETYPE_CFLAGS_STR}"
-	)
-	endif()
-	if (USE_CURSES)
-		target_link_libraries(${PROJECT_NAME} ${CURSES_LIBRARIES})
-	endif()
-	if (USE_POSTGRESQL)
-		target_link_libraries(${PROJECT_NAME} ${PostgreSQL_LIBRARIES})
-	endif()
-	if (USE_LEVELDB)
-		target_link_libraries(${PROJECT_NAME} ${LEVELDB_LIBRARY})
-	endif()
-	if (USE_REDIS)
-		target_link_libraries(${PROJECT_NAME} ${REDIS_LIBRARY})
-	endif()
-	if (USE_PROMETHEUS)
-		target_link_libraries(${PROJECT_NAME} ${PROMETHEUS_LIBRARIES})
-	endif()
-	if (USE_SPATIAL)
-		target_link_libraries(${PROJECT_NAME} ${SPATIAL_LIBRARY})
-	endif()
-endif(BUILD_CLIENT)
-
-
-if(BUILD_SERVER)
-	add_executable(${PROJECT_NAME}server ${server_SRCS} ${extra_windows_SRCS})
-	add_dependencies(${PROJECT_NAME}server GenerateVersion)
-
-	get_target_property(
-		IRRLICHT_INCLUDES IrrlichtMt::IrrlichtMt INTERFACE_INCLUDE_DIRECTORIES)
-	# Doesn't work without PRIVATE/PUBLIC/INTERFACE mode specified.
-	target_include_directories(${PROJECT_NAME}server PRIVATE ${IRRLICHT_INCLUDES})
+if (USE_GETTEXT)
+	target_link_libraries(${PROJECT_NAME}server ${GETTEXT_LIBRARY})
+endif()
+if (USE_CURSES)
+	target_link_libraries(${PROJECT_NAME}server ${CURSES_LIBRARIES})
+endif()
+if (USE_POSTGRESQL)
+	target_link_libraries(${PROJECT_NAME}server ${PostgreSQL_LIBRARIES})
+endif()
+if (USE_LEVELDB)
+	target_link_libraries(${PROJECT_NAME}server ${LEVELDB_LIBRARY})
+endif()
+if (USE_REDIS)
+	target_link_libraries(${PROJECT_NAME}server ${REDIS_LIBRARY})
+endif()
+if (USE_PROMETHEUS)
+	target_link_libraries(${PROJECT_NAME}server ${PROMETHEUS_LIBRARIES})
+endif()
+if (USE_SPATIAL)
+	target_link_libraries(${PROJECT_NAME}server ${SPATIAL_LIBRARY})
+endif()
+if(USE_CURL)
 	target_link_libraries(
 		${PROJECT_NAME}server
-		${ZLIB_LIBRARIES}
-		${ZSTD_LIBRARY}
-		${SQLITE3_LIBRARY}
-		${JSON_LIBRARY}
-		${LUA_LIBRARY}
-		${LUA_BIT_LIBRARY}
-		${GMP_LIBRARY}
-		${PLATFORM_LIBS}
+		${CURL_LIBRARY}
 	)
-	set_target_properties(${PROJECT_NAME}server PROPERTIES
-		COMPILE_DEFINITIONS "SERVER")
-	if(NOT USE_LUAJIT)
-		set_target_properties(${PROJECT_NAME}server PROPERTIES
-			# This is necessary for dynamic Lua modules
-			# to work when Lua is statically linked (issue #10806)
-			ENABLE_EXPORTS 1
-		)
-	endif()
-
-	if (USE_GETTEXT)
-		target_link_libraries(${PROJECT_NAME}server ${GETTEXT_LIBRARY})
-	endif()
-	if (USE_CURSES)
-		target_link_libraries(${PROJECT_NAME}server ${CURSES_LIBRARIES})
-	endif()
-	if (USE_POSTGRESQL)
-		target_link_libraries(${PROJECT_NAME}server ${PostgreSQL_LIBRARIES})
-	endif()
-	if (USE_LEVELDB)
-		target_link_libraries(${PROJECT_NAME}server ${LEVELDB_LIBRARY})
-	endif()
-	if (USE_REDIS)
-		target_link_libraries(${PROJECT_NAME}server ${REDIS_LIBRARY})
-	endif()
-	if (USE_PROMETHEUS)
-		target_link_libraries(${PROJECT_NAME}server ${PROMETHEUS_LIBRARIES})
-	endif()
-	if (USE_SPATIAL)
-		target_link_libraries(${PROJECT_NAME}server ${SPATIAL_LIBRARY})
-	endif()
-	if(USE_CURL)
-		target_link_libraries(
-			${PROJECT_NAME}server
-			${CURL_LIBRARY}
-		)
-	endif()
-endif(BUILD_SERVER)
+endif()
 
 # See issue #4638
 FILE(READ "${CMAKE_SOURCE_DIR}/src/unsupported_language_list.txt" GETTEXT_BLACKLISTED_LOCALES)
@@ -734,17 +619,6 @@ if(WIN32)
 				FILES_MATCHING PATTERN "*.dll")
 	else()
 		# Use the old-style way to install dll's
-		if(BUILD_CLIENT AND USE_SOUND)
-			if(OPENAL_DLL)
-				install(FILES ${OPENAL_DLL} DESTINATION ${BINDIR})
-			endif()
-			if(OGG_DLL)
-				install(FILES ${OGG_DLL} DESTINATION ${BINDIR})
-			endif()
-			if(VORBIS_DLL)
-				install(FILES ${VORBIS_DLL} DESTINATION ${BINDIR})
-			endif()
-		endif()
 		if(CURL_DLL)
 			install(FILES ${CURL_DLL} DESTINATION ${BINDIR})
 		endif()
@@ -753,9 +627,6 @@ if(WIN32)
 		endif()
 		if(ZSTD_DLL)
 			install(FILES ${ZSTD_DLL} DESTINATION ${BINDIR})
-		endif()
-		if(BUILD_CLIENT AND FREETYPE_DLL)
-			install(FILES ${FREETYPE_DLL} DESTINATION ${BINDIR})
 		endif()
 		if(SQLITE3_DLL)
 			install(FILES ${SQLITE3_DLL} DESTINATION ${BINDIR})
@@ -766,39 +637,10 @@ if(WIN32)
 		if(LUA_DLL)
 			install(FILES ${LUA_DLL} DESTINATION ${BINDIR})
 		endif()
-		if(BUILD_CLIENT AND USE_GETTEXT AND GETTEXT_DLL)
-			install(FILES ${GETTEXT_DLL} DESTINATION ${BINDIR})
-		endif()
-	endif()
-
-	if(BUILD_CLIENT AND IRRLICHT_DLL)
-		install(FILES ${IRRLICHT_DLL} DESTINATION ${BINDIR})
 	endif()
 endif()
 
-if(BUILD_CLIENT)
-	install(TARGETS ${PROJECT_NAME}
-		RUNTIME DESTINATION ${BINDIR}
-		LIBRARY DESTINATION ${BINDIR}
-		ARCHIVE DESTINATION ${BINDIR}
-		BUNDLE DESTINATION .
-	)
-
-	if(USE_GETTEXT)
-		foreach(LOCALE ${GETTEXT_USED_LOCALES})
-			set_mo_paths(MO_BUILD_PATH MO_DEST_PATH ${LOCALE})
-			set(MO_BUILD_PATH "${MO_BUILD_PATH}/${PROJECT_NAME}.mo")
-			install(FILES ${MO_BUILD_PATH} DESTINATION ${MO_DEST_PATH})
-		endforeach()
-	endif()
-
-	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../fonts" DESTINATION "${SHAREDIR}"
-			FILES_MATCHING PATTERN "*.ttf" PATTERN "*.txt")
-endif()
-
-if(BUILD_SERVER)
-	install(TARGETS ${PROJECT_NAME}server DESTINATION ${BINDIR})
-endif()
+install(TARGETS ${PROJECT_NAME}server DESTINATION ${BINDIR})
 
 if (USE_GETTEXT)
 	set(MO_FILES)

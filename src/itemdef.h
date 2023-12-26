@@ -31,11 +31,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 class IGameDef;
 class Client;
 struct ToolCapabilities;
-#ifndef SERVER
-#include "client/tile.h"
-struct ItemMesh;
-struct ItemStack;
-#endif
 
 /*
 	Base item definition
@@ -119,23 +114,6 @@ public:
 	virtual void getAll(std::set<std::string> &result) const=0;
 	// Check if item is known
 	virtual bool isKnown(const std::string &name) const=0;
-#ifndef SERVER
-	// Get item inventory texture
-	virtual video::ITexture* getInventoryTexture(const ItemStack &item, Client *client) const=0;
-
-	/**
-	 * Get wield mesh
-	 *
-	 * Returns nullptr if there is an inventory image
-	 */
-	virtual ItemMesh* getWieldMesh(const ItemStack &item, Client *client) const = 0;
-	// Get item palette
-	virtual Palette* getPalette(const ItemStack &item, Client *client) const = 0;
-	// Returns the base color of an item stack: the color of all
-	// tiles that do not define their own color.
-	virtual video::SColor getItemstackColor(const ItemStack &stack,
-		Client *client) const = 0;
-#endif
 
 	virtual void serialize(std::ostream &os, u16 protocol_version)=0;
 };
