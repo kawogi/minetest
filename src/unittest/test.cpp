@@ -74,7 +74,7 @@ bool run_tests()
 	return num_modules_failed == 0;
 }
 
-static TestBase *findTestModule(const std::string &module_name) {
+static TestBase *findTestModule(const String &module_name) {
 	std::vector<TestBase *> &testmods = TestManager::getTestModules();
 	for (auto *testmod: testmods) {
 		if (module_name == testmod->getName())
@@ -83,7 +83,7 @@ static TestBase *findTestModule(const std::string &module_name) {
 	return nullptr;
 }
 
-bool run_tests(const std::string &module_name)
+bool run_tests(const String &module_name)
 {
 	auto testmod = findTestModule(module_name);
 	if (!testmod) {
@@ -138,7 +138,7 @@ bool TestBase::testModule(IGameDef *gamedef)
 	return num_tests_failed == 0;
 }
 
-std::string TestBase::getTestTempDirectory()
+String TestBase::getTestTempDirectory()
 {
 	if (!m_test_dir.empty())
 		return m_test_dir;
@@ -153,7 +153,7 @@ std::string TestBase::getTestTempDirectory()
 	return m_test_dir;
 }
 
-std::string TestBase::getTestTempFile()
+String TestBase::getTestTempFile()
 {
 	char buf[32];
 	porting::mt_snprintf(buf, sizeof(buf), "%08X", myrand());

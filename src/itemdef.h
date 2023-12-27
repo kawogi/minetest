@@ -50,18 +50,18 @@ struct ItemDefinition
 		Basic item properties
 	*/
 	ItemType type;
-	std::string name; // "" = hand
-	std::string description; // Shown in tooltip.
-	std::string short_description;
+	String name; // "" = hand
+	String description; // Shown in tooltip.
+	String short_description;
 
 	/*
 		Visual properties
 	*/
-	std::string inventory_image; // Optional for nodes, mandatory for tools/craftitems
-	std::string inventory_overlay; // Overlay of inventory_image.
-	std::string wield_image; // If empty, inventory_image or mesh (only nodes) is used
-	std::string wield_overlay; // Overlay of wield_image.
-	std::string palette_image; // If specified, the item will be colorized based on this
+	String inventory_image; // Optional for nodes, mandatory for tools/craftitems
+	String inventory_overlay; // Overlay of inventory_image.
+	String wield_image; // If empty, inventory_image or mesh (only nodes) is used
+	String wield_overlay; // Overlay of wield_image.
+	String palette_image; // If specified, the item will be colorized based on this
 	video::SColor color; // The fallback color of the node.
 	v3f wield_scale;
 
@@ -82,7 +82,7 @@ struct ItemDefinition
 	// Client shall immediately place this node when player places the item.
 	// Server will update the precise end result a moment later.
 	// "" = no prediction
-	std::string node_placement_prediction;
+	String node_placement_prediction;
 	std::optional<u8> place_param2;
 
 	/*
@@ -107,13 +107,13 @@ public:
 	virtual ~IItemDefManager() = default;
 
 	// Get item definition
-	virtual const ItemDefinition& get(const std::string &name) const=0;
+	virtual const ItemDefinition& get(const String &name) const=0;
 	// Get alias definition
-	virtual const std::string &getAlias(const std::string &name) const=0;
+	virtual const String &getAlias(const String &name) const=0;
 	// Get set of all defined item names and aliases
-	virtual void getAll(std::set<std::string> &result) const=0;
+	virtual void getAll(std::set<String> &result) const=0;
 	// Check if item is known
-	virtual bool isKnown(const std::string &name) const=0;
+	virtual bool isKnown(const String &name) const=0;
 
 	virtual void serialize(std::ostream &os, u16 protocol_version)=0;
 };
@@ -134,12 +134,12 @@ public:
 	virtual void clear()=0;
 	// Register item definition
 	virtual void registerItem(const ItemDefinition &def)=0;
-	virtual void unregisterItem(const std::string &name)=0;
+	virtual void unregisterItem(const String &name)=0;
 	// Set an alias so that items named <name> will load as <convert_to>.
 	// Alias is not set if <name> has already been defined.
 	// Alias will be removed if <name> is defined at a later point of time.
-	virtual void registerAlias(const std::string &name,
-			const std::string &convert_to)=0;
+	virtual void registerAlias(const String &name,
+			const String &convert_to)=0;
 
 	virtual void deSerialize(std::istream &is, u16 protocol_version)=0;
 };

@@ -170,7 +170,7 @@ EnrichedString EnrichedString::substr(size_t pos, size_t len) const
 	if (pos >= m_string.length())
 		return EnrichedString();
 
-	if (len == std::string::npos || pos + len > m_string.length())
+	if (len == String::npos || pos + len > m_string.length())
 		len = m_string.length() - pos;
 
 	EnrichedString str(

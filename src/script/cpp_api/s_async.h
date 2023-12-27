@@ -43,17 +43,17 @@ struct LuaJobInfo
 	LuaJobInfo() = default;
 
 	// Function to be called in async environment (from string.dump)
-	std::string function;
+	String function;
 	// Parameter to be passed to function (serialized)
-	std::string params;
+	String params;
 	// Alternative parameters
 	std::unique_ptr<PackedValue> params_ext;
 	// Result of function call (serialized)
-	std::string result;
+	String result;
 	// Alternative result
 	std::unique_ptr<PackedValue> result_ext;
 	// Name of the mod who invoked this call
-	std::string mod_origin;
+	String mod_origin;
 	// JobID used to identify a job and match it to callback
 	u32 id;
 };
@@ -68,7 +68,7 @@ public:
 	void *run();
 
 protected:
-	AsyncWorkerThread(AsyncEngine* jobDispatcher, const std::string &name);
+	AsyncWorkerThread(AsyncEngine* jobDispatcher, const String &name);
 
 private:
 	AsyncEngine *jobDispatcher = nullptr;
@@ -102,8 +102,8 @@ public:
 	 * @param params Serialized parameters
 	 * @return jobid The job is queued
 	 */
-	u32 queueAsyncJob(std::string &&func, std::string &&params,
-			const std::string &mod_origin = "");
+	u32 queueAsyncJob(String &&func, String &&params,
+			const String &mod_origin = "");
 
 	/**
 	 * Queue an async job
@@ -111,8 +111,8 @@ public:
 	 * @param params Serialized parameters (takes ownership!)
 	 * @return ID of queued job
 	 */
-	u32 queueAsyncJob(std::string &&func, PackedValue *params,
-			const std::string &mod_origin = "");
+	u32 queueAsyncJob(String &&func, PackedValue *params,
+			const String &mod_origin = "");
 
 	/**
 	 * Engine step to process finished jobs

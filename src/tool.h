@@ -51,8 +51,8 @@ struct ToolGroupCap
 };
 
 
-typedef std::unordered_map<std::string, struct ToolGroupCap> ToolGCMap;
-typedef std::unordered_map<std::string, s16> DamageGroup;
+typedef std::unordered_map<String, struct ToolGroupCap> ToolGCMap;
+typedef std::unordered_map<String, s16> DamageGroup;
 
 struct ToolCapabilities
 {
@@ -89,10 +89,10 @@ struct DigParams
 	float time;
 	// Caused wear
 	u32 wear; // u32 because wear could be 65536 (single-use tool)
-	std::string main_group;
+	String main_group;
 
 	DigParams(bool a_diggable = false, float a_time = 0.0f, u32 a_wear = 0,
-			const std::string &a_main_group = ""):
+			const String &a_main_group = ""):
 		diggable(a_diggable),
 		time(a_time),
 		wear(a_wear),

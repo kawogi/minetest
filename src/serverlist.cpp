@@ -33,12 +33,12 @@ namespace ServerList
 #if USE_CURL
 void sendAnnounce(AnnounceAction action,
 		const u16 port,
-		const std::vector<std::string> &clients_names,
+		const std::vector<String> &clients_names,
 		const double uptime,
 		const u32 game_time,
 		const float lag,
-		const std::string &gameid,
-		const std::string &mg_name,
+		const String &gameid,
+		const String &mg_name,
 		const std::vector<ModSpec> &mods,
 		bool dedicated)
 {
@@ -66,7 +66,7 @@ void sendAnnounce(AnnounceAction action,
 		server["clients"]      = (int) clients_names.size();
 		server["clients_max"]  = g_settings->getU16("max_users");
 		server["clients_list"] = Json::Value(Json::arrayValue);
-		for (const std::string &clients_name : clients_names) {
+		for (const String &clients_name : clients_names) {
 			server["clients_list"].append(clients_name);
 		}
 		if (!gameid.empty())
@@ -98,7 +98,7 @@ void sendAnnounce(AnnounceAction action,
 
 	HTTPFetchRequest fetch_request;
 	fetch_request.caller = HTTPFETCH_PRINT_ERR;
-	fetch_request.url = g_settings->get("serverlist_url") + std::string("/announce");
+	fetch_request.url = g_settings->get("serverlist_url") + String("/announce");
 	fetch_request.method = HTTP_POST;
 	fetch_request.fields["json"] = fastWriteJson(server);
 	fetch_request.multipart = true;

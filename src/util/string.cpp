@@ -73,7 +73,7 @@ static bool convert(const char *to, const char *from, char *outbuf,
 const char *DEFAULT_ENCODING = "WCHAR_T";
 #endif
 
-std::wstring utf8_to_wide(const std::string &input)
+std::wstring utf8_to_wide(const String &input)
 {
 	const size_t inbuf_size = input.length();
 	// maximum possible size, every character is sizeof(wchar_t) bytes
@@ -97,7 +97,7 @@ std::wstring utf8_to_wide(const std::string &input)
 	return out;
 }
 
-std::string wide_to_utf8(const std::wstring &input)
+String wide_to_utf8(const std::wstring &input)
 {
 	const size_t inbuf_size = input.length() * sizeof(wchar_t);
 	// maximum possible size: utf-8 encodes codepoints using 1 up to 4 bytes
@@ -105,7 +105,7 @@ std::string wide_to_utf8(const std::wstring &input)
 
 	char *inbuf = new char[inbuf_size]; // intentionally NOT null-terminated
 	memcpy(inbuf, input.c_str(), inbuf_size);
-	std::string out;
+	String out;
 	out.resize(outbuf_size);
 
 	if (!convert("UTF-8", DEFAULT_ENCODING, &out[0], &outbuf_size, inbuf, inbuf_size)) {
@@ -120,7 +120,7 @@ std::string wide_to_utf8(const std::wstring &input)
 	return out;
 }
 
-std::string urlencode(const std::string &str)
+String urlencode(const String &str)
 {
 	// Encodes non-unreserved URI characters by a percent sign
 	// followed by two hex digits. See RFC 3986, section 2.3.
@@ -138,7 +138,7 @@ std::string urlencode(const std::string &str)
 	return oss.str();
 }
 
-std::string urldecode(const std::string &str)
+String urldecode(const String &str)
 {
 	// Inverse of urlencode
 	std::ostringstream oss(std::ios::binary);
@@ -156,7 +156,7 @@ std::string urldecode(const std::string &str)
 	return oss.str();
 }
 
-u32 readFlagString(std::string str, const FlagDesc *flagdesc, u32 *flagmask)
+u32 readFlagString(String str, const FlagDesc *flagdesc, u32 *flagmask)
 {
 	u32 result = 0;
 	u32 mask = 0;
@@ -192,9 +192,9 @@ u32 readFlagString(std::string str, const FlagDesc *flagdesc, u32 *flagmask)
 	return result;
 }
 
-std::string writeFlagString(u32 flags, const FlagDesc *flagdesc, u32 flagmask)
+String writeFlagString(u32 flags, const FlagDesc *flagdesc, u32 flagmask)
 {
-	std::string result;
+	String result;
 
 	for (int i = 0; flagdesc[i].name; i++) {
 		if (flagmask & flagdesc[i].flag) {
@@ -268,7 +268,7 @@ u64 read_seed(const char *str)
 	return num;
 }
 
-static bool parseHexColorString(const std::string &value, video::SColor &color,
+static bool parseHexColorString(const String &value, video::SColor &color,
 		unsigned char default_alpha)
 {
 	u8 components[] = {0x00, 0x00, 0x00, default_alpha}; // R,G,B,A
@@ -309,7 +309,7 @@ static bool parseHexColorString(const std::string &value, video::SColor &color,
 	return true;
 }
 
-const static std::unordered_map<std::string, u32> s_named_colors = {
+const static std::unordered_map<String, u32> s_named_colors = {
 	{"aliceblue",            0xf0f8ff},
 	{"antiquewhite",         0xfaebd7},
 	{"aqua",                 0x00ffff},
@@ -460,10 +460,10 @@ const static std::unordered_map<std::string, u32> s_named_colors = {
 	{"yellowgreen",          0x9acd32}
 };
 
-static bool parseNamedColorString(const std::string &value, video::SColor &color)
+static bool parseNamedColorString(const String &value, video::SColor &color)
 {
-	std::string color_name;
-	std::string alpha_string;
+	String color_name;
+	String alpha_string;
 
 	/* If the string has a # in it, assume this is the start of a specified
 	 * alpha value (if it isn't the string is invalid and the error will be
@@ -471,7 +471,7 @@ static bool parseNamedColorString(const std::string &value, video::SColor &color
 	 * alpha value will fail conversion)
 	 */
 	size_t alpha_pos = value.find('#');
-	if (alpha_pos != std::string::npos) {
+	if (alpha_pos != String::npos) {
 		color_name = value.substr(0, alpha_pos);
 		alpha_string = value.substr(alpha_pos + 1);
 	} else {
@@ -516,7 +516,7 @@ static bool parseNamedColorString(const std::string &value, video::SColor &color
 	return true;
 }
 
-bool parseColorString(const std::string &value, video::SColor &color, bool quiet,
+bool parseColorString(const String &value, video::SColor &color, bool quiet,
 		unsigned char default_alpha)
 {
 	bool success;
@@ -532,7 +532,7 @@ bool parseColorString(const std::string &value, video::SColor &color, bool quiet
 	return success;
 }
 
-void str_replace(std::string &str, char from, char to)
+void str_replace(String &str, char from, char to)
 {
 	std::replace(str.begin(), str.end(), from, to);
 }
@@ -796,7 +796,7 @@ static const std::array<std::wstring, 30> disallowed_dir_names = {
 static const std::wstring disallowed_path_chars = L"<>:\"/\\|?*.";
 
 
-std::string sanitizeDirName(const std::string &str, const std::string &optional_prefix)
+String sanitizeDirName(const String &str, const String &optional_prefix)
 {
 	std::wstring safe_name = utf8_to_wide(str);
 
@@ -837,7 +837,7 @@ std::string sanitizeDirName(const std::string &str, const std::string &optional_
 }
 
 
-void safe_print_string(std::ostream &os, const std::string &str)
+void safe_print_string(std::ostream &os, const String &str)
 {
 	std::ostream::fmtflags flags = os.flags();
 	os << std::hex;
@@ -853,7 +853,7 @@ void safe_print_string(std::ostream &os, const std::string &str)
 }
 
 
-v3f str_to_v3f(const std::string &str)
+v3f str_to_v3f(const String &str)
 {
 	v3f value;
 	Strfnd f(str);

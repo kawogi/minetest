@@ -115,7 +115,7 @@ ObjDef *ObjDefManager::setRaw(u32 index, ObjDef *obj)
 }
 
 
-ObjDef *ObjDefManager::getByName(const std::string &name) const
+ObjDef *ObjDefManager::getByName(const String &name) const
 {
 	for (size_t i = 0; i != m_objects.size(); i++) {
 		ObjDef *obj = m_objects[i];

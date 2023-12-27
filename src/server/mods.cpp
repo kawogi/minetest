@@ -34,7 +34,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
  * Creates a ServerModManager which targets worldpath
  * @param worldpath
  */
-ServerModManager::ServerModManager(const std::string &worldpath):
+ServerModManager::ServerModManager(const String &worldpath):
 	configuration()
 {
 	SubgameSpec gamespec = findWorldSubgame(worldpath);
@@ -44,7 +44,7 @@ ServerModManager::ServerModManager(const std::string &worldpath):
 	configuration.addModsInPath(worldpath + DIR_DELIM + "worldmods", "worldmods");
 
 	// Load normal mods
-	std::string worldmt = worldpath + DIR_DELIM + "world.mt";
+	String worldmt = worldpath + DIR_DELIM + "world.mt";
 	configuration.addModsFromConfig(worldmt, gamespec.addon_mods_paths);
 	configuration.checkConflictsAndDeps();
 }
@@ -63,7 +63,7 @@ void ServerModManager::loadMods(ServerScripting *script)
 	for (const ModSpec &mod : configuration.getMods()) {
 		mod.checkAndLog();
 
-		std::string script_path = mod.path + DIR_DELIM + "init.lua";
+		String script_path = mod.path + DIR_DELIM + "init.lua";
 		auto t = porting::getTimeMs();
 		script->loadMod(script_path, mod.name);
 		infostream << "Mod \"" << mod.name << "\" loaded after "
@@ -74,7 +74,7 @@ void ServerModManager::loadMods(ServerScripting *script)
 	script->on_mods_loaded();
 }
 
-const ModSpec *ServerModManager::getModSpec(const std::string &modname) const
+const ModSpec *ServerModManager::getModSpec(const String &modname) const
 {
 	for (const auto &mod : configuration.getMods()) {
 		if (mod.name == modname)
@@ -84,13 +84,13 @@ const ModSpec *ServerModManager::getModSpec(const std::string &modname) const
 	return nullptr;
 }
 
-void ServerModManager::getModNames(std::vector<std::string> &modlist) const
+void ServerModManager::getModNames(std::vector<String> &modlist) const
 {
 	for (const ModSpec &spec : configuration.getMods())
 		modlist.push_back(spec.name);
 }
 
-void ServerModManager::getModsMediaPaths(std::vector<std::string> &paths) const
+void ServerModManager::getModsMediaPaths(std::vector<String> &paths) const
 {
 	// Iterate mods in reverse load order: Media loading expects higher priority media files first
 	// and mods loading later should be able to override media of already loaded mods

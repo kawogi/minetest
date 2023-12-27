@@ -54,7 +54,7 @@ void ModSpec::checkAndLog() const
 	}
 }
 
-bool parseDependsString(std::string &dep, std::unordered_set<char> &symbols)
+bool parseDependsString(String &dep, std::unordered_set<char> &symbols)
 {
 	dep = trim(dep);
 	symbols.clear();
@@ -107,7 +107,7 @@ bool parseModContents(ModSpec &spec)
 	bool mod_conf_has_depends = false;
 	if (info.exists("depends")) {
 		mod_conf_has_depends = true;
-		std::string dep = info.get("depends");
+		String dep = info.get("depends");
 		dep.erase(std::remove_if(dep.begin(), dep.end(),
 				static_cast<int (*)(int)>(&std::isspace)), dep.end());
 		for (const auto &dependency : str_split(dep, ',')) {
@@ -117,7 +117,7 @@ bool parseModContents(ModSpec &spec)
 
 	if (info.exists("optional_depends")) {
 		mod_conf_has_depends = true;
-		std::string dep = info.get("optional_depends");
+		String dep = info.get("optional_depends");
 		dep.erase(std::remove_if(dep.begin(), dep.end(),
 				static_cast<int (*)(int)>(&std::isspace)), dep.end());
 		for (const auto &dependency : str_split(dep, ',')) {
@@ -127,7 +127,7 @@ bool parseModContents(ModSpec &spec)
 
 	// Fallback to depends.txt
 	if (!mod_conf_has_depends) {
-		std::vector<std::string> dependencies;
+		std::vector<String> dependencies;
 
 		std::ifstream is((spec.path + DIR_DELIM + "depends.txt").c_str());
 
@@ -135,7 +135,7 @@ bool parseModContents(ModSpec &spec)
 			spec.deprecation_msgs.push_back("depends.txt is deprecated, please use mod.conf instead.");
 
 		while (is.good()) {
-			std::string dep;
+			String dep;
 			std::getline(is, dep);
 			dependencies.push_back(dep);
 		}
@@ -160,21 +160,21 @@ bool parseModContents(ModSpec &spec)
 	return true;
 }
 
-std::map<std::string, ModSpec> getModsInPath(
-		const std::string &path, const std::string &virtual_path, bool part_of_modpack)
+std::map<String, ModSpec> getModsInPath(
+		const String &path, const String &virtual_path, bool part_of_modpack)
 {
 	// NOTE: this function works in mutual recursion with parseModContents
 
-	std::map<std::string, ModSpec> result;
+	std::map<String, ModSpec> result;
 	std::vector<fs::DirListNode> dirlist = fs::GetDirListing(path);
-	std::string mod_path;
-	std::string mod_virtual_path;
+	String mod_path;
+	String mod_virtual_path;
 
 	for (const fs::DirListNode &dln : dirlist) {
 		if (!dln.dir)
 			continue;
 
-		const std::string &modname = dln.name;
+		const String &modname = dln.name;
 		// Ignore all directories beginning with a ".", especially
 		// VCS directories like ".git" or ".svn"
 		if (modname[0] == '.')
@@ -194,7 +194,7 @@ std::map<std::string, ModSpec> getModsInPath(
 	return result;
 }
 
-std::vector<ModSpec> flattenMods(const std::map<std::string, ModSpec> &mods)
+std::vector<ModSpec> flattenMods(const std::map<String, ModSpec> &mods)
 {
 	std::vector<ModSpec> result;
 	for (const auto &it : mods) {
@@ -213,7 +213,7 @@ std::vector<ModSpec> flattenMods(const std::map<std::string, ModSpec> &mods)
 }
 
 
-ModStorage::ModStorage(const std::string &mod_name, ModStorageDatabase *database):
+ModStorage::ModStorage(const String &mod_name, ModStorageDatabase *database):
 	m_mod_name(mod_name), m_database(database)
 {
 }
@@ -223,12 +223,12 @@ void ModStorage::clear()
 	m_database->removeModEntries(m_mod_name);
 }
 
-bool ModStorage::contains(const std::string &name) const
+bool ModStorage::contains(const String &name) const
 {
 	return m_database->hasModEntry(m_mod_name, name);
 }
 
-bool ModStorage::setString(const std::string &name, const std::string &var)
+bool ModStorage::setString(const String &name, const String &var)
 {
 	if (var.empty())
 		return m_database->removeModEntry(m_mod_name, name);
@@ -243,14 +243,14 @@ const StringMap &ModStorage::getStrings(StringMap *place) const
 	return *place;
 }
 
-const std::vector<std::string> &ModStorage::getKeys(std::vector<std::string> *place) const
+const std::vector<String> &ModStorage::getKeys(std::vector<String> *place) const
 {
 	place->clear();
 	m_database->getModKeys(m_mod_name, place);
 	return *place;
 }
 
-const std::string *ModStorage::getStringRaw(const std::string &name, std::string *place) const
+const String *ModStorage::getStringRaw(const String &name, String *place) const
 {
 	return m_database->getModEntry(m_mod_name, name, place) ? place : nullptr;
 }

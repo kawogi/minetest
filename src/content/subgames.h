@@ -28,28 +28,28 @@ class Settings;
 
 struct SubgameSpec
 {
-	std::string id;
-	std::string title;
-	std::string author;
+	String id;
+	String title;
+	String author;
 	int release;
-	std::string path;
-	std::string gamemods_path;
+	String path;
+	String gamemods_path;
 
 	/**
 	 * Map from virtual path to mods path
 	 */
-	std::unordered_map<std::string, std::string> addon_mods_paths;
-	std::string menuicon_path;
+	std::unordered_map<String, String> addon_mods_paths;
+	String menuicon_path;
 
 	// For logging purposes
 	std::vector<const char *> deprecation_msgs;
 
-	SubgameSpec(const std::string &id = "", const std::string &path = "",
-			const std::string &gamemods_path = "",
-			const std::unordered_map<std::string, std::string> &addon_mods_paths = {},
-			const std::string &title = "",
-			const std::string &menuicon_path = "",
-			const std::string &author = "", int release = 0) :
+	SubgameSpec(const String &id = "", const String &path = "",
+			const String &gamemods_path = "",
+			const std::unordered_map<String, String> &addon_mods_paths = {},
+			const String &title = "",
+			const String &menuicon_path = "",
+			const String &author = "", int release = 0) :
 			id(id),
 			title(title), author(author), release(release), path(path),
 			gamemods_path(gamemods_path), addon_mods_paths(addon_mods_paths),
@@ -61,27 +61,27 @@ struct SubgameSpec
 	void checkAndLog() const;
 };
 
-SubgameSpec findSubgame(const std::string &id);
-SubgameSpec findWorldSubgame(const std::string &world_path);
+SubgameSpec findSubgame(const String &id);
+SubgameSpec findWorldSubgame(const String &world_path);
 
-std::set<std::string> getAvailableGameIds();
+std::set<String> getAvailableGameIds();
 std::vector<SubgameSpec> getAvailableGames();
 // Get the list of paths to mods in the environment variable $MINETEST_MOD_PATH
-std::vector<std::string> getEnvModPaths();
+std::vector<String> getEnvModPaths();
 
-bool getWorldExists(const std::string &world_path);
+bool getWorldExists(const String &world_path);
 //! Try to get the displayed name of a world
-std::string getWorldName(const std::string &world_path, const std::string &default_name);
-std::string getWorldGameId(const std::string &world_path, bool can_be_legacy = false);
+String getWorldName(const String &world_path, const String &default_name);
+String getWorldGameId(const String &world_path, bool can_be_legacy = false);
 
 struct WorldSpec
 {
-	std::string path;
-	std::string name;
-	std::string gameid;
+	String path;
+	String name;
+	String gameid;
 
-	WorldSpec(const std::string &path = "", const std::string &name = "",
-			const std::string &gameid = "") :
+	WorldSpec(const String &path = "", const String &name = "",
+			const String &gameid = "") :
 			path(path),
 			name(name), gameid(gameid)
 	{
@@ -97,5 +97,5 @@ std::vector<WorldSpec> getAvailableWorlds();
 
 // loads the subgame's config and creates world directory
 // and world.mt if they don't exist
-void loadGameConfAndInitWorld(const std::string &path, const std::string &name,
+void loadGameConfAndInitWorld(const String &path, const String &name,
 		const SubgameSpec &gamespec, bool create_world);

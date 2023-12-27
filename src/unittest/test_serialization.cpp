@@ -40,9 +40,9 @@ public:
 	void testStreamWrite();
 	void testFloatFormat();
 
-	std::string teststring2;
+	String teststring2;
 	std::wstring teststring2_w;
-	std::string teststring2_w_encoded;
+	String teststring2_w_encoded;
 
 	static const u8 test_serialized_data[12 * 11 - 2];
 };
@@ -67,10 +67,10 @@ void TestSerialization::runTests(IGameDef *gamedef)
 
 // To be used like this:
 //   mkstr("Some\0string\0with\0embedded\0nuls")
-// since std::string("...") doesn't work as expected in that case.
-template<size_t N> std::string mkstr(const char (&s)[N])
+// since String("...") doesn't work as expected in that case.
+template<size_t N> String mkstr(const char (&s)[N])
 {
-	return std::string(s, N - 1);
+	return String(s, N - 1);
 }
 
 void TestSerialization::buildTestStrings()
@@ -170,7 +170,7 @@ void TestSerialization::testDeSerializeLongString()
 void TestSerialization::testSerializeJsonString()
 {
 	std::istringstream is(std::ios::binary);
-	const auto reset_is = [&] (const std::string &s) {
+	const auto reset_is = [&] (const String &s) {
 		is.clear();
 		is.str(s);
 	};
@@ -180,15 +180,15 @@ void TestSerialization::testSerializeJsonString()
 	};
 
 	// Test blank string
-	UASSERTEQ(std::string, serializeJsonString(""), "\"\"");
+	UASSERTEQ(String, serializeJsonString(""), "\"\"");
 	reset_is("\"\"");
-	UASSERTEQ(std::string, deSerializeJsonString(is), "");
+	UASSERTEQ(String, deSerializeJsonString(is), "");
 	assert_at_eof(is);
 
 	// Test basic string
-	UASSERTEQ(std::string, serializeJsonString("Hello world!"), "\"Hello world!\"");
+	UASSERTEQ(String, serializeJsonString("Hello world!"), "\"Hello world!\"");
 	reset_is("\"Hello world!\"");
-	UASSERTEQ(std::string, deSerializeJsonString(is), "Hello world!");
+	UASSERTEQ(String, deSerializeJsonString(is), "Hello world!");
 	assert_at_eof(is);
 
 	// Test optional serialization
@@ -198,15 +198,15 @@ void TestSerialization::testSerializeJsonString()
 		{ "\"", "\"\\\"\"" },
 	};
 	for (auto it : test_pairs) {
-		UASSERTEQ(std::string, serializeJsonStringIfNeeded(it.first), it.second);
+		UASSERTEQ(String, serializeJsonStringIfNeeded(it.first), it.second);
 		reset_is(it.second);
-		UASSERTEQ(std::string, deSerializeJsonStringIfNeeded(is), it.first);
+		UASSERTEQ(String, deSerializeJsonStringIfNeeded(is), it.first);
 		assert_at_eof(is);
 	}
 
 	// Test all byte values
-	const std::string bs = "\\"; // MSVC fails when directly using "\\\\"
-	const std::string expected = mkstr("\"") +
+	const String bs = "\\"; // MSVC fails when directly using "\\\\"
+	const String expected = mkstr("\"") +
 		"\\u0000\\u0001\\u0002\\u0003\\u0004\\u0005\\u0006\\u0007" +
 		"\\b\\t\\n\\u000b\\f\\r\\u000e\\u000f" +
 		"\\u0010\\u0011\\u0012\\u0013\\u0014\\u0015\\u0016\\u0017" +
@@ -230,36 +230,36 @@ void TestSerialization::testSerializeJsonString()
 		"\\u00f0\\u00f1\\u00f2\\u00f3\\u00f4\\u00f5\\u00f6\\u00f7" +
 		"\\u00f8\\u00f9\\u00fa\\u00fb\\u00fc\\u00fd\\u00fe\\u00ff" +
 		"\"";
-	std::string serialized = serializeJsonString(teststring2);
-	UASSERTEQ(std::string, serialized, expected);
+	String serialized = serializeJsonString(teststring2);
+	UASSERTEQ(String, serialized, expected);
 
 	reset_is(serialized);
-	UASSERTEQ(std::string, deSerializeJsonString(is), teststring2);
+	UASSERTEQ(String, deSerializeJsonString(is), teststring2);
 	UASSERT(!is.eof()); // should have stopped at " so eof must not be set yet
 	assert_at_eof(is);
 
 	// Test that deserialization leaves rest of stream alone
-	std::string tmp;
+	String tmp;
 	reset_is("\"foo\"bar");
-	UASSERTEQ(std::string, deSerializeJsonString(is), "foo");
+	UASSERTEQ(String, deSerializeJsonString(is), "foo");
 	std::getline(is, tmp, '\0');
-	UASSERTEQ(std::string, tmp, "bar");
+	UASSERTEQ(String, tmp, "bar");
 
 	reset_is("\"x y z\"bar");
-	UASSERTEQ(std::string, deSerializeJsonStringIfNeeded(is), "x y z");
+	UASSERTEQ(String, deSerializeJsonStringIfNeeded(is), "x y z");
 	std::getline(is, tmp, '\0');
-	UASSERTEQ(std::string, tmp, "bar");
+	UASSERTEQ(String, tmp, "bar");
 
 	reset_is("foo bar");
-	UASSERTEQ(std::string, deSerializeJsonStringIfNeeded(is), "foo");
+	UASSERTEQ(String, deSerializeJsonStringIfNeeded(is), "foo");
 	std::getline(is, tmp, '\0');
-	UASSERTEQ(std::string, tmp, " bar");
+	UASSERTEQ(String, tmp, " bar");
 }
 
 
 void TestSerialization::testStreamRead()
 {
-	std::string datastr(
+	String datastr(
 		(const char *)test_serialized_data,
 		sizeof(test_serialized_data));
 	std::istringstream is(datastr, std::ios_base::binary);
@@ -300,7 +300,7 @@ void TestSerialization::testStreamRead()
 void TestSerialization::testStreamWrite()
 {
 	std::ostringstream os(std::ios_base::binary);
-	std::string data;
+	String data;
 
 	writeU8(os, 0x11);
 	writeU16(os, 0x2233);

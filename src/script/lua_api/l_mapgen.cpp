@@ -105,7 +105,7 @@ Schematic *load_schematic(lua_State *L, int index, const NodeDefManager *ndef,
 Schematic *load_schematic_from_def(lua_State *L, int index,
 	const NodeDefManager *ndef, StringMap *replace_names);
 bool read_schematic_def(lua_State *L, int index,
-	Schematic *schem, std::vector<std::string> *names);
+	Schematic *schem, std::vector<String> *names);
 
 bool read_deco_simple(lua_State *L, DecoSimple *deco);
 bool read_deco_schematic(lua_State *L, SchematicManager *schemmgr, DecoSchematic *deco);
@@ -175,7 +175,7 @@ Schematic *load_schematic(lua_State *L, int index, const NodeDefManager *ndef,
 	} else if (lua_isstring(L, index)) {
 		schem = SchematicManager::create(SCHEMATIC_NORMAL);
 
-		std::string filepath = lua_tostring(L, index);
+		String filepath = lua_tostring(L, index);
 		if (!fs::IsPathAbsolute(filepath))
 			filepath = ModApiBase::getCurrentModPath(L) + DIR_DELIM + filepath;
 
@@ -220,7 +220,7 @@ Schematic *load_schematic_from_def(lua_State *L, int index,
 
 
 bool read_schematic_def(lua_State *L, int index,
-	Schematic *schem, std::vector<std::string> *names)
+	Schematic *schem, std::vector<String> *names)
 {
 	if (!lua_istable(L, index))
 		return false;
@@ -240,7 +240,7 @@ bool read_schematic_def(lua_State *L, int index,
 	schem->schemdata = new MapNode[numnodes];
 
 	size_t names_base = names->size();
-	std::unordered_map<std::string, content_t> name_id_map;
+	std::unordered_map<String, content_t> name_id_map;
 
 	u32 i = 0;
 	for (lua_pushnil(L); lua_next(L, -2); i++, lua_pop(L, 1)) {
@@ -248,7 +248,7 @@ bool read_schematic_def(lua_State *L, int index,
 			continue;
 
 		//// Read name
-		std::string name;
+		String name;
 		if (!getstringfield(L, -1, "name", name))
 			throw LuaError("Schematic data definition with missing name field");
 
@@ -262,7 +262,7 @@ bool read_schematic_def(lua_State *L, int index,
 		u8 param2 = getintfield_default(L, -1, "param2", 0);
 
 		//// Find or add new nodename-to-ID mapping
-		std::unordered_map<std::string, content_t>::iterator it = name_id_map.find(name);
+		std::unordered_map<String, content_t>::iterator it = name_id_map.find(name);
 		content_t name_index;
 		if (it != name_id_map.end()) {
 			name_index = it->second;
@@ -316,8 +316,8 @@ void read_schematic_replacements(lua_State *L, int index, StringMap *replace_nam
 
 	lua_pushnil(L);
 	while (lua_next(L, index)) {
-		std::string replace_from;
-		std::string replace_to;
+		String replace_from;
+		String replace_to;
 
 		if (lua_istable(L, -1)) { // Old {{"x", "y"}, ...} format
 			lua_rawgeti(L, -1, 1);
@@ -395,7 +395,7 @@ Biome *read_biome_def(lua_State *L, int index, const NodeDefManager *ndef)
 		L, index, "max_pos", v3s16(31000, 31000, 31000));
 	getintfield(L, index, "y_max", b->max_pos.Y);
 
-	std::vector<std::string> &nn = b->m_nodenames;
+	std::vector<String> &nn = b->m_nodenames;
 	nn.push_back(getstringfield_default(L, index, "node_top",           ""));
 	nn.push_back(getstringfield_default(L, index, "node_filler",        ""));
 	nn.push_back(getstringfield_default(L, index, "node_stone",         ""));
@@ -682,7 +682,7 @@ int ModApiMapgen::l_get_mapgen_object(lua_State *L)
 		return 1;
 	}
 	case MGOBJ_GENNOTIFY: {
-		std::map<std::string, std::vector<v3s16> >event_map;
+		std::map<String, std::vector<v3s16> >event_map;
 
 		mg->gennotify.getEvents(event_map);
 
@@ -734,7 +734,7 @@ int ModApiMapgen::l_get_mapgen_params(lua_State *L)
 	log_deprecated(L, "get_mapgen_params is deprecated; "
 		"use get_mapgen_setting instead");
 
-	std::string value;
+	String value;
 
 	MapSettingsManager *settingsmgr =
 		getServer(L)->getEmergeManager()->map_settings_mgr;
@@ -783,23 +783,23 @@ int ModApiMapgen::l_set_mapgen_params(lua_State *L)
 
 	lua_getfield(L, 1, "mgname");
 	if (lua_isstring(L, -1))
-		settingsmgr->setMapSetting("mg_name", readParam<std::string>(L, -1), true);
+		settingsmgr->setMapSetting("mg_name", readParam<String>(L, -1), true);
 
 	lua_getfield(L, 1, "seed");
 	if (lua_isnumber(L, -1))
-		settingsmgr->setMapSetting("seed", readParam<std::string>(L, -1), true);
+		settingsmgr->setMapSetting("seed", readParam<String>(L, -1), true);
 
 	lua_getfield(L, 1, "water_level");
 	if (lua_isnumber(L, -1))
-		settingsmgr->setMapSetting("water_level", readParam<std::string>(L, -1), true);
+		settingsmgr->setMapSetting("water_level", readParam<String>(L, -1), true);
 
 	lua_getfield(L, 1, "chunksize");
 	if (lua_isnumber(L, -1))
-		settingsmgr->setMapSetting("chunksize", readParam<std::string>(L, -1), true);
+		settingsmgr->setMapSetting("chunksize", readParam<String>(L, -1), true);
 
 	lua_getfield(L, 1, "flags");
 	if (lua_isstring(L, -1))
-		settingsmgr->setMapSetting("mg_flags", readParam<std::string>(L, -1), true);
+		settingsmgr->setMapSetting("mg_flags", readParam<String>(L, -1), true);
 
 	return 0;
 }
@@ -819,7 +819,7 @@ int ModApiMapgen::l_get_mapgen_edges(lua_State *L)
 	if (lua_isnumber(L, 1)) {
 		 mapgen_limit = lua_tointeger(L, 1);
 	} else {
-		std::string mapgen_limit_str;
+		String mapgen_limit_str;
 		settingsmgr->getMapSetting("mapgen_limit", &mapgen_limit_str);
 		mapgen_limit = stoi(mapgen_limit_str, 0, MAX_MAP_GENERATION_LIMIT);
 	}
@@ -828,7 +828,7 @@ int ModApiMapgen::l_get_mapgen_edges(lua_State *L)
 	if (lua_isnumber(L, 2)) {
 		chunksize = lua_tointeger(L, 2);
 	} else {
-		std::string chunksize_str;
+		String chunksize_str;
 		settingsmgr->getMapSetting("chunksize", &chunksize_str);
 		chunksize = stoi(chunksize_str, -32768, 32767);
 	}
@@ -844,7 +844,7 @@ int ModApiMapgen::l_get_mapgen_setting(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 
-	std::string value;
+	String value;
 	MapSettingsManager *settingsmgr =
 		getServer(L)->getEmergeManager()->map_settings_mgr;
 
@@ -952,7 +952,7 @@ int ModApiMapgen::l_get_noiseparams(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 
-	std::string name = luaL_checkstring(L, 1);
+	String name = luaL_checkstring(L, 1);
 
 	NoiseParams np;
 	if (!g_settings->getNoiseParams(name, np))
@@ -1590,7 +1590,7 @@ int ModApiMapgen::l_place_schematic(lua_State *L)
 
 	//// Read rotation
 	int rot = ROTATE_0;
-	std::string enumstr = readParam<std::string>(L, 3, "");
+	String enumstr = readParam<String>(L, 3, "");
 	if (!enumstr.empty())
 		string_to_enum(es_Rotation, rot, enumstr);
 
@@ -1638,9 +1638,9 @@ int ModApiMapgen::l_place_schematic_on_vmanip(lua_State *L)
 
 	//// Read rotation
 	int rot = ROTATE_0;
-	std::string enumstr = readParam<std::string>(L, 4, "");
+	String enumstr = readParam<String>(L, 4, "");
 	if (!enumstr.empty())
-		string_to_enum(es_Rotation, rot, std::string(enumstr));
+		string_to_enum(es_Rotation, rot, String(enumstr));
 
 	//// Read force placement
 	bool force_placement = true;
@@ -1696,7 +1696,7 @@ int ModApiMapgen::l_serialize_schematic(lua_State *L)
 
 	//// Read format of definition to save as
 	int schem_format = SCHEM_FMT_MTS;
-	std::string enumstr = readParam<std::string>(L, 2, "");
+	String enumstr = readParam<String>(L, 2, "");
 	if (!enumstr.empty())
 		string_to_enum(es_SchematicFormatType, schem_format, enumstr);
 
@@ -1716,7 +1716,7 @@ int ModApiMapgen::l_serialize_schematic(lua_State *L)
 	if (was_loaded)
 		delete schem;
 
-	std::string ser = os.str();
+	String ser = os.str();
 	lua_pushlstring(L, ser.c_str(), ser.length());
 	return 1;
 }
@@ -1731,7 +1731,7 @@ int ModApiMapgen::l_read_schematic(lua_State *L)
 	const NodeDefManager *ndef = getGameDef(L)->ndef();
 
 	//// Read options
-	std::string write_yslice = getstringfield_default(L, 2, "write_yslice_prob", "all");
+	String write_yslice = getstringfield_default(L, 2, "write_yslice_prob", "all");
 
 	//// Get schematic
 	bool was_loaded = false;
@@ -1749,7 +1749,7 @@ int ModApiMapgen::l_read_schematic(lua_State *L)
 	//// Create the Lua table
 	u32 numnodes = schem->size.X * schem->size.Y * schem->size.Z;
 	bool resolve_done = schem->isResolveDone();
-	const std::vector<std::string> &names = schem->m_nodenames;
+	const std::vector<String> &names = schem->m_nodenames;
 
 	lua_createtable(L, 0, (write_yslice == "none") ? 2 : 3);
 
@@ -1778,7 +1778,7 @@ int ModApiMapgen::l_read_schematic(lua_State *L)
 	lua_createtable(L, numnodes, 0); // data table
 	for (u32 i = 0; i < numnodes; ++i) {
 		MapNode node = schem->schemdata[i];
-		const std::string &name =
+		const String &name =
 				resolve_done ? ndef->get(node.getContent()).name : names[node.getContent()];
 		u8 probability   = node.param1 & MTSCHEM_PROB_MASK;
 		bool force_place = node.param1 & MTSCHEM_FORCE_PLACE;

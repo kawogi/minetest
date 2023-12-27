@@ -24,4 +24,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 void fastWriteJson(const Json::Value &value, std::ostream &to);
 
-std::string fastWriteJson(const Json::Value &value);
+String fastWriteJson(const Json::Value &value);

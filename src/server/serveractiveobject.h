@@ -75,7 +75,7 @@ public:
 	// Create a certain type of ServerActiveObject
 	static ServerActiveObject* create(ActiveObjectType type,
 			ServerEnvironment *env, u16 id, v3f pos,
-			const std::string &data);
+			const String &data);
 
 	/*
 		Some simple getters/setters
@@ -97,7 +97,7 @@ public:
 	// saving to disk may be omitted
 	virtual float getMinimumSavedMovement();
 
-	virtual std::string getDescription(){return "SAO";}
+	virtual String getDescription(){return "SAO";}
 
 	/*
 		Step object in time.
@@ -115,14 +115,14 @@ public:
 		The return value of this is passed to the client-side object
 		when it is created
 	*/
-	virtual std::string getClientInitializationData(u16 protocol_version) {return "";}
+	virtual String getClientInitializationData(u16 protocol_version) {return "";}
 
 	/*
 		The return value of this is passed to the server-side object
 		when it is created (converted from static to active - actually
 		the data is the static form)
 	*/
-	virtual void getStaticData(std::string *result) const
+	virtual void getStaticData(String *result) const
 	{
 		assert(isStaticAllowed());
 		*result = "";
@@ -167,9 +167,9 @@ public:
 	{}
 	virtual void setAnimationSpeed(float frame_speed)
 	{}
-	virtual void setBonePosition(const std::string &bone, v3f position, v3f rotation)
+	virtual void setBonePosition(const String &bone, v3f position, v3f rotation)
 	{}
-	virtual void getBonePosition(const std::string &bone, v3f *position, v3f *lotation)
+	virtual void getBonePosition(const String &bone, v3f *position, v3f *lotation)
 	{}
 	virtual const std::unordered_set<int> &getAttachmentChildIds() const
 	{ static std::unordered_set<int> rv; return rv; }
@@ -185,7 +185,7 @@ public:
 	virtual InventoryLocation getInventoryLocation() const;
 	virtual void setInventoryModified()
 	{}
-	virtual std::string getWieldList() const
+	virtual String getWieldList() const
 	{ return ""; }
 	virtual u16 getWieldIndex() const
 	{ return 0; }
@@ -201,7 +201,7 @@ public:
 		m_attached_particle_spawners.erase(id);
 	}
 
-	std::string generateUpdateInfantCommand(u16 infant_id, u16 protocol_version);
+	String generateUpdateInfantCommand(u16 infant_id, u16 protocol_version);
 
 	void dumpAOMessagesToQueue(std::queue<ActiveObjectMessage> &queue);
 

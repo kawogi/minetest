@@ -603,7 +603,7 @@ int ModApiEnv::l_add_entity(lua_State *L)
 
 	v3f pos = checkFloatPos(L, 1);
 	const char *name = luaL_checkstring(L, 2);
-	std::string staticdata = readParam<std::string>(L, 3, "");
+	String staticdata = readParam<String>(L, 3, "");
 
 	std::unique_ptr<ServerActiveObject> obj_u =
 			std::make_unique<LuaEntitySAO>(env, pos, name, staticdata);
@@ -800,12 +800,12 @@ void ModApiEnvBase::collectNodeIds(lua_State *L, int idx, const NodeDefManager *
 		while (lua_next(L, idx) != 0) {
 			// key at index -2 and value at index -1
 			luaL_checktype(L, -1, LUA_TSTRING);
-			ndef->getIds(readParam<std::string>(L, -1), filter);
+			ndef->getIds(readParam<String>(L, -1), filter);
 			// removes value, keeps key for next iteration
 			lua_pop(L, 1);
 		}
 	} else if (lua_isstring(L, idx)) {
-		ndef->getIds(readParam<std::string>(L, idx), filter);
+		ndef->getIds(readParam<String>(L, idx), filter);
 	}
 }
 
@@ -1254,7 +1254,7 @@ int ModApiEnv::l_find_path(lua_State *L)
 	unsigned int max_drop       = luaL_checkint(L, 5);
 	PathAlgorithm algo          = PA_PLAIN_NP;
 	if (!lua_isnoneornil(L, 6)) {
-		std::string algorithm = luaL_checkstring(L,6);
+		String algorithm = luaL_checkstring(L,6);
 
 		if (algorithm == "A*")
 			algo = PA_PLAIN;
@@ -1285,7 +1285,7 @@ int ModApiEnv::l_find_path(lua_State *L)
 static bool read_tree_def(lua_State *L, int idx,
 	const NodeDefManager *ndef, treegen::TreeDef &tree_def)
 {
-	std::string trunk, leaves, fruit;
+	String trunk, leaves, fruit;
 	if (!lua_istable(L, idx))
 		return false;
 
@@ -1375,7 +1375,7 @@ int ModApiEnv::l_compare_block_status(lua_State *L)
 	GET_ENV_PTR;
 
 	v3s16 nodepos = check_v3s16(L, 1);
-	std::string condition_s = luaL_checkstring(L, 2);
+	String condition_s = luaL_checkstring(L, 2);
 	auto status = env->getBlockStatus(getNodeBlockPos(nodepos));
 
 	int condition_i = -1;
@@ -1402,8 +1402,8 @@ int ModApiEnv::l_forceload_free_block(lua_State *L)
 int ModApiEnv::l_get_translated_string(lua_State * L)
 {
 	GET_ENV_PTR;
-	std::string lang_code = luaL_checkstring(L, 1);
-	std::string string = luaL_checkstring(L, 2);
+	String lang_code = luaL_checkstring(L, 1);
+	String string = luaL_checkstring(L, 2);
 
 	auto *translations = getServer(L)->getTranslationLanguage(lang_code);
 	string = wide_to_utf8(translate_string(utf8_to_wide(string), translations));

@@ -24,7 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "gettext.h"
 
 
-std::string ModConfiguration::getUnsatisfiedModsError() const
+String ModConfiguration::getUnsatisfiedModsError() const
 {
 	std::ostringstream error;
 	error << gettext("Some mods have unsatisfied dependencies:") << std::endl;
@@ -32,7 +32,7 @@ std::string ModConfiguration::getUnsatisfiedModsError() const
 	for (const ModSpec &mod : m_unsatisfied_mods) {
 		//~ Error when a mod is missing dependencies. Ex: "Mod Title is missing: mod1, mod2, mod3"
 		error << " - " << fmtgettext("%s is missing:", mod.name.c_str());
-		for (const std::string &unsatisfied_depend : mod.unsatisfied_depends)
+		for (const String &unsatisfied_depend : mod.unsatisfied_depends)
 			error << " " << unsatisfied_depend;
 		error << "\n";
 	}
@@ -44,7 +44,7 @@ std::string ModConfiguration::getUnsatisfiedModsError() const
 	return error.str();
 }
 
-void ModConfiguration::addModsInPath(const std::string &path, const std::string &virtual_path)
+void ModConfiguration::addModsInPath(const String &path, const String &virtual_path)
 {
 	addMods(flattenMods(getModsInPath(path, virtual_path)));
 }
@@ -53,7 +53,7 @@ void ModConfiguration::addMods(const std::vector<ModSpec> &new_mods)
 {
 	// Maintain a map of all existing m_unsatisfied_mods.
 	// Keys are mod names and values are indices into m_unsatisfied_mods.
-	std::map<std::string, u32> existing_mods;
+	std::map<String, u32> existing_mods;
 	for (u32 i = 0; i < m_unsatisfied_mods.size(); ++i) {
 		existing_mods[m_unsatisfied_mods[i].name] = i;
 	}
@@ -65,7 +65,7 @@ void ModConfiguration::addMods(const std::vector<ModSpec> &new_mods)
 		// Second iteration:
 		// Add all the mods that didn't come from modpacks
 
-		std::set<std::string> seen_this_iteration;
+		std::set<String> seen_this_iteration;
 
 		for (const ModSpec &mod : new_mods) {
 			if (mod.part_of_modpack != (bool)want_from_modpack)
@@ -111,21 +111,21 @@ void ModConfiguration::addMods(const std::vector<ModSpec> &new_mods)
 
 void ModConfiguration::addGameMods(const SubgameSpec &gamespec)
 {
-	std::string game_virtual_path;
+	String game_virtual_path;
 	game_virtual_path.append("games/").append(gamespec.id).append("/mods");
 	addModsInPath(gamespec.gamemods_path, game_virtual_path);
 }
 
 void ModConfiguration::addModsFromConfig(
-		const std::string &settings_path,
-		const std::unordered_map<std::string, std::string> &modPaths)
+		const String &settings_path,
+		const std::unordered_map<String, String> &modPaths)
 {
 	Settings conf;
-	std::unordered_map<std::string, std::string> load_mod_names;
+	std::unordered_map<String, String> load_mod_names;
 
 	conf.readConfigFile(settings_path.c_str());
-	std::vector<std::string> names = conf.getNames();
-	for (const std::string &name : names) {
+	std::vector<String> names = conf.getNames();
+	for (const String &name : names) {
 		const auto &value = conf.get(name);
 		if (name.compare(0, 9, "load_mod_") == 0 && value != "false" &&
 				value != "nil")
@@ -137,7 +137,7 @@ void ModConfiguration::addModsFromConfig(
 
 	// Map of modname to a list candidate mod paths. Used to list
 	// alternatives if a particular mod cannot be found.
-	std::unordered_map<std::string, std::vector<std::string>> candidates;
+	std::unordered_map<String, std::vector<String>> candidates;
 
 	/*
 	 * Iterate through all installed mods except game mods and world mods
@@ -199,7 +199,7 @@ void ModConfiguration::checkConflictsAndDeps()
 {
 	// report on name conflicts
 	if (!m_name_conflicts.empty()) {
-		std::string s = "Unresolved name conflicts for mods ";
+		String s = "Unresolved name conflicts for mods ";
 
 		bool add_comma = false;
 		for (const auto& it : m_name_conflicts) {
@@ -220,7 +220,7 @@ void ModConfiguration::checkConflictsAndDeps()
 void ModConfiguration::resolveDependencies()
 {
 	// Step 1: Compile a list of the mod names we're working with
-	std::set<std::string> modnames;
+	std::set<String> modnames;
 	for (const ModSpec &mod : m_unsatisfied_mods) {
 		modnames.insert(mod.name);
 	}
@@ -232,7 +232,7 @@ void ModConfiguration::resolveDependencies()
 	for (ModSpec mod : m_unsatisfied_mods) {
 		mod.unsatisfied_depends = mod.depends;
 		// check which optional dependencies actually exist
-		for (const std::string &optdep : mod.optdepends) {
+		for (const String &optdep : mod.optdepends) {
 			if (modnames.count(optdep) != 0)
 				mod.unsatisfied_depends.insert(optdep);
 		}

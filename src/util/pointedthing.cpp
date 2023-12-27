@@ -46,7 +46,7 @@ PointedThing::PointedThing(u16 id, const v3f &point,
 	distanceSq(distSq)
 {}
 
-std::string PointedThing::dump() const
+String PointedThing::dump() const
 {
 	std::ostringstream os(std::ios::binary);
 	switch (type) {

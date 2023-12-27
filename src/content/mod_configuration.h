@@ -51,7 +51,7 @@ public:
 	 */
 	const std::vector<ModSpec> &getMods() const { return m_sorted_mods; }
 
-	std::string getUnsatisfiedModsError() const;
+	String getUnsatisfiedModsError() const;
 
 	/**
 	 * Adds all mods in the given path. used for games, modpacks
@@ -60,7 +60,7 @@ public:
 	 * @param path To search, should be absolute
 	 * @param virtual_path Virtual path for this directory, see comment in ModSpec
 	 */
-	void addModsInPath(const std::string &path, const std::string &virtual_path);
+	void addModsInPath(const String &path, const String &virtual_path);
 
 	/**
 	 * Adds all mods in `new_mods`
@@ -78,8 +78,8 @@ public:
 	 * @param settings_path Path to world.mt
 	 * @param modPaths Map from virtual name to mod path
 	 */
-	void addModsFromConfig(const std::string &settings_path,
-			const std::unordered_map<std::string, std::string> &modPaths);
+	void addModsFromConfig(const String &settings_path,
+			const std::unordered_map<String, String> &modPaths);
 
 	/**
 	 * Call this function once all mods have been added
@@ -107,5 +107,5 @@ private:
 	// 1. game mod in modpack; 2. game mod;
 	// 3. world mod in modpack; 4. world mod;
 	// 5. addon mod in modpack; 6. addon mod.
-	std::unordered_set<std::string> m_name_conflicts;
+	std::unordered_set<String> m_name_conflicts;
 };

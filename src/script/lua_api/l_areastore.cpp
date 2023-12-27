@@ -181,7 +181,7 @@ int LuaAreaStore::l_insert_area(lua_State *L)
 	size_t d_len;
 	const char *data = luaL_checklstring(L, 4, &d_len);
 
-	a.data = std::string(data, d_len);
+	a.data = String(data, d_len);
 
 	if (lua_isnumber(L, 5))
 		a.id = lua_tonumber(L, 5);
@@ -250,7 +250,7 @@ int LuaAreaStore::l_to_string(lua_State *L)
 
 	std::ostringstream os(std::ios_base::binary);
 	o->as->serialize(os);
-	std::string str = os.str();
+	String str = os.str();
 
 	lua_pushlstring(L, str.c_str(), str.length());
 	return 1;
@@ -284,7 +284,7 @@ int LuaAreaStore::l_from_string(lua_State *L)
 	size_t len;
 	const char *str = luaL_checklstring(L, 2, &len);
 
-	std::istringstream is(std::string(str, len), std::ios::binary);
+	std::istringstream is(String(str, len), std::ios::binary);
 	return deserialization_helper(L, o->as, is);
 }
 
@@ -306,7 +306,7 @@ LuaAreaStore::LuaAreaStore() : as(AreaStore::getOptimalImplementation())
 {
 }
 
-LuaAreaStore::LuaAreaStore(const std::string &type)
+LuaAreaStore::LuaAreaStore(const String &type)
 {
 #if USE_SPATIAL
 	if (type == "LibSpatial") {
@@ -330,7 +330,7 @@ int LuaAreaStore::create_object(lua_State *L)
 	NO_MAP_LOCK_REQUIRED;
 
 	LuaAreaStore *o = (lua_isstring(L, 1)) ?
-		new LuaAreaStore(readParam<std::string>(L, 1)) :
+		new LuaAreaStore(readParam<String>(L, 1)) :
 		new LuaAreaStore();
 
 	*(void **)(lua_newuserdata(L, sizeof(void *))) = o;

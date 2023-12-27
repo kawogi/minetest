@@ -188,7 +188,7 @@ private:
 class UpdateThread : public Thread
 {
 public:
-	UpdateThread(const std::string &name) : Thread(name + "Update") {}
+	UpdateThread(const String &name) : Thread(name + "Update") {}
 	~UpdateThread() = default;
 
 	void deferUpdate() { m_update_sem.post(); }
@@ -203,8 +203,6 @@ public:
 
 	void *run()
 	{
-		BEGIN_DEBUG_EXCEPTION_HANDLER
-
 		while (!stopRequested()) {
 			m_update_sem.wait();
 			// Set semaphore to 0
@@ -214,8 +212,6 @@ public:
 
 			doUpdate();
 		}
-
-		END_DEBUG_EXCEPTION_HANDLER
 
 		return NULL;
 	}

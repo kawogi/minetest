@@ -38,17 +38,17 @@ void ItemStackMetadata::clear()
 	updateToolCapabilities();
 }
 
-static void sanitize_string(std::string &str)
+static void sanitize_string(String &str)
 {
 	str.erase(std::remove(str.begin(), str.end(), DESERIALIZE_START), str.end());
 	str.erase(std::remove(str.begin(), str.end(), DESERIALIZE_KV_DELIM), str.end());
 	str.erase(std::remove(str.begin(), str.end(), DESERIALIZE_PAIR_DELIM), str.end());
 }
 
-bool ItemStackMetadata::setString(const std::string &name, const std::string &var)
+bool ItemStackMetadata::setString(const String &name, const String &var)
 {
-	std::string clean_name = name;
-	std::string clean_var = var;
+	String clean_name = name;
+	String clean_var = var;
 	sanitize_string(clean_name);
 	sanitize_string(clean_var);
 
@@ -72,7 +72,7 @@ void ItemStackMetadata::serialize(std::ostream &os) const
 
 void ItemStackMetadata::deSerialize(std::istream &is)
 {
-	std::string in = deSerializeJsonStringIfNeeded(is);
+	String in = deSerializeJsonStringIfNeeded(is);
 
 	m_stringvars.clear();
 
@@ -81,8 +81,8 @@ void ItemStackMetadata::deSerialize(std::istream &is)
 			Strfnd fnd(in);
 			fnd.to(1);
 			while (!fnd.at_end()) {
-				std::string name = fnd.next(DESERIALIZE_KV_DELIM_STR);
-				std::string var  = fnd.next(DESERIALIZE_PAIR_DELIM_STR);
+				String name = fnd.next(DESERIALIZE_KV_DELIM_STR);
+				String var  = fnd.next(DESERIALIZE_PAIR_DELIM_STR);
 				m_stringvars[name] = var;
 			}
 		} else {

@@ -373,7 +373,7 @@ private:
 	 * @param dir direction to translate
 	 * @return textual name of direction
 	 */
-	std::string dirToName(PathDirections dir);
+	String dirToName(PathDirections dir);
 #endif
 };
 
@@ -1408,7 +1408,7 @@ void Pathfinder::printPathLen()
 }
 
 /******************************************************************************/
-std::string Pathfinder::dirToName(PathDirections dir)
+String Pathfinder::dirToName(PathDirections dir)
 {
 	switch (dir) {
 	case DIR_XP:

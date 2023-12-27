@@ -42,35 +42,35 @@ public:
 	// Key-value related
 	//
 
-	virtual bool contains(const std::string &name) const = 0;
+	virtual bool contains(const String &name) const = 0;
 
 	// May (not must!) put a string in `place` and return a reference to that string.
-	const std::string &getString(const std::string &name, std::string *place,
+	const String &getString(const String &name, String *place,
 			u16 recursion = 0) const;
 
 	// If the entry is present, puts the value in str and returns true;
 	// otherwise just returns false.
-	bool getStringToRef(const std::string &name, std::string &str, u16 recursion = 0) const;
+	bool getStringToRef(const String &name, String &str, u16 recursion = 0) const;
 
 	// Returns whether the metadata was (potentially) changed.
-	virtual bool setString(const std::string &name, const std::string &var) = 0;
+	virtual bool setString(const String &name, const String &var) = 0;
 
-	inline bool removeString(const std::string &name) { return setString(name, ""); }
+	inline bool removeString(const String &name) { return setString(name, ""); }
 
 	// May (not must!) put strings in `place` and return a reference to these strings.
 	virtual const StringMap &getStrings(StringMap *place) const = 0;
 
 	// May (not must!) put keys in `place` and return a reference to these keys.
-	virtual const std::vector<std::string> &getKeys(std::vector<std::string> *place) const = 0;
+	virtual const std::vector<String> &getKeys(std::vector<String> *place) const = 0;
 
 	// Add support for variable names in values. Uses place like getString.
-	const std::string &resolveString(const std::string &str, std::string *place,
+	const String &resolveString(const String &str, String *place,
 			u16 recursion = 0, bool deprecated = false) const;
 
 protected:
 	// Returns nullptr to indicate absence of value. Uses place like getString.
-	virtual const std::string *getStringRaw(const std::string &name,
-			std::string *place) const = 0;
+	virtual const String *getStringRaw(const String &name,
+			String *place) const = 0;
 };
 
 // Simple metadata parent class (in-memory storage)
@@ -88,20 +88,20 @@ public:
 	//
 
 	size_t size() const;
-	bool contains(const std::string &name) const override;
-	virtual bool setString(const std::string &name, const std::string &var) override;
+	bool contains(const String &name) const override;
+	virtual bool setString(const String &name, const String &var) override;
 	const StringMap &getStrings(StringMap *) const override final;
-	const std::vector<std::string> &getKeys(std::vector<std::string> *place)
+	const std::vector<String> &getKeys(std::vector<String> *place)
 		const override final;
 
 	// Simple version of getters, possible due to in-memory storage:
 
-	inline const std::string &getString(const std::string &name, u16 recursion = 0) const
+	inline const String &getString(const String &name, u16 recursion = 0) const
 	{
 		return IMetadata::getString(name, nullptr, recursion);
 	}
 
-	inline const std::string &resolveString(const std::string &str, u16 recursion = 0) const
+	inline const String &resolveString(const String &str, u16 recursion = 0) const
 	{
 		return IMetadata::resolveString(str, nullptr, recursion);
 	}
@@ -117,6 +117,6 @@ public:
 protected:
 	StringMap m_stringvars;
 
-	const std::string *getStringRaw(const std::string &name,
-			std::string *) const override final;
+	const String *getStringRaw(const String &name,
+			String *) const override final;
 };

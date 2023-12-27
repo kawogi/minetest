@@ -321,7 +321,7 @@ void set_default_settings()
 	settings->setDefault("mono_font_size_divisible_by", "1");
 	settings->setDefault("fallback_font_path", porting::getDataPath("fonts" DIR_DELIM "DroidSansFallbackFull.ttf"));
 
-	std::string font_size_str = std::to_string(TTF_DEFAULT_FONT_SIZE);
+	String font_size_str = std::to_string(TTF_DEFAULT_FONT_SIZE);
 	settings->setDefault("font_size", font_size_str);
 	settings->setDefault("mono_font_size", font_size_str);
 	settings->setDefault("chat_font_size", "0"); // Default "font_size"

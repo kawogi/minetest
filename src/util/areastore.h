@@ -45,7 +45,7 @@ struct Area {
 
 	u32 id;
 	v3s16 minedge, maxedge;
-	std::string data;
+	String data;
 };
 
 

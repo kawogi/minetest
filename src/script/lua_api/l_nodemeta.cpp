@@ -52,7 +52,7 @@ void NodeMetaRef::clearMeta()
 	m_env->getMap().removeNodeMetadata(m_p);
 }
 
-void NodeMetaRef::reportMetadataChange(const std::string *name)
+void NodeMetaRef::reportMetadataChange(const String *name)
 {
 	SANITY_CHECK(!m_is_local);
 	// Inform other things that the metadata has changed
@@ -101,12 +101,12 @@ int NodeMetaRef::l_mark_as_private(lua_State *L)
 		while (lua_next(L, 2) != 0) {
 			// key at index -2 and value at index -1
 			luaL_checktype(L, -1, LUA_TSTRING);
-			meta->markPrivate(readParam<std::string>(L, -1), true);
+			meta->markPrivate(readParam<String>(L, -1), true);
 			// removes value, keeps key for next iteration
 			lua_pop(L, 1);
 		}
 	} else if (lua_isstring(L, 2)) {
-		meta->markPrivate(readParam<std::string>(L, 2), true);
+		meta->markPrivate(readParam<String>(L, 2), true);
 	}
 	ref->reportMetadataChange();
 
@@ -149,7 +149,7 @@ bool NodeMetaRef::handleFromTable(lua_State *L, int table, IMetadata *_meta)
 		lua_pushnil(L);
 		while (lua_next(L, inventorytable) != 0) {
 			// key at index -2 and value at index -1
-			std::string name = luaL_checkstring(L, -2);
+			String name = luaL_checkstring(L, -2);
 			read_inventory_list(L, -1, inv, name.c_str(), getServer(L));
 			lua_pop(L, 1); // Remove value, keep key for next iteration
 		}

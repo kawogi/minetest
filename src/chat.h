@@ -59,7 +59,7 @@ struct ChatFormattedFragment
 	// starting column
 	u32 column;
 	// web link is empty for most frags
-	std::string weblink;
+	String weblink;
 	// formatting
 	//u8 bold:1;
 };
@@ -190,7 +190,7 @@ public:
 	void historyNext();
 
 	// Nick completion
-	void nickCompletion(const std::set<std::string> &names, bool backwards);
+	void nickCompletion(const std::set<String> &names, bool backwards);
 
 	// Update console size and reformat the visible portion of the prompt
 	void reformat(u32 cols);

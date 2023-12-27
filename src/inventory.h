@@ -34,7 +34,7 @@ struct ItemStack
 {
 	ItemStack() = default;
 
-	ItemStack(const std::string &name_, u16 count_,
+	ItemStack(const String &name_, u16 count_,
 			u16 wear, IItemDefManager *itemdef);
 
 	~ItemStack() = default;
@@ -43,18 +43,18 @@ struct ItemStack
 	void serialize(std::ostream &os, bool serialize_meta = true) const;
 	// Deserialization. Pass itemdef unless you don't want aliases resolved.
 	void deSerialize(std::istream &is, IItemDefManager *itemdef = NULL);
-	void deSerialize(const std::string &s, IItemDefManager *itemdef = NULL);
+	void deSerialize(const String &s, IItemDefManager *itemdef = NULL);
 
 	// Returns the string used for inventory
-	std::string getItemString(bool include_meta = true) const;
+	String getItemString(bool include_meta = true) const;
 	// Returns the tooltip
-	std::string getDescription(const IItemDefManager *itemdef) const;
-	std::string getShortDescription(const IItemDefManager *itemdef) const;
+	String getDescription(const IItemDefManager *itemdef) const;
+	String getShortDescription(const IItemDefManager *itemdef) const;
 
-	std::string getInventoryImage(const IItemDefManager *itemdef) const;
-	std::string getInventoryOverlay(const IItemDefManager *itemdef) const;
-	std::string getWieldImage(const IItemDefManager *itemdef) const;
-	std::string getWieldOverlay(const IItemDefManager *itemdef) const;
+	String getInventoryImage(const IItemDefManager *itemdef) const;
+	String getInventoryOverlay(const IItemDefManager *itemdef) const;
+	String getWieldImage(const IItemDefManager *itemdef) const;
+	String getWieldOverlay(const IItemDefManager *itemdef) const;
 	v3f getWieldScale(const IItemDefManager *itemdef) const;
 
 	/*
@@ -190,7 +190,7 @@ struct ItemStack
 	/*
 		Properties
 	*/
-	std::string name = "";
+	String name = "";
 	u16 count = 0;
 	u16 wear = 0;
 	ItemStackMetadata metadata;
@@ -199,12 +199,12 @@ struct ItemStack
 class InventoryList
 {
 public:
-	InventoryList(const std::string &name, u32 size, IItemDefManager *itemdef);
+	InventoryList(const String &name, u32 size, IItemDefManager *itemdef);
 	~InventoryList() = default;
 	void clearItems();
 	void setSize(u32 newsize);
 	void setWidth(u32 newWidth);
-	void setName(const std::string &name);
+	void setName(const String &name);
 	void serialize(std::ostream &os, bool incremental) const;
 	void deSerialize(std::istream &is);
 
@@ -216,7 +216,7 @@ public:
 		return !(*this == other);
 	}
 
-	const std::string &getName() const { return m_name; }
+	const String &getName() const { return m_name; }
 	u32 getSize() const { return static_cast<u32>(m_items.size()); }
 	u32 getWidth() const { return m_width; }
 	// Count used slots
@@ -308,7 +308,7 @@ public:
 
 private:
 	std::vector<ItemStack> m_items;
-	std::string m_name;
+	String m_name;
 	u32 m_size; // always the same as m_items.size()
 	u32 m_width = 0;
 	IItemDefManager *m_itemdef;
@@ -337,13 +337,13 @@ public:
 	void deSerialize(std::istream &is);
 
 	// Creates a new list if none exists or truncates existing lists
-	InventoryList * addList(const std::string &name, u32 size);
-	InventoryList * getList(const std::string &name);
-	const InventoryList * getList(const std::string &name) const;
+	InventoryList * addList(const String &name, u32 size);
+	InventoryList * getList(const String &name);
+	const InventoryList * getList(const String &name) const;
 	const std::vector<InventoryList *> &getLists() const { return m_lists; }
-	bool deleteList(const std::string &name);
+	bool deleteList(const String &name);
 	// A shorthand for adding items. Returns leftover item (possibly empty).
-	ItemStack addItem(const std::string &listname, const ItemStack &newitem)
+	ItemStack addItem(const String &listname, const ItemStack &newitem)
 	{
 		InventoryList *list = getList(listname);
 		if(list == NULL)
@@ -374,7 +374,7 @@ public:
 	}
 private:
 	// -1 if not found
-	s32 getListIndex(const std::string &name) const;
+	s32 getListIndex(const String &name) const;
 
 	std::vector<InventoryList*> m_lists;
 	IItemDefManager *m_itemdef;

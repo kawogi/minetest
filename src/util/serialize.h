@@ -444,26 +444,26 @@ inline v3f clampToF1000(v3f v)
 }
 
 // Creates a string with the length as the first two bytes
-std::string serializeString16(const std::string &plain);
+String serializeString16(const String &plain);
 
 // Reads a string with the length as the first two bytes
-std::string deSerializeString16(std::istream &is);
+String deSerializeString16(std::istream &is);
 
 // Creates a string with the length as the first four bytes
-std::string serializeString32(const std::string &plain);
+String serializeString32(const String &plain);
 
 // Reads a string with the length as the first four bytes
-std::string deSerializeString32(std::istream &is);
+String deSerializeString32(std::istream &is);
 
 // Creates a string encoded in JSON format (almost equivalent to a C string literal)
-std::string serializeJsonString(const std::string &plain);
+String serializeJsonString(const String &plain);
 
 // Reads a string encoded in JSON format
-std::string deSerializeJsonString(std::istream &is);
+String deSerializeJsonString(std::istream &is);
 
 // If the string contains spaces, quotes or control characters, encodes as JSON.
 // Else returns the string unmodified.
-std::string serializeJsonStringIfNeeded(const std::string &s);
+String serializeJsonStringIfNeeded(const String &s);
 
 // Parses a string serialized by serializeJsonStringIfNeeded.
-std::string deSerializeJsonStringIfNeeded(std::istream &is);
+String deSerializeJsonStringIfNeeded(std::istream &is);

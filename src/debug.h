@@ -67,7 +67,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #define sanity_check(expr) SANITY_CHECK(expr)
 
-std::string debug_describe_exc(const std::exception &e);
+String debug_describe_exc(const std::exception &e);
 
 void debug_set_exception_handler();
 
@@ -75,17 +75,3 @@ void debug_set_exception_handler();
 	These should be put into every thread
 */
 
-#if CATCH_UNHANDLED_EXCEPTIONS == 1
-	#define BEGIN_DEBUG_EXCEPTION_HANDLER try {
-	#define END_DEBUG_EXCEPTION_HANDLER                        \
-		} catch (std::exception &e) {                          \
-			std::string e_descr = debug_describe_exc(e);       \
-			errorstream << "An unhandled exception occurred: " \
-				<< e_descr << std::endl;                       \
-			FATAL_ERROR(e_descr.c_str());                      \
-		}
-#else
-	// Dummy ones
-	#define BEGIN_DEBUG_EXCEPTION_HANDLER
-	#define END_DEBUG_EXCEPTION_HANDLER
-#endif

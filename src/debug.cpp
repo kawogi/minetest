@@ -68,11 +68,11 @@ void fatal_error_fn(const char *msg, const char *file,
 	abort();
 }
 
-std::string debug_describe_exc(const std::exception &e)
+String debug_describe_exc(const std::exception &e)
 {
 	if (dynamic_cast<const std::bad_alloc*>(&e))
 		return "C++ out of memory";
-	return std::string("\"").append(e.what()).append("\"");
+	return String("\"").append(e.what()).append("\"");
 }
 
 void debug_set_exception_handler()

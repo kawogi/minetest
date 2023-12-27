@@ -241,8 +241,8 @@ class LuaABM : public ActiveBlockModifier {
 private:
 	int m_id;
 
-	std::vector<std::string> m_trigger_contents;
-	std::vector<std::string> m_required_neighbors;
+	std::vector<String> m_trigger_contents;
+	std::vector<String> m_required_neighbors;
 	float m_trigger_interval;
 	u32 m_trigger_chance;
 	bool m_simple_catch_up;
@@ -250,8 +250,8 @@ private:
 	s16 m_max_y;
 public:
 	LuaABM(lua_State *L, int id,
-			const std::vector<std::string> &trigger_contents,
-			const std::vector<std::string> &required_neighbors,
+			const std::vector<String> &trigger_contents,
+			const std::vector<String> &required_neighbors,
 			float trigger_interval, u32 trigger_chance, bool simple_catch_up, s16 min_y, s16 max_y):
 		m_id(id),
 		m_trigger_contents(trigger_contents),
@@ -263,11 +263,11 @@ public:
 		m_max_y(max_y)
 	{
 	}
-	virtual const std::vector<std::string> &getTriggerContents() const
+	virtual const std::vector<String> &getTriggerContents() const
 	{
 		return m_trigger_contents;
 	}
-	virtual const std::vector<std::string> &getRequiredNeighbors() const
+	virtual const std::vector<String> &getRequiredNeighbors() const
 	{
 		return m_required_neighbors;
 	}
@@ -301,8 +301,8 @@ private:
 	int m_id;
 public:
 	LuaLBM(lua_State *L, int id,
-			const std::set<std::string> &trigger_contents,
-			const std::string &name,
+			const std::set<String> &trigger_contents,
+			const String &name,
 			bool run_at_every_load):
 		m_id(id)
 	{
@@ -354,5 +354,5 @@ struct ScriptCallbackState {
 	int callback_ref;
 	int args_ref;
 	unsigned int refcount;
-	std::string origin;
+	String origin;
 };

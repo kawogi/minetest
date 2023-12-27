@@ -28,7 +28,7 @@ int ModApiChannels::l_mod_channel_join(lua_State *L)
 	if (!lua_isstring(L, 1))
 		return 0;
 
-	std::string channel = luaL_checkstring(L, 1);
+	String channel = luaL_checkstring(L, 1);
 	if (channel.empty())
 		return 0;
 
@@ -50,7 +50,7 @@ void ModApiChannels::Initialize(lua_State *L, int top)
  * ModChannelRef
  */
 
-ModChannelRef::ModChannelRef(const std::string &modchannel) :
+ModChannelRef::ModChannelRef(const String &modchannel) :
 		m_modchannel_name(modchannel)
 {
 }
@@ -70,7 +70,7 @@ int ModChannelRef::l_send_all(lua_State *L)
 		return 0;
 
 	// @TODO serialize message
-	std::string message = luaL_checkstring(L, 2);
+	String message = luaL_checkstring(L, 2);
 
 	getGameDef(L)->sendModChannelMessage(channel->getName(), message);
 	return 0;
@@ -95,7 +95,7 @@ void ModChannelRef::Register(lua_State *L)
 	registerClass(L, className, methods, metamethods);
 }
 
-void ModChannelRef::create(lua_State *L, const std::string &channel)
+void ModChannelRef::create(lua_State *L, const String &channel)
 {
 	ModChannelRef *o = new ModChannelRef(channel);
 	*(void **)(lua_newuserdata(L, sizeof(void *))) = o;

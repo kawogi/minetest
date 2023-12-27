@@ -38,7 +38,7 @@ public:
 	void environment_OnGenerated(v3s16 minp, v3s16 maxp, u32 blockseed);
 
 	// Called on player event
-	void player_event(ServerActiveObject *player, const std::string &type);
+	void player_event(ServerActiveObject *player, const String &type);
 
 	// Called after emerge of a block queued from core.emerge_area()
 	void on_emerge_area_completion(v3s16 blockpos, int action,

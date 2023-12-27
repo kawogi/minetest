@@ -25,7 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "map_settings_manager.h"
 
-MapSettingsManager::MapSettingsManager(const std::string &map_meta_path):
+MapSettingsManager::MapSettingsManager(const String &map_meta_path):
 	m_map_meta_path(map_meta_path),
 	m_hierarchy(g_settings)
 {
@@ -50,14 +50,14 @@ MapSettingsManager::~MapSettingsManager()
 
 
 bool MapSettingsManager::getMapSetting(
-	const std::string &name, std::string *value_out) const
+	const String &name, String *value_out) const
 {
 	return m_map_settings->getNoEx(name, *value_out);
 }
 
 
 bool MapSettingsManager::getMapSettingNoiseParams(
-	const std::string &name, NoiseParams *value_out) const
+	const String &name, NoiseParams *value_out) const
 {
 	// TODO: Rename to "getNoiseParams"
 	return m_map_settings->getNoiseParams(name, *value_out);
@@ -65,7 +65,7 @@ bool MapSettingsManager::getMapSettingNoiseParams(
 
 
 bool MapSettingsManager::setMapSetting(
-	const std::string &name, const std::string &value, bool override_meta)
+	const String &name, const String &value, bool override_meta)
 {
 	if (mapgen_params)
 		return false;
@@ -80,7 +80,7 @@ bool MapSettingsManager::setMapSetting(
 
 
 bool MapSettingsManager::setMapSettingNoiseParams(
-	const std::string &name, const NoiseParams *value, bool override_meta)
+	const String &name, const NoiseParams *value, bool override_meta)
 {
 	if (mapgen_params)
 		return false;
@@ -151,7 +151,7 @@ MapgenParams *MapSettingsManager::makeMapgenParams()
 	assert(m_defaults);
 
 	// Now, get the mapgen type so we can create the appropriate MapgenParams
-	std::string mg_name;
+	String mg_name;
 	MapgenType mgtype = getMapSetting("mg_name", &mg_name) ?
 		Mapgen::getMapgenType(mg_name) : MAPGEN_DEFAULT;
 

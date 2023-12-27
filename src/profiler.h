@@ -42,26 +42,26 @@ class Profiler
 public:
 	Profiler();
 
-	void add(const std::string &name, float value);
-	void avg(const std::string &name, float value);
-	void max(const std::string &name, float value);
+	void add(const String &name, float value);
+	void avg(const String &name, float value);
+	void max(const String &name, float value);
 	void clear();
 
-	float getValue(const std::string &name) const;
-	int getAvgCount(const std::string &name) const;
+	float getValue(const String &name) const;
+	int getAvgCount(const String &name) const;
 	u64 getElapsedMs() const;
 
-	typedef std::map<std::string, float> GraphValues;
+	typedef std::map<String, float> GraphValues;
 
 	// Returns the line count
 	int print(std::ostream &o, u32 page = 1, u32 pagecount = 1);
 	void getPage(GraphValues &o, u32 page, u32 pagecount);
 
 
-	void graphAdd(const std::string &id, float value)
+	void graphAdd(const String &id, float value)
 	{
 		MutexAutoLock lock(m_mutex);
-		std::map<std::string, float>::iterator i =
+		std::map<String, float>::iterator i =
 				m_graphvalues.find(id);
 		if(i == m_graphvalues.end())
 			m_graphvalues[id] = value;
@@ -75,7 +75,7 @@ public:
 		m_graphvalues.clear();
 	}
 
-	void remove(const std::string& name)
+	void remove(const String& name)
 	{
 		MutexAutoLock lock(m_mutex);
 		m_avgcounts.erase(name);
@@ -84,9 +84,9 @@ public:
 
 private:
 	std::mutex m_mutex;
-	std::map<std::string, float> m_data;
-	std::map<std::string, int> m_avgcounts;
-	std::map<std::string, float> m_graphvalues;
+	std::map<String, float> m_data;
+	std::map<String, int> m_avgcounts;
+	std::map<String, float> m_graphvalues;
 	u64 m_start_time;
 };
 
@@ -100,12 +100,12 @@ enum ScopeProfilerType{
 class ScopeProfiler
 {
 public:
-	ScopeProfiler(Profiler *profiler, const std::string &name,
+	ScopeProfiler(Profiler *profiler, const String &name,
 			ScopeProfilerType type = SPT_ADD);
 	~ScopeProfiler();
 private:
 	Profiler *m_profiler = nullptr;
-	std::string m_name;
+	String m_name;
 	TimeTaker *m_timer = nullptr;
 	enum ScopeProfilerType m_type;
 };

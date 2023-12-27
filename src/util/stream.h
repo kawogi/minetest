@@ -23,7 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <string>
 #include <functional>
 
-template<int BufferLength, typename Emitter = std::function<void(const std::string &)> >
+template<int BufferLength, typename Emitter = std::function<void(const String &)> >
 class StringStreamBuffer : public std::streambuf {
 public:
 	StringStreamBuffer(Emitter emitter) : m_emitter(emitter) {
@@ -38,12 +38,12 @@ public:
 	void push_back(char c) {
 		if (c == '\n' || c == '\r') {
 			if (buffer_index)
-				m_emitter(std::string(buffer, buffer_index));
+				m_emitter(String(buffer, buffer_index));
 			buffer_index = 0;
 		} else {
 			buffer[buffer_index++] = c;
 			if (buffer_index >= BufferLength) {
-				m_emitter(std::string(buffer, buffer_index));
+				m_emitter(String(buffer, buffer_index));
 				buffer_index = 0;
 			}
 		}

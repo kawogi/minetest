@@ -37,7 +37,7 @@ private:
 
 	virtual void clearMeta();
 
-	virtual void reportMetadataChange(const std::string *name = nullptr);
+	virtual void reportMetadataChange(const String *name = nullptr);
 
 	void setToolCapabilities(const ToolCapabilities &caps)
 	{

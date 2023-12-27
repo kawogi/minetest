@@ -137,9 +137,9 @@ void TestAreaStore::testSerialization()
 
 	std::ostringstream os(std::ios_base::binary);
 	store.serialize(os);
-	std::string str = os.str();
+	String str = os.str();
 
-	std::string str_wanted("\x00"  // Version
+	String str_wanted("\x00"  // Version
 			"\x00\x02"  // Count
 			"\xFF\xFF\x00\x00\x00\x01"  // Area A min edge
 			"\x00\x00\x00\x01\x00\x02"  // Area A max edge
@@ -155,7 +155,7 @@ void TestAreaStore::testSerialization()
 			(6 + 6 + 2 + 7) * 2 + // min/max edge, length, data
 			2 * 4); // Area IDs
 
-	UASSERTEQ(const std::string &, str, str_wanted);
+	UASSERTEQ(const String &, str, str_wanted);
 
 	std::istringstream is(str, std::ios_base::binary);
 	store.deserialize(is);

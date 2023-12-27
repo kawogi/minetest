@@ -54,7 +54,7 @@ public:
 class LuaError : public ModError
 {
 public:
-	LuaError(const std::string &s) : ModError(s) {}
+	LuaError(const String &s) : ModError(s) {}
 };
 
 

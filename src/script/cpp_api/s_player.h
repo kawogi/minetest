@@ -38,12 +38,12 @@ public:
 	void on_newplayer(ServerActiveObject *player);
 	void on_dieplayer(ServerActiveObject *player, const PlayerHPChangeReason &reason);
 	bool on_respawnplayer(ServerActiveObject *player);
-	bool on_prejoinplayer(const std::string &name, const std::string &ip,
-			std::string *reason);
-	bool can_bypass_userlimit(const std::string &name, const std::string &ip);
+	bool on_prejoinplayer(const String &name, const String &ip,
+			String *reason);
+	bool can_bypass_userlimit(const String &name, const String &ip);
 	void on_joinplayer(ServerActiveObject *player, s64 last_login);
 	void on_leaveplayer(ServerActiveObject *player, bool timeout);
-	void on_cheat(ServerActiveObject *player, const std::string &cheat_type);
+	void on_cheat(ServerActiveObject *player, const String &cheat_type);
 	bool on_punchplayer(ServerActiveObject *player, ServerActiveObject *hitter,
 			float time_from_last_punch, const ToolCapabilities *toolcap,
 			v3f dir, s32 damage);
@@ -51,8 +51,8 @@ public:
 	s32 on_player_hpchange(ServerActiveObject *player, s32 hp_change,
 			const PlayerHPChangeReason &reason);
 	void on_playerReceiveFields(ServerActiveObject *player,
-			const std::string &formname, const StringMap &fields);
-	void on_authplayer(const std::string &name, const std::string &ip, bool is_success);
+			const String &formname, const StringMap &fields);
+	void on_authplayer(const String &name, const String &ip, bool is_success);
 
 	// Player inventory callbacks
 	// Return number of accepted items to be moved
@@ -82,7 +82,7 @@ public:
 private:
 	void pushPutTakeArguments(
 		const char *method, const InventoryLocation &loc,
-		const std::string &listname, int index, const ItemStack &stack,
+		const String &listname, int index, const ItemStack &stack,
 		ServerActiveObject *player);
 	void pushMoveArguments(const MoveAction &ma,
 		int count, ServerActiveObject *player);

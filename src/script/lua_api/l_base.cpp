@@ -60,10 +60,10 @@ Environment *ModApiBase::getEnv(lua_State *L)
 	return getScriptApiBase(L)->getEnv();
 }
 
-std::string ModApiBase::getCurrentModPath(lua_State *L)
+String ModApiBase::getCurrentModPath(lua_State *L)
 {
 	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_CURRENT_MOD_NAME);
-	std::string current_mod_name = readParam<std::string>(L, -1, "");
+	String current_mod_name = readParam<String>(L, -1, "");
 	if (current_mod_name.empty())
 		return ".";
 
@@ -125,7 +125,7 @@ int ModApiBase::l_deprecated_function(lua_State *L, const char *good, const char
 	FATAL_ERROR_IF(!lua_getinfo(L, "Sl", &ar), "lua_getinfo() failed");
 
 	// Get backtrace and hash it to reduce the warning flood
-	std::string backtrace = ar.short_src;
+	String backtrace = ar.short_src;
 	backtrace.append(":").append(std::to_string(ar.currentline));
 	u64 hash = murmur_hash_64_ua(backtrace.data(), backtrace.length(), 0xBADBABE);
 

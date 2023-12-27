@@ -59,7 +59,7 @@ void Server::handleCommand_Init(NetworkPacket* pkt)
 	RemoteClient *client = getClient(peer_id, CS_Created);
 
 	Address addr;
-	std::string addr_s;
+	String addr_s;
 	try {
 		addr = m_con->GetPeerAddress(peer_id);
 		addr_s = addr.serializeString();
@@ -101,7 +101,7 @@ void Server::handleCommand_Init(NetworkPacket* pkt)
 	u16 supp_compr_modes;
 	u16 min_net_proto_version = 0;
 	u16 max_net_proto_version;
-	std::string playerName;
+	String playerName;
 
 	*pkt >> client_max >> supp_compr_modes >> min_net_proto_version
 			>> max_net_proto_version >> playerName;
@@ -191,7 +191,7 @@ void Server::handleCommand_Init(NetworkPacket* pkt)
 	m_clients.setPlayerName(peer_id, playername);
 	//TODO (later) case insensitivity
 
-	std::string legacyPlayerNameCasing = playerName;
+	String legacyPlayerNameCasing = playerName;
 
 	if (!isSingleplayer() && strcasecmp(playername, "singleplayer") == 0) {
 		actionstream << "Server: Player with the name \"singleplayer\" tried "
@@ -201,7 +201,7 @@ void Server::handleCommand_Init(NetworkPacket* pkt)
 	}
 
 	{
-		std::string reason;
+		String reason;
 		if (m_script->on_prejoinplayer(playername, addr_s, &reason)) {
 			actionstream << "Server: Player with the name \"" << playerName <<
 				"\" tried to connect from " << addr_s <<
@@ -230,14 +230,14 @@ void Server::handleCommand_Init(NetworkPacket* pkt)
 	/*
 		Compose auth methods for answer
 	*/
-	std::string encpwd; // encrypted Password field for the user
+	String encpwd; // encrypted Password field for the user
 	bool has_auth = m_script->getAuth(playername, &encpwd, nullptr);
 	u32 auth_mechs = 0;
 
 	client->chosen_mech = AUTH_MECHANISM_NONE;
 
 	if (has_auth) {
-		std::vector<std::string> pwd_components = str_split(encpwd, '#');
+		std::vector<String> pwd_components = str_split(encpwd, '#');
 		if (pwd_components.size() == 4) {
 			if (pwd_components[1] == "1") { // 1 means srp
 				auth_mechs |= AUTH_MECHANISM_SRP;
@@ -259,7 +259,7 @@ void Server::handleCommand_Init(NetworkPacket* pkt)
 			return;
 		}
 	} else {
-		std::string default_password = g_settings->get("default_password");
+		String default_password = g_settings->get("default_password");
 		if (default_password.length() == 0) {
 			auth_mechs |= AUTH_MECHANISM_FIRST_SRP;
 		} else {
@@ -301,7 +301,7 @@ void Server::handleCommand_Init2(NetworkPacket* pkt)
 	m_clients.event(peer_id, CSE_GotInit2);
 	u16 protocol_version = m_clients.getProtocolVersion(peer_id);
 
-	std::string lang;
+	String lang;
 	if (pkt->getSize() > 0)
 		*pkt >> lang;
 
@@ -358,7 +358,7 @@ void Server::handleCommand_Init2(NetworkPacket* pkt)
 
 void Server::handleCommand_RequestMedia(NetworkPacket* pkt)
 {
-	std::vector<std::string> tosend;
+	std::vector<String> tosend;
 	u16 numfiles;
 
 	*pkt >> numfiles;
@@ -369,7 +369,7 @@ void Server::handleCommand_RequestMedia(NetworkPacket* pkt)
 	verbosestream << "TOSERVER_REQUEST_MEDIA: requested file(s)" << std::endl;
 
 	for (u16 i = 0; i < numfiles; i++) {
-		std::string name;
+		String name;
 
 		*pkt >> name;
 
@@ -387,7 +387,7 @@ void Server::handleCommand_ClientReady(NetworkPacket* pkt)
 	// decode all information first
 	u8 major_ver, minor_ver, patch_ver, reserved;
 	u16 formspec_ver = 1; // v1 for clients older than 5.1.0-dev
-	std::string full_ver;
+	String full_ver;
 
 	*pkt >> major_ver >> minor_ver >> patch_ver >> reserved >> full_ver;
 	if (pkt->getRemainingBytes() >= 2)
@@ -410,7 +410,7 @@ void Server::handleCommand_ClientReady(NetworkPacket* pkt)
 
 	// Send player list to this client
 	{
-		const std::vector<std::string> &players = m_clients.getPlayerNames();
+		const std::vector<String> &players = m_clients.getPlayerNames();
 		NetworkPacket list_pkt(TOCLIENT_UPDATE_PLAYER_LIST, 0, peer_id);
 		list_pkt << (u8) PLAYER_LIST_INIT << (u16) players.size();
 		for (const auto &player : players)
@@ -599,7 +599,7 @@ void Server::handleCommand_InventoryAction(NetworkPacket* pkt)
 	}
 
 	// Strip command and create a stream
-	std::string datastring(pkt->getString(0), pkt->getSize());
+	String datastring(pkt->getString(0), pkt->getSize());
 	verbosestream << "TOSERVER_INVENTORY_ACTION: data=" << datastring
 		<< std::endl;
 	std::istringstream is(datastring, std::ios_base::binary);
@@ -614,7 +614,7 @@ void Server::handleCommand_InventoryAction(NetworkPacket* pkt)
 
 	// If something goes wrong, this player is to blame
 	RollbackScopeActor rollback_scope(m_rollback,
-			std::string("player:")+player->getName());
+			String("player:")+player->getName());
 
 	/*
 		Note: Always set inventory not sent, to repair cases
@@ -769,7 +769,7 @@ void Server::handleCommand_ChatMessage(NetworkPacket* pkt)
 		return;
 	}
 
-	std::string name = player->getName();
+	String name = player->getName();
 
 	std::wstring answer_to_sender = handleChat(name, message, true, player);
 	if (!answer_to_sender.empty()) {
@@ -890,7 +890,7 @@ void Server::handleCommand_Respawn(NetworkPacket* pkt)
 	// the previous addition has been successfully removed
 }
 
-bool Server::checkInteractDistance(RemotePlayer *player, const f32 d, const std::string &what)
+bool Server::checkInteractDistance(RemotePlayer *player, const f32 d, const String &what)
 {
 	ItemStack selected_item, hand_item;
 	player->getWieldedItem(&selected_item, &hand_item);
@@ -1069,7 +1069,7 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 		If something goes wrong, this player is to blame
 	*/
 	RollbackScopeActor rollback_scope(m_rollback,
-			std::string("player:")+player->getName());
+			String("player:")+player->getName());
 
 	switch (action) {
 	// Start digging or punch object
@@ -1354,7 +1354,7 @@ static bool pkt_read_formspec_fields(NetworkPacket *pkt, StringMap &fields)
 
 	u64 length = 0;
 	for (u16 k = 0; k < field_count; k++) {
-		std::string fieldname;
+		String fieldname;
 		*pkt >> fieldname;
 		fields[fieldname] = pkt->readLongString();
 
@@ -1388,7 +1388,7 @@ void Server::handleCommand_NodeMetaFields(NetworkPacket* pkt)
 	}
 
 	v3s16 p;
-	std::string formname;
+	String formname;
 	StringMap fields;
 
 	*pkt >> p >> formname;
@@ -1401,7 +1401,7 @@ void Server::handleCommand_NodeMetaFields(NetworkPacket* pkt)
 
 	// If something goes wrong, this player is to blame
 	RollbackScopeActor rollback_scope(m_rollback,
-			std::string("player:")+player->getName());
+			String("player:")+player->getName());
 
 	// Check the target node for rollback data; leave others unnoticed
 	RollbackNode rn_old(&m_env->getMap(), p, this);
@@ -1439,7 +1439,7 @@ void Server::handleCommand_InventoryFields(NetworkPacket* pkt)
 		return;
 	}
 
-	std::string client_formspec_name;
+	String client_formspec_name;
 	StringMap fields;
 
 	*pkt >> client_formspec_name;
@@ -1458,7 +1458,7 @@ void Server::handleCommand_InventoryFields(NetworkPacket* pkt)
 	// verify that we displayed the formspec to the user
 	const auto peer_state_iterator = m_formspec_state_data.find(peer_id);
 	if (peer_state_iterator != m_formspec_state_data.end()) {
-		const std::string &server_formspec_name = peer_state_iterator->second;
+		const String &server_formspec_name = peer_state_iterator->second;
 		if (client_formspec_name == server_formspec_name) {
 			auto it = fields.find("quit");
 			if (it != fields.end() && it->second == "true")
@@ -1485,11 +1485,11 @@ void Server::handleCommand_FirstSrp(NetworkPacket* pkt)
 	session_t peer_id = pkt->getPeerId();
 	RemoteClient *client = getClient(peer_id, CS_Invalid);
 	ClientState cstate = client->getState();
-	const std::string playername = client->getName();
+	const String playername = client->getName();
 
-	std::string salt, verification_key;
+	String salt, verification_key;
 
-	std::string addr_s = getPeerAddress(peer_id).serializeString();
+	String addr_s = getPeerAddress(peer_id).serializeString();
 	u8 is_empty;
 
 	*pkt >> salt >> verification_key >> is_empty;
@@ -1517,7 +1517,7 @@ void Server::handleCommand_FirstSrp(NetworkPacket* pkt)
 			return;
 		}
 
-		std::string initial_ver_key;
+		String initial_ver_key;
 		initial_ver_key = encode_srp_verifier(verification_key, salt);
 
 		// It is possible for multiple connections to get this far with the same
@@ -1552,7 +1552,7 @@ void Server::handleCommand_FirstSrp(NetworkPacket* pkt)
 			return;
 		}
 
-		std::string pw_db_field = encode_srp_verifier(verification_key, salt);
+		String pw_db_field = encode_srp_verifier(verification_key, salt);
 		bool success = m_script->setPassword(playername, pw_db_field);
 		if (success) {
 			actionstream << playername << " changes password" << std::endl;
@@ -1596,7 +1596,7 @@ void Server::handleCommand_SrpBytesA(NetworkPacket* pkt)
 		return;
 	}
 
-	std::string bytes_A;
+	String bytes_A;
 	u8 based_on;
 	*pkt >> bytes_A >> based_on;
 
@@ -1628,7 +1628,7 @@ void Server::handleCommand_SrpBytesA(NetworkPacket* pkt)
 
 	client->chosen_mech = chosen;
 
-	std::string salt, verifier;
+	String salt, verifier;
 
 	if (based_on == 0) {
 
@@ -1669,7 +1669,7 @@ void Server::handleCommand_SrpBytesA(NetworkPacket* pkt)
 	}
 
 	NetworkPacket resp_pkt(TOCLIENT_SRP_BYTES_S_B, 0, peer_id);
-	resp_pkt << salt << std::string(bytes_B, len_B);
+	resp_pkt << salt << String(bytes_B, len_B);
 	Send(&resp_pkt);
 }
 
@@ -1678,8 +1678,8 @@ void Server::handleCommand_SrpBytesM(NetworkPacket* pkt)
 	session_t peer_id = pkt->getPeerId();
 	RemoteClient *client = getClient(peer_id, CS_Invalid);
 	ClientState cstate = client->getState();
-	const std::string addr_s = client->getAddress().serializeString();
-	const std::string playername = client->getName();
+	const String addr_s = client->getAddress().serializeString();
+	const String playername = client->getName();
 
 	const bool wantSudo = (cstate == CS_Active);
 
@@ -1705,7 +1705,7 @@ void Server::handleCommand_SrpBytesM(NetworkPacket* pkt)
 		return;
 	}
 
-	std::string bytes_M;
+	String bytes_M;
 	*pkt >> bytes_M;
 
 	if (srp_verifier_get_session_key_length((SRPVerifier *) client->auth_data)
@@ -1761,7 +1761,7 @@ void Server::handleCommand_SrpBytesM(NetworkPacket* pkt)
 
 void Server::handleCommand_ModChannelJoin(NetworkPacket *pkt)
 {
-	std::string channel_name;
+	String channel_name;
 	*pkt >> channel_name;
 
 	session_t peer_id = pkt->getPeerId();
@@ -1786,7 +1786,7 @@ void Server::handleCommand_ModChannelJoin(NetworkPacket *pkt)
 
 void Server::handleCommand_ModChannelLeave(NetworkPacket *pkt)
 {
-	std::string channel_name;
+	String channel_name;
 	*pkt >> channel_name;
 
 	session_t peer_id = pkt->getPeerId();
@@ -1810,7 +1810,7 @@ void Server::handleCommand_ModChannelLeave(NetworkPacket *pkt)
 
 void Server::handleCommand_ModChannelMsg(NetworkPacket *pkt)
 {
-	std::string channel_name, channel_msg;
+	String channel_name, channel_msg;
 	*pkt >> channel_name >> channel_msg;
 
 	session_t peer_id = pkt->getPeerId();

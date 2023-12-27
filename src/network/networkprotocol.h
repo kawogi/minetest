@@ -257,7 +257,7 @@ enum ToClientCommand
 		u16 deployed network compression mode
 		u16 deployed protocol version
 		u32 supported auth methods
-		std::string username that should be used for legacy hash (for proper casing)
+		String username that should be used for legacy hash (for proper casing)
 	*/
 	TOCLIENT_AUTH_ACCEPT = 0x03,
 	/*
@@ -280,7 +280,7 @@ enum ToClientCommand
 	TOCLIENT_ACCESS_DENIED = 0x0A,
 	/*
 		u8 reason
-		std::string custom reason (if needed, otherwise "")
+		String custom reason (if needed, otherwise "")
 		u8 (bool) reconnect
 	*/
 
@@ -327,8 +327,8 @@ enum ToClientCommand
 
 	TOCLIENT_MEDIA_PUSH = 0x2C,
 	/*
-		std::string raw_hash
-		std::string filename
+		String raw_hash
+		String filename
 		u32 callback_token
 		bool should_be_cached
 	*/
@@ -714,9 +714,9 @@ enum ToClientCommand
 
 		Protocol 39:
 		u8[4] bgcolor (ARGB)
-		std::string type
+		String type
 		int texture_count
-		std::string[6] param
+		String[6] param
 		bool clouds
 		bool bgcolor_fog
 		u8[4] day_sky (ARGB)
@@ -728,7 +728,7 @@ enum ToClientCommand
 		u8[4] indoors (ARGB)
 		u8[4] fog_sun_tint (ARGB)
 		u8[4] fog_moon_tint (ARGB)
-		std::string fog_tint_type
+		String fog_tint_type
 		float body_orbit_tilt
 	*/
 
@@ -787,18 +787,18 @@ enum ToClientCommand
 	TOCLIENT_MODCHANNEL_MSG = 0x57,
 	/*
 		u16 channel name length
-	 	std::string channel name
+	 	String channel name
 	 	u16 channel name sender
-	 	std::string channel name
+	 	String channel name
 	 	u16 message length
-	 	std::string message
+	 	String message
 	*/
 
 	TOCLIENT_MODCHANNEL_SIGNAL = 0x58,
 	/*
 		u8 signal id
 	 	u16 channel name length
-	 	std::string channel name
+	 	String channel name
 	*/
 
 	TOCLIENT_NODEMETA_CHANGED = 0x59,
@@ -809,17 +809,17 @@ enum ToClientCommand
 	TOCLIENT_SET_SUN = 0x5a,
 	/*
 		bool visible
-		std::string texture
-		std::string tonemap
-		std::string sunrise
+		String texture
+		String tonemap
+		String sunrise
 		f32 scale
 	*/
 
 	TOCLIENT_SET_MOON = 0x5b,
 	/*
 		bool visible
-		std::string texture
-		std::string tonemap
+		String texture
+		String tonemap
 		f32 scale
 	*/
 
@@ -836,8 +836,8 @@ enum ToClientCommand
 	/*
 		Belonging to AUTH_MECHANISM_SRP.
 
-		std::string bytes_s
-		std::string bytes_B
+		String bytes_s
+		String bytes_B
 	*/
 
 	TOCLIENT_FORMSPEC_PREPEND = 0x61,
@@ -852,9 +852,9 @@ enum ToClientCommand
 		u16 mode  // wanted current mode index after change
 		for each mode
 			u16 type
-			std::string label
+			String label
 			u16 size
-			std::string extra
+			String extra
 	*/
 
 	TOCLIENT_SET_LIGHTING = 0x63,
@@ -883,7 +883,7 @@ enum ToServerCommand
 		u16 supported network compression modes
 		u16 minimum supported network protocol version
 		u16 maximum supported network protocol version
-		std::string player name
+		String player name
 	*/
 
 	TOSERVER_INIT_LEGACY = 0x10, // Obsolete
@@ -899,21 +899,21 @@ enum ToServerCommand
 	TOSERVER_MODCHANNEL_JOIN = 0x17,
 	/*
 		u16 channel name length
-	 	std::string channel name
+	 	String channel name
 	 */
 
 	TOSERVER_MODCHANNEL_LEAVE = 0x18,
 	/*
 		u16 channel name length
-	 	std::string channel name
+	 	String channel name
 	 */
 
 	TOSERVER_MODCHANNEL_MSG = 0x19,
 	/*
 		u16 channel name length
-	 	std::string channel name
+	 	String channel name
 	 	u16 message length
-	 	std::string message
+	 	String message
 	 */
 
 	TOSERVER_GETBLOCK = 0x20, // Obsolete
@@ -1070,8 +1070,8 @@ enum ToServerCommand
 	/*
 		Belonging to AUTH_MECHANISM_FIRST_SRP.
 
-		std::string srp salt
-		std::string srp verification key
+		String srp salt
+		String srp verification key
 		u8 is_empty (=1 if password is empty, 0 otherwise)
 	*/
 
@@ -1080,7 +1080,7 @@ enum ToServerCommand
 		Belonging to AUTH_MECHANISM_SRP,
 			depending on current_login_based_on.
 
-		std::string bytes_A
+		String bytes_A
 		u8 current_login_based_on : on which version of the password's
 		                            hash this login is based on (0 legacy hash,
 		                            or 1 directly the password)
@@ -1090,7 +1090,7 @@ enum ToServerCommand
 	/*
 		Belonging to AUTH_MECHANISM_SRP.
 
-		std::string bytes_M
+		String bytes_M
 	*/
 
 	TOSERVER_UPDATE_CLIENT_INFO = 0x53,
@@ -1140,7 +1140,7 @@ enum NetProtoCompressionMode {
 	NETPROTO_COMPRESSION_NONE = 0,
 };
 
-const static std::string accessDeniedStrings[SERVER_ACCESSDENIED_MAX] = {
+const static String accessDeniedStrings[SERVER_ACCESSDENIED_MAX] = {
 	"Invalid password",
 	"Your client sent something the server didn't expect.  Try reconnecting or updating your client.",
 	"The server is running in simple singleplayer mode.  You cannot connect.",

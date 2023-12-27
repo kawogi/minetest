@@ -35,7 +35,7 @@ extern "C" {
 #define CHECK_TYPE(index, name, type) do { \
 		int t = lua_type(L, (index)); \
 		if (t != (type)) { \
-			throw LuaError(std::string("Invalid ") + (name) + \
+			throw LuaError(String("Invalid ") + (name) + \
 				" (expected " + lua_typename(L, (type)) + \
 				" got " + lua_typename(L, t) + ")."); \
 		} \
@@ -409,7 +409,7 @@ std::vector<aabb3f> read_aabb3f_vector(lua_State *L, int index, f32 scale)
 	return boxes;
 }
 
-size_t read_stringlist(lua_State *L, int index, std::vector<std::string> *result)
+size_t read_stringlist(lua_State *L, int index, std::vector<String> *result)
 {
 	if (index < 0)
 		index = lua_gettop(L) + 1 + index;
@@ -458,7 +458,7 @@ bool check_field_or_nil(lua_State *L, int index, int type, const char *fieldname
 	}
 
 	// Types mismatch. Log unique line.
-	std::string backtrace = std::string("Invalid field ") + fieldname +
+	String backtrace = String("Invalid field ") + fieldname +
 		" (expected " + lua_typename(L, type) +
 		" got " + lua_typename(L, t) + ").\n" + script_get_backtrace(L);
 
@@ -472,7 +472,7 @@ bool check_field_or_nil(lua_State *L, int index, int type, const char *fieldname
 }
 
 bool getstringfield(lua_State *L, int table,
-		const char *fieldname, std::string &result)
+		const char *fieldname, String &result)
 {
 	lua_getfield(L, table, fieldname);
 	bool got = false;
@@ -518,7 +518,7 @@ bool getboolfield(lua_State *L, int table,
 }
 
 size_t getstringlistfield(lua_State *L, int table, const char *fieldname,
-		std::vector<std::string> *result)
+		std::vector<String> *result)
 {
 	lua_getfield(L, table, fieldname);
 
@@ -528,10 +528,10 @@ size_t getstringlistfield(lua_State *L, int table, const char *fieldname,
 	return num_strings_read;
 }
 
-std::string getstringfield_default(lua_State *L, int table,
-		const char *fieldname, const std::string &default_)
+String getstringfield_default(lua_State *L, int table,
+		const char *fieldname, const String &default_)
 {
-	std::string result = default_;
+	String result = default_;
 	getstringfield(L, table, fieldname, result);
 	return result;
 }
@@ -568,7 +568,7 @@ v3s16 getv3s16field_default(lua_State *L, int table,
 }
 
 void setstringfield(lua_State *L, int table,
-		const char *fieldname, const std::string &value)
+		const char *fieldname, const String &value)
 {
 	lua_pushlstring(L, value.c_str(), value.length());
 	if(table < 0)

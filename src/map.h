@@ -342,7 +342,7 @@ public:
 	/*
 		savedir: directory to which map data should be saved
 	*/
-	ServerMap(const std::string &savedir, IGameDef *gamedef, EmergeManager *emerge, MetricsBackend *mb);
+	ServerMap(const String &savedir, IGameDef *gamedef, EmergeManager *emerge, MetricsBackend *mb);
 	~ServerMap();
 
 	/*
@@ -394,7 +394,7 @@ public:
 	/*
 		Database functions
 	*/
-	static MapDatabase *createDatabase(const std::string &name, const std::string &savedir, Settings &conf);
+	static MapDatabase *createDatabase(const String &name, const String &savedir, Settings &conf);
 
 	// Call these before and after saving of blocks
 	void beginSave() override;
@@ -410,7 +410,7 @@ public:
 	static bool saveBlock(MapBlock *block, MapDatabase *db, int compression_level = -1);
 	MapBlock* loadBlock(v3s16 p);
 	// Database version
-	void loadBlock(std::string *blob, v3s16 p3d, MapSector *sector, bool save_after_load=false);
+	void loadBlock(String *blob, v3s16 p3d, MapSector *sector, bool save_after_load=false);
 
 	// Blocks are removed from the map but not deleted from memory until
 	// deleteDetachedBlocks() is called, since pointers to them may still exist
@@ -457,7 +457,7 @@ private:
 	// Emerge manager
 	EmergeManager *m_emerge;
 
-	std::string m_savedir;
+	String m_savedir;
 	bool m_map_saving_enabled;
 
 	int m_map_compression_level;

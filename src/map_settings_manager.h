@@ -44,24 +44,24 @@ struct MapgenParams;
 */
 class MapSettingsManager {
 public:
-	MapSettingsManager(const std::string &map_meta_path);
+	MapSettingsManager(const String &map_meta_path);
 	~MapSettingsManager();
 
 	// Finalized map generation parameters
 	MapgenParams *mapgen_params = nullptr;
 
-	bool getMapSetting(const std::string &name, std::string *value_out) const;
+	bool getMapSetting(const String &name, String *value_out) const;
 
-	bool getMapSettingNoiseParams(const std::string &name,
+	bool getMapSettingNoiseParams(const String &name,
 		NoiseParams *value_out) const;
 
 	// Note: Map config becomes read-only after makeMapgenParams() gets called
 	// (i.e. mapgen_params is non-NULL).  Attempts to set map config after
 	// params have been finalized will result in failure.
-	bool setMapSetting(const std::string &name,
-		const std::string &value, bool override_meta = false);
+	bool setMapSetting(const String &name,
+		const String &value, bool override_meta = false);
 
-	bool setMapSettingNoiseParams(const std::string &name,
+	bool setMapSettingNoiseParams(const String &name,
 		const NoiseParams *value, bool override_meta = false);
 
 	bool loadMapMeta();
@@ -69,7 +69,7 @@ public:
 	MapgenParams *makeMapgenParams();
 
 private:
-	std::string m_map_meta_path;
+	String m_map_meta_path;
 
 	SettingsHierarchy m_hierarchy;
 	Settings *m_defaults;

@@ -176,7 +176,7 @@ void TestConnection::testConnectSendReceive()
 	 * Try to use the bind_address for servers with no localhost address
 	 * For example: FreeBSD jails
 	 */
-	std::string bind_str = g_settings->get("bind_address");
+	String bind_str = g_settings->get("bind_address");
 	try {
 		bind_addr.Resolve(bind_str.c_str());
 

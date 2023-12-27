@@ -118,7 +118,7 @@ enum RunCallbacksMode
 };
 
 // Gets a backtrace of the current execution point
-std::string script_get_backtrace(lua_State *L);
+String script_get_backtrace(lua_State *L);
 // Wrapper for CFunction calls that converts C++ exceptions to Lua errors
 int script_exception_wrapper(lua_State *L, lua_CFunction f);
 // Acts as the error handler for lua_pcall
@@ -126,7 +126,7 @@ int script_error_handler(lua_State *L);
 // Takes an error from lua_pcall and throws it as a LuaError
 void script_error(lua_State *L, int pcall_result, const char *mod, const char *fxn);
 
-bool script_log_unique(lua_State *L, std::string message, std::ostream &log_to,
+bool script_log_unique(lua_State *L, String message, std::ostream &log_to,
 	int stack_depth = 1);
 
 enum DeprecatedHandlingMode {
@@ -150,7 +150,7 @@ DeprecatedHandlingMode get_deprecated_handling_mode();
  * @param stack_depth How far on the stack to the first user function
  *        (ie: not builtin or core). -1 to disabled.
  */
-void log_deprecated(lua_State *L, std::string message, int stack_depth = 1);
+void log_deprecated(lua_State *L, String message, int stack_depth = 1);
 
 // Safely call string.dump on a function value
 // (does not pop, leaves one value on stack)

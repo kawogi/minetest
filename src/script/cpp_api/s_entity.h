@@ -33,12 +33,12 @@ class ScriptApiEntity
 public:
 	bool luaentity_Add(u16 id, const char *name);
 	void luaentity_Activate(u16 id,
-			const std::string &staticdata, u32 dtime_s);
+			const String &staticdata, u32 dtime_s);
 	void luaentity_Deactivate(u16 id, bool removal);
 	void luaentity_Remove(u16 id);
-	std::string luaentity_GetStaticdata(u16 id);
+	String luaentity_GetStaticdata(u16 id);
 	void luaentity_GetProperties(u16 id,
-			ServerActiveObject *self, ObjectProperties *prop, const std::string &entity_name);
+			ServerActiveObject *self, ObjectProperties *prop, const String &entity_name);
 	void luaentity_Step(u16 id, float dtime,
 		const collisionMoveResult *moveresult);
 	bool luaentity_Punch(u16 id,
@@ -53,10 +53,10 @@ private:
 	bool luaentity_run_simple_callback(u16 id, ServerActiveObject *sao,
 		const char *field);
 
-	void logDeprecationForExistingProperties(lua_State *L, int index, const std::string &name);
+	void logDeprecationForExistingProperties(lua_State *L, int index, const String &name);
 
 	/** Stores names of entities that already caused a deprecation warning due to
 	 * properties being outside of initial_properties. If an entity's name is in here,
 	 * it won't cause any more of those deprecation warnings. */
-	std::unordered_set<std::string> deprecation_warned_init_properties;
+	std::unordered_set<String> deprecation_warned_init_properties;
 };

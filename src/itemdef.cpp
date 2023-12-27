@@ -134,7 +134,7 @@ void ItemDefinition::serialize(std::ostream &os, u16 protocol_version) const
 	writeU8(os, usable);
 	writeU8(os, liquids_pointable);
 
-	std::string tool_capabilities_s;
+	String tool_capabilities_s;
 	if (tool_capabilities) {
 		std::ostringstream tmp_os(std::ios::binary);
 		tool_capabilities->serialize(tmp_os, protocol_version);
@@ -198,7 +198,7 @@ void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
 	usable = readU8(is);
 	liquids_pointable = readU8(is);
 
-	std::string tool_capabilities_s = deSerializeString16(is);
+	String tool_capabilities_s = deSerializeString16(is);
 	if (!tool_capabilities_s.empty()) {
 		std::istringstream tmp_is(tool_capabilities_s, std::ios::binary);
 		tool_capabilities = new ToolCapabilities;
@@ -208,7 +208,7 @@ void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
 	groups.clear();
 	u32 groups_size = readU16(is);
 	for(u32 i=0; i<groups_size; i++){
-		std::string name = deSerializeString16(is);
+		String name = deSerializeString16(is);
 		int value = readS16(is);
 		groups[name] = value;
 	}
@@ -269,10 +269,10 @@ public:
 		}
 		m_item_definitions.clear();
 	}
-	virtual const ItemDefinition& get(const std::string &name_) const
+	virtual const ItemDefinition& get(const String &name_) const
 	{
 		// Convert name according to possible alias
-		std::string name = getAlias(name_);
+		String name = getAlias(name_);
 		// Get the definition
 		auto i = m_item_definitions.find(name);
 		if (i == m_item_definitions.cend())
@@ -280,14 +280,14 @@ public:
 		assert(i != m_item_definitions.cend());
 		return *(i->second);
 	}
-	virtual const std::string &getAlias(const std::string &name) const
+	virtual const String &getAlias(const String &name) const
 	{
 		auto it = m_aliases.find(name);
 		if (it != m_aliases.cend())
 			return it->second;
 		return name;
 	}
-	virtual void getAll(std::set<std::string> &result) const
+	virtual void getAll(std::set<String> &result) const
 	{
 		result.clear();
 		for (const auto &item_definition : m_item_definitions) {
@@ -298,10 +298,10 @@ public:
 			result.insert(alias.first);
 		}
 	}
-	virtual bool isKnown(const std::string &name_) const
+	virtual bool isKnown(const String &name_) const
 	{
 		// Convert name according to possible alias
-		std::string name = getAlias(name_);
+		String name = getAlias(name_);
 		// Get the definition
 		return m_item_definitions.find(name) != m_item_definitions.cend();
 	}
@@ -380,15 +380,15 @@ public:
 			infostream<<"ItemDefManager: erased alias "<<def.name
 					<<" because item was defined"<<std::endl;
 	}
-	virtual void unregisterItem(const std::string &name)
+	virtual void unregisterItem(const String &name)
 	{
 		verbosestream<<"ItemDefManager: unregistering \""<<name<<"\""<<std::endl;
 
 		delete m_item_definitions[name];
 		m_item_definitions.erase(name);
 	}
-	virtual void registerAlias(const std::string &name,
-			const std::string &convert_to)
+	virtual void registerAlias(const String &name,
+			const String &convert_to)
 	{
 		if (m_item_definitions.find(name) == m_item_definitions.end()) {
 			TRACESTREAM(<< "ItemDefManager: setting alias " << name
@@ -438,15 +438,15 @@ public:
 		u16 num_aliases = readU16(is);
 		for(u16 i=0; i<num_aliases; i++)
 		{
-			std::string name = deSerializeString16(is);
-			std::string convert_to = deSerializeString16(is);
+			String name = deSerializeString16(is);
+			String convert_to = deSerializeString16(is);
 			registerAlias(name, convert_to);
 		}
 	}
 
 private:
 	// Key is name
-	std::map<std::string, ItemDefinition*> m_item_definitions;
+	std::map<String, ItemDefinition*> m_item_definitions;
 	// Aliases
 	StringMap m_aliases;
 };

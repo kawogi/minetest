@@ -78,10 +78,10 @@ v3f LuaHelper::readParam(lua_State *L, int index)
 }
 
 template <>
-std::string LuaHelper::readParam(lua_State *L, int index)
+String LuaHelper::readParam(lua_State *L, int index)
 {
 	size_t length;
-	std::string result;
+	String result;
 	const char *str = luaL_checklstring(L, index, &length);
 	result.assign(str, length);
 	return result;

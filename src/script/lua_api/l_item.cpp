@@ -42,7 +42,7 @@ int LuaItemStack::gc_object(lua_State *L)
 int LuaItemStack::mt_tostring(lua_State *L)
 {
 	LuaItemStack *o = checkObject<LuaItemStack>(L, 1);
-	std::string itemstring = o->m_stack.getItemString(false);
+	String itemstring = o->m_stack.getItemString(false);
 	lua_pushfstring(L, "ItemStack(\"%s\")", itemstring.c_str());
 	return 1;
 }
@@ -163,7 +163,7 @@ int LuaItemStack::l_get_metadata(lua_State *L)
 	NO_MAP_LOCK_REQUIRED;
 	LuaItemStack *o = checkObject<LuaItemStack>(L, 1);
 	ItemStack &item = o->m_stack;
-	const std::string &value = item.metadata.getString("");
+	const String &value = item.metadata.getString("");
 	lua_pushlstring(L, value.c_str(), value.size());
 	return 1;
 }
@@ -178,7 +178,7 @@ int LuaItemStack::l_set_metadata(lua_State *L)
 
 	size_t len = 0;
 	const char *ptr = luaL_checklstring(L, 2, &len);
-	item.metadata.setString("", std::string(ptr, len));
+	item.metadata.setString("", String(ptr, len));
 
 	lua_pushboolean(L, true);
 	return 1;
@@ -189,7 +189,7 @@ int LuaItemStack::l_get_description(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 	LuaItemStack *o = checkObject<LuaItemStack>(L, 1);
-	std::string desc = o->m_stack.getDescription(getGameDef(L)->idef());
+	String desc = o->m_stack.getDescription(getGameDef(L)->idef());
 	lua_pushstring(L, desc.c_str());
 	return 1;
 }
@@ -199,7 +199,7 @@ int LuaItemStack::l_get_short_description(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 	LuaItemStack *o = checkObject<LuaItemStack>(L, 1);
-	std::string desc = o->m_stack.getShortDescription(getGameDef(L)->idef());
+	String desc = o->m_stack.getShortDescription(getGameDef(L)->idef());
 	lua_pushstring(L, desc.c_str());
 	return 1;
 }
@@ -229,7 +229,7 @@ int LuaItemStack::l_to_string(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 	LuaItemStack *o = checkObject<LuaItemStack>(L, 1);
-	std::string itemstring = o->m_stack.getItemString();
+	String itemstring = o->m_stack.getItemString();
 	lua_pushstring(L, itemstring.c_str());
 	return 1;
 }
@@ -254,17 +254,17 @@ int LuaItemStack::l_to_table(lua_State *L)
 		lua_pushinteger(L, item.wear);
 		lua_setfield(L, -2, "wear");
 
-		const std::string &metadata_str = item.metadata.getString("");
+		const String &metadata_str = item.metadata.getString("");
 		lua_pushlstring(L, metadata_str.c_str(), metadata_str.size());
 		lua_setfield(L, -2, "metadata");
 
 		lua_newtable(L);
 		const StringMap &fields = item.metadata.getStrings();
 		for (const auto &field : fields) {
-			const std::string &name = field.first;
+			const String &name = field.first;
 			if (name.empty())
 				continue;
-			const std::string &value = field.second;
+			const String &value = field.second;
 			lua_pushlstring(L, name.c_str(), name.size());
 			lua_pushlstring(L, value.c_str(), value.size());
 			lua_settable(L, -3);
@@ -577,10 +577,10 @@ int ModApiItem::l_register_item_raw(lua_State *L)
 			getServer(L)->getWritableNodeDefManager();
 
 	// Check if name is defined
-	std::string name;
+	String name;
 	lua_getfield(L, table, "name");
 	if(lua_isstring(L, -1)){
-		name = readParam<std::string>(L, -1);
+		name = readParam<String>(L, -1);
 	} else {
 		throw LuaError("register_item_raw: name is not defined or not a string");
 	}
@@ -634,7 +634,7 @@ int ModApiItem::l_register_item_raw(lua_State *L)
 int ModApiItem::l_unregister_item_raw(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	std::string name = luaL_checkstring(L, 1);
+	String name = luaL_checkstring(L, 1);
 
 	IWritableItemDefManager *idef =
 			getServer(L)->getWritableItemDefManager();
@@ -655,8 +655,8 @@ int ModApiItem::l_unregister_item_raw(lua_State *L)
 int ModApiItem::l_register_alias_raw(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	std::string name = luaL_checkstring(L, 1);
-	std::string convert_to = luaL_checkstring(L, 2);
+	String name = luaL_checkstring(L, 1);
+	String convert_to = luaL_checkstring(L, 2);
 
 	// Get the writable item definition manager from the server
 	IWritableItemDefManager *idef =
@@ -671,14 +671,14 @@ int ModApiItem::l_register_alias_raw(lua_State *L)
 int ModApiItem::l_get_content_id(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	std::string name = luaL_checkstring(L, 1);
+	String name = luaL_checkstring(L, 1);
 
 	const IItemDefManager *idef = getGameDef(L)->idef();
 	const NodeDefManager *ndef = getGameDef(L)->ndef();
 
 	// If this is called at mod load time, NodeDefManager isn't aware of
 	// aliases yet, so we need to handle them manually
-	std::string alias_name = idef->getAlias(name);
+	String alias_name = idef->getAlias(name);
 
 	content_t content_id;
 	if (alias_name != name) {

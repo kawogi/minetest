@@ -21,7 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "threading/mutex_auto_lock.h"
 #include "util/string.h"
 
-std::string QuicktuneValue::getString()
+String QuicktuneValue::getString()
 {
 	switch(type){
 	case QVT_NONE:
@@ -46,8 +46,8 @@ void QuicktuneValue::relativeAdd(float amount)
 	}
 }
 
-static std::map<std::string, QuicktuneValue> g_values;
-static std::vector<std::string> g_names;
+static std::map<String, QuicktuneValue> g_values;
+static std::vector<String> g_names;
 std::mutex *g_mutex = NULL;
 
 static void makeMutex()
@@ -57,16 +57,16 @@ static void makeMutex()
 	}
 }
 
-std::vector<std::string> getQuicktuneNames()
+std::vector<String> getQuicktuneNames()
 {
 	return g_names;
 }
 
-QuicktuneValue getQuicktuneValue(const std::string &name)
+QuicktuneValue getQuicktuneValue(const String &name)
 {
 	makeMutex();
 	MutexAutoLock lock(*g_mutex);
-	std::map<std::string, QuicktuneValue>::iterator i = g_values.find(name);
+	std::map<String, QuicktuneValue>::iterator i = g_values.find(name);
 	if(i == g_values.end()){
 		QuicktuneValue val;
 		val.type = QVT_NONE;
@@ -75,7 +75,7 @@ QuicktuneValue getQuicktuneValue(const std::string &name)
 	return i->second;
 }
 
-void setQuicktuneValue(const std::string &name, const QuicktuneValue &val)
+void setQuicktuneValue(const String &name, const QuicktuneValue &val)
 {
 	makeMutex();
 	MutexAutoLock lock(*g_mutex);
@@ -83,11 +83,11 @@ void setQuicktuneValue(const std::string &name, const QuicktuneValue &val)
 	g_values[name].modified = true;
 }
 
-void updateQuicktuneValue(const std::string &name, QuicktuneValue &val)
+void updateQuicktuneValue(const String &name, QuicktuneValue &val)
 {
 	makeMutex();
 	MutexAutoLock lock(*g_mutex);
-	std::map<std::string, QuicktuneValue>::iterator i = g_values.find(name);
+	std::map<String, QuicktuneValue>::iterator i = g_values.find(name);
 	if(i == g_values.end()){
 		g_values[name] = val;
 		g_names.push_back(name);

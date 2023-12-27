@@ -32,10 +32,10 @@ struct NoiseParams;
 
 // Global objects
 extern Settings *g_settings; // Same as Settings::getLayer(SL_GLOBAL);
-extern std::string g_settings_path;
+extern String g_settings_path;
 
 // Type for a settings changed callback function
-typedef void (*SettingsChangedCallback)(const std::string &name, void *data);
+typedef void (*SettingsChangedCallback)(const String &name, void *data);
 
 typedef std::vector<
 	std::pair<
@@ -44,7 +44,7 @@ typedef std::vector<
 	>
 > SettingsCallbackList;
 
-typedef std::unordered_map<std::string, SettingsCallbackList> SettingsCallbackMap;
+typedef std::unordered_map<String, SettingsCallbackList> SettingsCallbackMap;
 
 enum ValueType {
 	VALUETYPE_STRING,
@@ -105,7 +105,7 @@ struct ValueSpec {
 struct SettingsEntry {
 	SettingsEntry() = default;
 
-	SettingsEntry(const std::string &value_) :
+	SettingsEntry(const String &value_) :
 		value(value_)
 	{}
 
@@ -114,24 +114,24 @@ struct SettingsEntry {
 		is_group(true)
 	{}
 
-	std::string value = "";
+	String value = "";
 	Settings *group = nullptr;
 	bool is_group = false;
 };
 
-typedef std::unordered_map<std::string, SettingsEntry> SettingEntries;
+typedef std::unordered_map<String, SettingsEntry> SettingEntries;
 
 class Settings {
 public:
 	/* These functions operate on the global hierarchy! */
-	static Settings *createLayer(SettingsLayer sl, const std::string &end_tag = "");
+	static Settings *createLayer(SettingsLayer sl, const String &end_tag = "");
 	static Settings *getLayer(SettingsLayer sl);
 	/**/
 
-	Settings(const std::string &end_tag = "") :
+	Settings(const String &end_tag = "") :
 		m_end_tag(end_tag)
 	{}
-	Settings(const std::string &end_tag, SettingsHierarchy *h, int settings_layer);
+	Settings(const String &end_tag, SettingsHierarchy *h, int settings_layer);
 	~Settings();
 
 	Settings & operator += (const Settings &other);
@@ -147,7 +147,7 @@ public:
 	bool updateConfigFile(const char *filename);
 	// NOTE: Types of allowed_options are ignored.  Returns success.
 	bool parseCommandLine(int argc, char *argv[],
-			std::map<std::string, ValueSpec> &allowed_options);
+			std::map<String, ValueSpec> &allowed_options);
 	bool parseConfigLines(std::istream &is);
 	void writeLines(std::ostream &os, u32 tab_depth=0) const;
 
@@ -155,52 +155,52 @@ public:
 	 * Getters *
 	 ***********/
 
-	Settings *getGroup(const std::string &name) const;
-	const std::string &get(const std::string &name) const;
-	bool getBool(const std::string &name) const;
-	u16 getU16(const std::string &name) const;
-	s16 getS16(const std::string &name) const;
-	u32 getU32(const std::string &name) const;
-	s32 getS32(const std::string &name) const;
-	u64 getU64(const std::string &name) const;
-	float getFloat(const std::string &name) const;
-	float getFloat(const std::string &name, float min, float max) const;
-	v2f getV2F(const std::string &name) const;
-	v3f getV3F(const std::string &name) const;
-	u32 getFlagStr(const std::string &name, const FlagDesc *flagdesc,
+	Settings *getGroup(const String &name) const;
+	const String &get(const String &name) const;
+	bool getBool(const String &name) const;
+	u16 getU16(const String &name) const;
+	s16 getS16(const String &name) const;
+	u32 getU32(const String &name) const;
+	s32 getS32(const String &name) const;
+	u64 getU64(const String &name) const;
+	float getFloat(const String &name) const;
+	float getFloat(const String &name, float min, float max) const;
+	v2f getV2F(const String &name) const;
+	v3f getV3F(const String &name) const;
+	u32 getFlagStr(const String &name, const FlagDesc *flagdesc,
 			u32 *flagmask) const;
-	bool getNoiseParams(const std::string &name, NoiseParams &np) const;
-	bool getNoiseParamsFromValue(const std::string &name, NoiseParams &np) const;
-	bool getNoiseParamsFromGroup(const std::string &name, NoiseParams &np) const;
+	bool getNoiseParams(const String &name, NoiseParams &np) const;
+	bool getNoiseParamsFromValue(const String &name, NoiseParams &np) const;
+	bool getNoiseParamsFromGroup(const String &name, NoiseParams &np) const;
 
 	// return all keys used in this object
-	std::vector<std::string> getNames() const;
+	std::vector<String> getNames() const;
 	// check if setting exists anywhere in the hierarchy
-	bool exists(const std::string &name) const;
+	bool exists(const String &name) const;
 	// check if setting exists in this object ("locally")
-	bool existsLocal(const std::string &name) const;
+	bool existsLocal(const String &name) const;
 
 
 	/***************************************
 	 * Getters that don't throw exceptions *
 	 ***************************************/
 
-	bool getGroupNoEx(const std::string &name, Settings *&val) const;
-	bool getNoEx(const std::string &name, std::string &val) const;
-	bool getFlag(const std::string &name) const;
-	bool getU16NoEx(const std::string &name, u16 &val) const;
-	bool getS16NoEx(const std::string &name, s16 &val) const;
-	bool getU32NoEx(const std::string &name, u32 &val) const;
-	bool getS32NoEx(const std::string &name, s32 &val) const;
-	bool getU64NoEx(const std::string &name, u64 &val) const;
-	bool getFloatNoEx(const std::string &name, float &val) const;
-	bool getV2FNoEx(const std::string &name, v2f &val) const;
-	bool getV3FNoEx(const std::string &name, v3f &val) const;
+	bool getGroupNoEx(const String &name, Settings *&val) const;
+	bool getNoEx(const String &name, String &val) const;
+	bool getFlag(const String &name) const;
+	bool getU16NoEx(const String &name, u16 &val) const;
+	bool getS16NoEx(const String &name, s16 &val) const;
+	bool getU32NoEx(const String &name, u32 &val) const;
+	bool getS32NoEx(const String &name, s32 &val) const;
+	bool getU64NoEx(const String &name, u64 &val) const;
+	bool getFloatNoEx(const String &name, float &val) const;
+	bool getV2FNoEx(const String &name, v2f &val) const;
+	bool getV3FNoEx(const String &name, v3f &val) const;
 
 	// Like other getters, but handling each flag individualy:
 	// 1) Read default flags (or 0)
 	// 2) Override using user-defined flags
-	bool getFlagStrNoEx(const std::string &name, u32 &val,
+	bool getFlagStrNoEx(const String &name, u32 &val,
 		const FlagDesc *flagdesc) const;
 
 
@@ -210,36 +210,36 @@ public:
 
 	// N.B. Groups not allocated with new must be set to NULL in the settings
 	// tree before object destruction.
-	bool setEntry(const std::string &name, const void *entry,
+	bool setEntry(const String &name, const void *entry,
 		bool set_group);
-	bool set(const std::string &name, const std::string &value);
-	bool setDefault(const std::string &name, const std::string &value);
-	bool setGroup(const std::string &name, const Settings &group);
-	bool setBool(const std::string &name, bool value);
-	bool setS16(const std::string &name, s16 value);
-	bool setU16(const std::string &name, u16 value);
-	bool setS32(const std::string &name, s32 value);
-	bool setU64(const std::string &name, u64 value);
-	bool setFloat(const std::string &name, float value);
-	bool setV2F(const std::string &name, v2f value);
-	bool setV3F(const std::string &name, v3f value);
-	bool setFlagStr(const std::string &name, u32 flags,
+	bool set(const String &name, const String &value);
+	bool setDefault(const String &name, const String &value);
+	bool setGroup(const String &name, const Settings &group);
+	bool setBool(const String &name, bool value);
+	bool setS16(const String &name, s16 value);
+	bool setU16(const String &name, u16 value);
+	bool setS32(const String &name, s32 value);
+	bool setU64(const String &name, u64 value);
+	bool setFloat(const String &name, float value);
+	bool setV2F(const String &name, v2f value);
+	bool setV3F(const String &name, v3f value);
+	bool setFlagStr(const String &name, u32 flags,
 		const FlagDesc *flagdesc = nullptr, u32 flagmask = U32_MAX);
-	bool setNoiseParams(const std::string &name, const NoiseParams &np);
+	bool setNoiseParams(const String &name, const NoiseParams &np);
 
 	// remove a setting
-	bool remove(const std::string &name);
+	bool remove(const String &name);
 
 	/*****************
 	 * Miscellaneous *
 	 *****************/
 
-	void setDefault(const std::string &name, const FlagDesc *flagdesc, u32 flags);
-	const FlagDesc *getFlagDescFallback(const std::string &name) const;
+	void setDefault(const String &name, const FlagDesc *flagdesc, u32 flags);
+	const FlagDesc *getFlagDescFallback(const String &name) const;
 
-	void registerChangedCallback(const std::string &name,
+	void registerChangedCallback(const String &name,
 		SettingsChangedCallback cbf, void *userdata = NULL);
-	void deregisterChangedCallback(const std::string &name,
+	void deregisterChangedCallback(const String &name,
 		SettingsChangedCallback cbf, void *userdata = NULL);
 
 	void removeSecureSettings();
@@ -253,15 +253,15 @@ private:
 	 * Reading and writing *
 	 ***********************/
 
-	SettingsParseEvent parseConfigObject(const std::string &line,
-		std::string &name, std::string &value);
+	SettingsParseEvent parseConfigObject(const String &line,
+		String &name, String &value);
 	bool updateConfigObject(std::istream &is, std::ostream &os,
 		u32 tab_depth=0);
 
-	static bool checkNameValid(const std::string &name);
-	static bool checkValueValid(const std::string &value);
-	static std::string getMultiline(std::istream &is, size_t *num_lines=NULL);
-	static void printEntry(std::ostream &os, const std::string &name,
+	static bool checkNameValid(const String &name);
+	static bool checkValueValid(const String &value);
+	static String getMultiline(std::istream &is, size_t *num_lines=NULL);
+	static void printEntry(std::ostream &os, const String &name,
 		const SettingsEntry &entry, u32 tab_depth=0);
 
 	/***********
@@ -269,7 +269,7 @@ private:
 	 ***********/
 	Settings *getParent() const;
 
-	const SettingsEntry &getEntry(const std::string &name) const;
+	const SettingsEntry &getEntry(const String &name) const;
 
 	// Allow TestSettings to run sanity checks using private functions.
 	friend class TestSettings;
@@ -280,11 +280,11 @@ private:
 	void clearNoLock();
 	void clearDefaultsNoLock();
 
-	void doCallbacks(const std::string &name) const;
+	void doCallbacks(const String &name) const;
 
 	SettingEntries m_settings;
 	SettingsCallbackMap m_callbacks;
-	std::string m_end_tag;
+	String m_end_tag;
 
 	mutable std::mutex m_callback_mutex;
 
@@ -294,5 +294,5 @@ private:
 	SettingsHierarchy *m_hierarchy = nullptr;
 	int m_settingslayer = -1;
 
-	static std::unordered_map<std::string, const FlagDesc *> s_flags;
+	static std::unordered_map<String, const FlagDesc *> s_flags;
 };

@@ -100,7 +100,7 @@ void ServerInventoryManager::setInventoryModified(const InventoryLocation &loc)
 }
 
 Inventory *ServerInventoryManager::createDetachedInventory(
-		const std::string &name, IItemDefManager *idef, const std::string &player)
+		const String &name, IItemDefManager *idef, const String &player)
 {
 	if (m_detached_inventories.count(name) > 0) {
 		infostream << "Server clearing detached inventory \"" << name << "\""
@@ -139,14 +139,14 @@ Inventory *ServerInventoryManager::createDetachedInventory(
 	return inv;
 }
 
-bool ServerInventoryManager::removeDetachedInventory(const std::string &name)
+bool ServerInventoryManager::removeDetachedInventory(const String &name)
 {
 	const auto &inv_it = m_detached_inventories.find(name);
 	if (inv_it == m_detached_inventories.end())
 		return false;
 
 	inv_it->second.inventory.reset();
-	const std::string &owner = inv_it->second.owner;
+	const String &owner = inv_it->second.owner;
 
 	if (!owner.empty()) {
 		if (m_env) {
@@ -168,7 +168,7 @@ bool ServerInventoryManager::removeDetachedInventory(const std::string &name)
 }
 
 bool ServerInventoryManager::checkDetachedInventoryAccess(
-		const InventoryLocation &loc, const std::string &player) const
+		const InventoryLocation &loc, const String &player) const
 {
 	SANITY_CHECK(loc.type == InventoryLocation::DETACHED);
 
@@ -179,9 +179,9 @@ bool ServerInventoryManager::checkDetachedInventoryAccess(
 	return inv_it->second.owner.empty() || inv_it->second.owner == player;
 }
 
-void ServerInventoryManager::sendDetachedInventories(const std::string &peer_name,
+void ServerInventoryManager::sendDetachedInventories(const String &peer_name,
 		bool incremental,
-		std::function<void(const std::string &, Inventory *)> apply_cb)
+		std::function<void(const String &, Inventory *)> apply_cb)
 {
 	for (const auto &detached_inventory : m_detached_inventories) {
 		const DetachedInventory &dinv = detached_inventory.second;
@@ -193,7 +193,7 @@ void ServerInventoryManager::sendDetachedInventories(const std::string &peer_nam
 		// if we are pushing inventories to a specific player
 		// we should filter to send only the right inventories
 		if (!peer_name.empty()) {
-			const std::string &attached_player = dinv.owner;
+			const String &attached_player = dinv.owner;
 			if (!attached_player.empty() && peer_name != attached_player)
 				continue;
 		}

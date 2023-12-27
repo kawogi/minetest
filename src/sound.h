@@ -33,7 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 */
 struct SoundSpec
 {
-	SoundSpec(const std::string &name = "", float gain = 1.0f,
+	SoundSpec(const String &name = "", float gain = 1.0f,
 			bool loop = false, float fade = 0.0f, float pitch = 1.0f,
 			float start_time = 0.0f) :
 			name(name), gain(gain), fade(fade), pitch(pitch), start_time(start_time),
@@ -66,7 +66,7 @@ struct SoundSpec
 	}
 
 	// Name of the sound-group
-	std::string name;
+	String name;
 	float gain = 1.0f;
 	float fade = 0.0f;
 	float pitch = 1.0f;

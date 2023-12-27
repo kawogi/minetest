@@ -59,7 +59,7 @@ private:
 	virtual IMetadata* getmeta(bool auto_create);
 	virtual void clearMeta();
 
-	virtual void reportMetadataChange(const std::string *name = nullptr);
+	virtual void reportMetadataChange(const String *name = nullptr);
 
 	virtual void handleToTable(lua_State *L, IMetadata *_meta);
 	virtual bool handleFromTable(lua_State *L, int table, IMetadata *_meta);

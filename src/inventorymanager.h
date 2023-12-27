@@ -39,7 +39,7 @@ struct InventoryLocation
 		DETACHED,
 	} type;
 
-	std::string name; // PLAYER, DETACHED
+	String name; // PLAYER, DETACHED
 	v3s16 p; // NODEMETA
 
 	InventoryLocation()
@@ -54,7 +54,7 @@ struct InventoryLocation
 	{
 		type = CURRENT_PLAYER;
 	}
-	void setPlayer(const std::string &name_)
+	void setPlayer(const String &name_)
 	{
 		type = PLAYER;
 		name = name_;
@@ -64,7 +64,7 @@ struct InventoryLocation
 		type = NODEMETA;
 		p = p_;
 	}
-	void setDetached(const std::string &name_)
+	void setDetached(const String &name_)
 	{
 		type = DETACHED;
 		name = name_;
@@ -93,16 +93,16 @@ struct InventoryLocation
 		return !(*this == other);
 	}
 
-	void applyCurrentPlayer(const std::string &name_)
+	void applyCurrentPlayer(const String &name_)
 	{
 		if(type == CURRENT_PLAYER)
 			setPlayer(name_);
 	}
 
-	std::string dump() const;
+	String dump() const;
 	void serialize(std::ostream &os) const;
 	void deSerialize(std::istream &is);
-	void deSerialize(const std::string &s);
+	void deSerialize(const String &s);
 };
 
 struct InventoryAction;
@@ -142,10 +142,10 @@ struct InventoryAction
 struct MoveAction
 {
 	InventoryLocation from_inv;
-	std::string from_list;
+	String from_list;
 	s16 from_i = -1;
 	InventoryLocation to_inv;
-	std::string to_list;
+	String to_list;
 	s16 to_i = -1;
 };
 

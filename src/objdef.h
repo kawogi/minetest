@@ -53,7 +53,7 @@ public:
 	u32 index;
 	u32 uid;
 	ObjDefHandle handle;
-	std::string name;
+	String name;
 
 protected:
 	// Only implemented by classes that have children themselves
@@ -78,7 +78,7 @@ public:
 	virtual const char *getObjectTitle() const { return "ObjDef"; }
 
 	virtual void clear();
-	virtual ObjDef *getByName(const std::string &name) const;
+	virtual ObjDef *getByName(const String &name) const;
 
 	//// Add new/get/set object definitions by handle
 	virtual ObjDefHandle add(ObjDef *obj);

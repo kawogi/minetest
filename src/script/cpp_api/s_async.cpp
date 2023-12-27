@@ -95,14 +95,14 @@ void AsyncEngine::initialize(unsigned int numEngines)
 void AsyncEngine::addWorkerThread()
 {
 	AsyncWorkerThread *toAdd = new AsyncWorkerThread(this,
-		std::string("AsyncWorker-") + itos(workerThreads.size()));
+		String("AsyncWorker-") + itos(workerThreads.size()));
 	workerThreads.push_back(toAdd);
 	toAdd->start();
 }
 
 /******************************************************************************/
-u32 AsyncEngine::queueAsyncJob(std::string &&func, std::string &&params,
-		const std::string &mod_origin)
+u32 AsyncEngine::queueAsyncJob(String &&func, String &&params,
+		const String &mod_origin)
 {
 	MutexAutoLock autolock(jobQueueMutex);
 	u32 jobId = jobIdCounter++;
@@ -118,8 +118,8 @@ u32 AsyncEngine::queueAsyncJob(std::string &&func, std::string &&params,
 	return jobId;
 }
 
-u32 AsyncEngine::queueAsyncJob(std::string &&func, PackedValue *params,
-		const std::string &mod_origin)
+u32 AsyncEngine::queueAsyncJob(String &&func, PackedValue *params,
+		const String &mod_origin)
 {
 	MutexAutoLock autolock(jobQueueMutex);
 	u32 jobId = jobIdCounter++;
@@ -272,7 +272,7 @@ bool AsyncEngine::prepareEnvironment(lua_State* L, int top)
 
 /******************************************************************************/
 AsyncWorkerThread::AsyncWorkerThread(AsyncEngine* jobDispatcher,
-		const std::string &name) :
+		const String &name) :
 	ScriptApiBase(ScriptingType::Async),
 	Thread(name),
 	jobDispatcher(jobDispatcher)

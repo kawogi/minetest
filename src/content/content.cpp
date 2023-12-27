@@ -70,7 +70,7 @@ ContentType getContentType(const ContentSpec &spec)
 
 void parseContentInfo(ContentSpec &spec)
 {
-	std::string conf_path;
+	String conf_path;
 
 	switch (getContentType(spec)) {
 	case ECT_MOD:
@@ -116,7 +116,7 @@ void parseContentInfo(ContentSpec &spec)
 
 	if (spec.desc.empty()) {
 		std::ifstream is((spec.path + DIR_DELIM + "description.txt").c_str());
-		spec.desc = std::string((std::istreambuf_iterator<char>(is)),
+		spec.desc = String((std::istreambuf_iterator<char>(is)),
 				std::istreambuf_iterator<char>());
 	}
 }

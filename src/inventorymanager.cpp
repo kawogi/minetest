@@ -36,7 +36,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	InventoryLocation
 */
 
-std::string InventoryLocation::dump() const
+String InventoryLocation::dump() const
 {
 	std::ostringstream os(std::ios::binary);
 	serialize(os);
@@ -68,7 +68,7 @@ void InventoryLocation::serialize(std::ostream &os) const
 
 void InventoryLocation::deSerialize(std::istream &is)
 {
-	std::string tname;
+	String tname;
 	std::getline(is, tname, ':');
 	if (tname == "undefined") {
 		type = InventoryLocation::UNDEFINED;
@@ -79,7 +79,7 @@ void InventoryLocation::deSerialize(std::istream &is)
 		std::getline(is, name, '\n');
 	} else if (tname == "nodemeta") {
 		type = InventoryLocation::NODEMETA;
-		std::string pos;
+		String pos;
 		std::getline(is, pos, '\n');
 		Strfnd fn(pos);
 		p.X = stoi(fn.next(","));
@@ -94,7 +94,7 @@ void InventoryLocation::deSerialize(std::istream &is)
 	}
 }
 
-void InventoryLocation::deSerialize(const std::string &s)
+void InventoryLocation::deSerialize(const String &s)
 {
 	std::istringstream is(s, std::ios::binary);
 	deSerialize(is);
@@ -106,7 +106,7 @@ void InventoryLocation::deSerialize(const std::string &s)
 
 InventoryAction *InventoryAction::deSerialize(std::istream &is)
 {
-	std::string type;
+	String type;
 	std::getline(is, type, ' ');
 
 	InventoryAction *a = nullptr;
@@ -131,7 +131,7 @@ InventoryAction *InventoryAction::deSerialize(std::istream &is)
 IMoveAction::IMoveAction(std::istream &is, bool somewhere) :
 		move_somewhere(somewhere)
 {
-	std::string ts;
+	String ts;
 
 	std::getline(is, ts, ' ');
 	count = stoi(ts);
@@ -245,7 +245,7 @@ int IMoveAction::allowMove(int try_take_count, ServerActiveObject *player) const
 void IMoveAction::apply(InventoryManager *mgr, ServerActiveObject *player, IGameDef *gamedef)
 {
 	auto get_borrow_checked_invlist = [mgr](const InventoryLocation &invloc,
-			const std::string &listname) -> InventoryList::ResizeLocked
+			const String &listname) -> InventoryList::ResizeLocked
 	{
 		Inventory *inv = mgr->getInventory(invloc);
 		if (!inv)
@@ -556,7 +556,7 @@ void IMoveAction::apply(InventoryManager *mgr, ServerActiveObject *player, IGame
 		// If source is not infinite, record item take
 		if (src_can_take_count != -1) {
 			RollbackAction action;
-			std::string loc;
+			String loc;
 			{
 				std::ostringstream os(std::ios::binary);
 				from_inv.serialize(os);
@@ -569,7 +569,7 @@ void IMoveAction::apply(InventoryManager *mgr, ServerActiveObject *player, IGame
 		// If destination is not infinite, record item put
 		if (dst_can_put_count != -1) {
 			RollbackAction action;
-			std::string loc;
+			String loc;
 			{
 				std::ostringstream os(std::ios::binary);
 				to_inv.serialize(os);
@@ -665,7 +665,7 @@ void IMoveAction::clientApply(InventoryManager *mgr, IGameDef *gamedef)
 
 IDropAction::IDropAction(std::istream &is)
 {
-	std::string ts;
+	String ts;
 
 	std::getline(is, ts, ' ');
 	count = stoi(ts);
@@ -817,7 +817,7 @@ void IDropAction::apply(InventoryManager *mgr, ServerActiveObject *player, IGame
 		// If source is not infinite, record item take
 		if (src_can_take_count != -1) {
 			RollbackAction action;
-			std::string loc;
+			String loc;
 			{
 				std::ostringstream os(std::ios::binary);
 				from_inv.serialize(os);
@@ -863,7 +863,7 @@ void IDropAction::clientApply(InventoryManager *mgr, IGameDef *gamedef)
 
 ICraftAction::ICraftAction(std::istream &is)
 {
-	std::string ts;
+	String ts;
 
 	std::getline(is, ts, ' ');
 	count = stoi(ts);

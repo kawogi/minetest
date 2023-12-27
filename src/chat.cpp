@@ -41,7 +41,7 @@ ChatBuffer::ChatBuffer(u32 scrollback):
 	if (g_settings != nullptr) {
 		m_cache_clickable_chat_weblinks = g_settings->getBool("clickable_chat_weblinks");
 		if (m_cache_clickable_chat_weblinks) {
-			std::string colorval = g_settings->get("chat_weblink_color");
+			String colorval = g_settings->get("chat_weblink_color");
 			parseColorString(colorval, m_cache_chat_weblink_color, false, 255);
 			m_cache_chat_weblink_color.setAlpha(255);
 		}
@@ -575,7 +575,7 @@ void ChatPrompt::historyNext()
 	}
 }
 
-void ChatPrompt::nickCompletion(const std::set<std::string> &names, bool backwards)
+void ChatPrompt::nickCompletion(const std::set<String> &names, bool backwards)
 {
 	// Two cases:
 	// (a) m_nick_completion_start == m_nick_completion_end == 0
@@ -605,7 +605,7 @@ void ChatPrompt::nickCompletion(const std::set<std::string> &names, bool backwar
 
 	// find all names that start with the selected prefix
 	std::vector<std::wstring> completions;
-	for (const std::string &name : names) {
+	for (const String &name : names) {
 		std::wstring completion = utf8_to_wide(name);
 		if (str_starts_with(completion, prefix, true)) {
 			if (prefix_start == 0)

@@ -36,7 +36,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #define SQLRES(f, good) \
 	if ((f) != (good)) {\
-		throw FileNotGoodException(std::string("RollbackManager: " \
+		throw FileNotGoodException(String("RollbackManager: " \
 			"SQLite3 error (" __FILE__ ":" TOSTRING(__LINE__) \
 			"): ") + sqlite3_errmsg(db)); \
 	}
@@ -67,29 +67,29 @@ struct ActionRow {
 	int          actor;
 	time_t       timestamp;
 	int          type;
-	std::string  location, list;
+	String  location, list;
 	int          index, add;
 	ItemStackRow stack;
 	int          nodeMeta;
 	int          x, y, z;
 	int          oldNode;
 	int          oldParam1, oldParam2;
-	std::string  oldMeta;
+	String  oldMeta;
 	int          newNode;
 	int          newParam1, newParam2;
-	std::string  newMeta;
+	String  newMeta;
 	int          guessed;
 };
 
 
 struct Entity {
 	int         id;
-	std::string name;
+	String name;
 };
 
 
 
-RollbackManager::RollbackManager(const std::string & world_path,
+RollbackManager::RollbackManager(const String & world_path,
 		IGameDef * gamedef_) :
 	gamedef(gamedef_)
 {
@@ -120,21 +120,21 @@ RollbackManager::~RollbackManager()
 }
 
 
-void RollbackManager::registerNewActor(const int id, const std::string &name)
+void RollbackManager::registerNewActor(const int id, const String &name)
 {
 	Entity actor = {id, name};
 	knownActors.push_back(actor);
 }
 
 
-void RollbackManager::registerNewNode(const int id, const std::string &name)
+void RollbackManager::registerNewNode(const int id, const String &name)
 {
 	Entity node = {id, name};
 	knownNodes.push_back(node);
 }
 
 
-int RollbackManager::getActorId(const std::string &name)
+int RollbackManager::getActorId(const String &name)
 {
 	for (std::vector<Entity>::const_iterator iter = knownActors.begin();
 			iter != knownActors.end(); ++iter) {
@@ -154,7 +154,7 @@ int RollbackManager::getActorId(const std::string &name)
 }
 
 
-int RollbackManager::getNodeId(const std::string &name)
+int RollbackManager::getNodeId(const String &name)
 {
 	for (std::vector<Entity>::const_iterator iter = knownNodes.begin();
 			iter != knownNodes.end(); ++iter) {
@@ -387,7 +387,7 @@ bool RollbackManager::registerRow(const ActionRow & row)
 	SQLOK(sqlite3_bind_int  (stmt_do, 3, row.type));
 
 	if (row.type == RollbackAction::TYPE_MODIFY_INVENTORY_STACK) {
-		const std::string & loc = row.location;
+		const String & loc = row.location;
 		nodeMeta = (loc.substr(0, 9) == "nodemeta:");
 
 		SQLOK(sqlite3_bind_text(stmt_do, 4, row.list.c_str(), row.list.size(), NULL));
@@ -398,14 +398,14 @@ bool RollbackManager::registerRow(const ActionRow & row)
 		SQLOK(sqlite3_bind_int (stmt_do, 9, (int) nodeMeta));
 
 		if (nodeMeta) {
-			std::string::size_type p1, p2;
+			String::size_type p1, p2;
 			p1 = loc.find(':') + 1;
 			p2 = loc.find(',');
-			std::string x = loc.substr(p1, p2 - p1);
+			String x = loc.substr(p1, p2 - p1);
 			p1 = p2 + 1;
 			p2 = loc.find(',', p1);
-			std::string y = loc.substr(p1, p2 - p1);
-			std::string z = loc.substr(p2 + 1);
+			String y = loc.substr(p1, p2 - p1);
+			String z = loc.substr(p2 + 1);
 			SQLOK(sqlite3_bind_int(stmt_do, 10, atoi(x.c_str())));
 			SQLOK(sqlite3_bind_int(stmt_do, 11, atoi(y.c_str())));
 			SQLOK(sqlite3_bind_int(stmt_do, 12, atoi(z.c_str())));
@@ -478,7 +478,7 @@ const std::list<ActionRow> RollbackManager::actionRowsFromSelect(sqlite3_stmt* s
 		if (row.type == RollbackAction::TYPE_MODIFY_INVENTORY_STACK) {
 			text = sqlite3_column_text (stmt, 3);
 			size = sqlite3_column_bytes(stmt, 3);
-			row.list        = std::string(reinterpret_cast<const char*>(text), size);
+			row.list        = String(reinterpret_cast<const char*>(text), size);
 			row.index       = sqlite3_column_int(stmt, 4);
 			row.add         = sqlite3_column_int(stmt, 5);
 			row.stack.id    = sqlite3_column_int(stmt, 6);
@@ -498,13 +498,13 @@ const std::list<ActionRow> RollbackManager::actionRowsFromSelect(sqlite3_stmt* s
 			row.oldParam2 = sqlite3_column_int(stmt, 14);
 			text = sqlite3_column_text (stmt, 15);
 			size = sqlite3_column_bytes(stmt, 15);
-			row.oldMeta   = std::string(reinterpret_cast<const char*>(text), size);
+			row.oldMeta   = String(reinterpret_cast<const char*>(text), size);
 			row.newNode   = sqlite3_column_int(stmt, 16);
 			row.newParam1 = sqlite3_column_int(stmt, 17);
 			row.newParam2 = sqlite3_column_int(stmt, 18);
 			text = sqlite3_column_text(stmt, 19);
 			size = sqlite3_column_bytes(stmt, 19);
-			row.newMeta   = std::string(reinterpret_cast<const char*>(text), size);
+			row.newMeta   = String(reinterpret_cast<const char*>(text), size);
 			row.guessed   = sqlite3_column_int(stmt, 20);
 		}
 
@@ -610,7 +610,7 @@ const std::list<RollbackAction> RollbackManager::rollbackActionsFromActionRows(
 }
 
 
-const std::list<ActionRow> RollbackManager::getRowsSince(time_t firstTime, const std::string & actor)
+const std::list<ActionRow> RollbackManager::getRowsSince(time_t firstTime, const String & actor)
 {
 	sqlite3_stmt *stmt_stmt = actor.empty() ? stmt_select : stmt_select_withActor;
 	sqlite3_bind_int64(stmt_stmt, 1, firstTime);
@@ -654,7 +654,7 @@ const std::list<RollbackAction> RollbackManager::getActionsSince_range(
 
 
 const std::list<RollbackAction> RollbackManager::getActionsSince(
-		time_t start_time, const std::string & actor)
+		time_t start_time, const String & actor)
 {
 	return rollbackActionsFromActionRows(getRowsSince(start_time, actor));
 }
@@ -718,7 +718,7 @@ void RollbackManager::reportAction(const RollbackAction &action_)
 	addAction(action);
 }
 
-std::string RollbackManager::getActor()
+String RollbackManager::getActor()
 {
 	return current_actor;
 }
@@ -728,13 +728,13 @@ bool RollbackManager::isActorGuess()
 	return current_actor_is_guess;
 }
 
-void RollbackManager::setActor(const std::string & actor, bool is_guess)
+void RollbackManager::setActor(const String & actor, bool is_guess)
 {
 	current_actor = actor;
 	current_actor_is_guess = is_guess;
 }
 
-std::string RollbackManager::getSuspect(v3s16 p, float nearness_shortcut,
+String RollbackManager::getSuspect(v3s16 p, float nearness_shortcut,
 		float min_nearness)
 {
 	if (!current_actor.empty()) {
@@ -820,7 +820,7 @@ std::list<RollbackAction> RollbackManager::getNodeActors(v3s16 pos, int range,
 }
 
 std::list<RollbackAction> RollbackManager::getRevertActions(
-		const std::string &actor_filter,
+		const String &actor_filter,
 		time_t seconds)
 {
 	time_t cur_time = time(0);

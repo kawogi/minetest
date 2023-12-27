@@ -49,7 +49,7 @@ public:
 	// color. The color used will be the one from the last character.
 	void addCharNoColor(wchar_t c);
 
-	EnrichedString substr(size_t pos = 0, size_t len = std::string::npos) const;
+	EnrichedString substr(size_t pos = 0, size_t len = String::npos) const;
 	EnrichedString operator+(const EnrichedString &other) const;
 	void operator+=(const EnrichedString &other);
 	const wchar_t *c_str() const;

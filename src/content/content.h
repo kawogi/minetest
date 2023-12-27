@@ -24,19 +24,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 struct ContentSpec
 {
-	std::string type;
-	std::string author;
+	String type;
+	String author;
 	u32 release = 0;
 
 	/// Technical name / Id
-	std::string name;
+	String name;
 
 	/// Human-readable title
-	std::string title;
+	String title;
 
 	/// Short description
-	std::string desc;
-	std::string path;
+	String desc;
+	String path;
 };
 
 void parseContentInfo(ContentSpec &spec);

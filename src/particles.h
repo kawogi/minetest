@@ -130,13 +130,13 @@ namespace ParticleParamTypes
 	};
 
 	template <typename T, size_t PN>
-	inline std::string dump(const Parameter<T,PN>& p)
+	inline String dump(const Parameter<T,PN>& p)
 	{
 		return std::to_string(p.val);
 	}
 
 	template <typename T, size_t N>
-	inline std::string dump(const VectorParameter<T,N>& v)
+	inline String dump(const VectorParameter<T,N>& v)
 	{
 		std::ostringstream oss;
 		oss << v.val;
@@ -191,7 +191,7 @@ namespace ParticleParamTypes
 	};
 
 	template <typename T>
-	inline std::string dump(const RangedParameter<T>& r)
+	inline String dump(const RangedParameter<T>& r)
 	{
 		std::ostringstream s;
 		s << "range<" << dump(r.min) << " ~ " << dump(r.max);
@@ -230,7 +230,7 @@ namespace ParticleParamTypes
 	};
 
 	template <typename T>
-	inline std::string dump(const TweenedParameter<T>& t)
+	inline String dump(const TweenedParameter<T>& t)
 	{
 		std::ostringstream s;
 		const char* icon;
@@ -275,7 +275,7 @@ struct ParticleTexture
 
 struct ServerParticleTexture : public ParticleTexture
 {
-	std::string string;
+	String string;
 	void serialize(std::ostream &os, u16 protocol_ver, bool newPropertiesOnly = false) const;
 	void deSerialize(std::istream &is, u16 protocol_ver, bool newPropertiesOnly = false);
 };

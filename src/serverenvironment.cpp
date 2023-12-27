@@ -83,7 +83,7 @@ void LBMContentMapping::addLBM(LoadingBlockModifierDef *lbm_def, IGameDef *gamed
 
 	lbm_list.push_back(lbm_def);
 
-	for (const std::string &nodeTrigger: lbm_def->trigger_contents) {
+	for (const String &nodeTrigger: lbm_def->trigger_contents) {
 		std::vector<content_t> c_ids;
 		bool found = nodedef->getIds(nodeTrigger, c_ids);
 		if (!found) {
@@ -141,7 +141,7 @@ void LBMManager::addLBMDef(LoadingBlockModifierDef *lbm_def)
 	m_lbm_defs[lbm_def->name] = lbm_def;
 }
 
-void LBMManager::loadIntroductionTimes(const std::string &times,
+void LBMManager::loadIntroductionTimes(const String &times,
 	IGameDef *gamedef, u32 now)
 {
 	m_query_mode = true;
@@ -151,7 +151,7 @@ void LBMManager::loadIntroductionTimes(const std::string &times,
 	// handling the stuff directly in the loop
 	// removes all duplicate entries.
 	// TODO make this std::unordered_map
-	std::map<std::string, u32> introduction_times;
+	std::map<String, u32> introduction_times;
 
 	/*
 	The introduction times string consists of name~time entries,
@@ -160,25 +160,25 @@ void LBMManager::loadIntroductionTimes(const std::string &times,
 
 	size_t idx = 0;
 	size_t idx_new;
-	while ((idx_new = times.find(';', idx)) != std::string::npos) {
-		std::string entry = times.substr(idx, idx_new - idx);
-		std::vector<std::string> components = str_split(entry, '~');
+	while ((idx_new = times.find(';', idx)) != String::npos) {
+		String entry = times.substr(idx, idx_new - idx);
+		std::vector<String> components = str_split(entry, '~');
 		if (components.size() != 2)
 			throw SerializationError("Introduction times entry \""
 				+ entry + "\" requires exactly one '~'!");
-		const std::string &name = components[0];
+		const String &name = components[0];
 		u32 time = from_string<u32>(components[1]);
 		introduction_times[name] = time;
 		idx = idx_new + 1;
 	}
 
 	// Put stuff from introduction_times into m_lbm_lookup
-	for (std::map<std::string, u32>::const_iterator it = introduction_times.begin();
+	for (std::map<String, u32>::const_iterator it = introduction_times.begin();
 		it != introduction_times.end(); ++it) {
-		const std::string &name = it->first;
+		const String &name = it->first;
 		u32 time = it->second;
 
-		std::map<std::string, LoadingBlockModifierDef *>::iterator def_it =
+		std::map<String, LoadingBlockModifierDef *>::iterator def_it =
 			m_lbm_defs.find(name);
 		if (def_it == m_lbm_defs.end()) {
 			// This seems to be an LBM entry for
@@ -221,7 +221,7 @@ void LBMManager::loadIntroductionTimes(const std::string &times,
 	m_lbm_defs.clear();
 }
 
-std::string LBMManager::createIntroductionTimesString()
+String LBMManager::createIntroductionTimesString()
 {
 	// Precondition, we must be in query mode
 	FATAL_ERROR_IF(!m_query_mode,
@@ -403,7 +403,7 @@ static std::random_device seed;
 
 ServerEnvironment::ServerEnvironment(ServerMap *map,
 	ServerScripting *script_iface, Server *server,
-	const std::string &path_world, MetricsBackend *mb):
+	const String &path_world, MetricsBackend *mb):
 	Environment(server),
 	m_map(map),
 	m_script(script_iface),
@@ -424,11 +424,11 @@ ServerEnvironment::ServerEnvironment(ServerMap *map,
 void ServerEnvironment::init()
 {
 	// Determine which database backend to use
-	std::string conf_path = m_path_world + DIR_DELIM + "world.mt";
+	String conf_path = m_path_world + DIR_DELIM + "world.mt";
 	Settings conf;
 
-	std::string player_backend_name = "sqlite3";
-	std::string auth_backend_name = "sqlite3";
+	String player_backend_name = "sqlite3";
+	String auth_backend_name = "sqlite3";
 
 	bool succeeded = conf.readConfigFile(conf_path.c_str());
 
@@ -438,7 +438,7 @@ void ServerEnvironment::init()
 		u16 blocksize = 16;
 		conf.getU16NoEx("blocksize", blocksize);
 		if (blocksize != MAP_BLOCKSIZE) {
-			throw BaseException(std::string("The map's blocksize is not supported."));
+			throw BaseException(String("The map's blocksize is not supported."));
 		}
 
 		// Read those values before setting defaults
@@ -583,13 +583,13 @@ void ServerEnvironment::removePlayer(RemotePlayer *player)
 	}
 }
 
-bool ServerEnvironment::removePlayerFromDatabase(const std::string &name)
+bool ServerEnvironment::removePlayerFromDatabase(const String &name)
 {
 	return m_player_database->removePlayer(name);
 }
 
 void ServerEnvironment::kickAllPlayers(AccessDeniedCode reason,
-	const std::string &str_reason, bool reconnect)
+	const String &str_reason, bool reconnect)
 {
 	for (RemotePlayer *player : m_players)
 		m_server->DenyAccess(player->getPeerId(), reason, str_reason, reconnect);
@@ -668,7 +668,7 @@ void ServerEnvironment::saveMeta()
 	if (!m_meta_loaded)
 		return;
 
-	std::string path = m_path_world + DIR_DELIM "env_meta.txt";
+	String path = m_path_world + DIR_DELIM "env_meta.txt";
 
 	// Open file and serialize
 	std::ostringstream ss(std::ios_base::binary);
@@ -706,7 +706,7 @@ void ServerEnvironment::loadMeta()
 
 	infostream << "ServerEnvironment: Loading environment metadata" << std::endl;
 
-	std::string path = m_path_world + DIR_DELIM "env_meta.txt";
+	String path = m_path_world + DIR_DELIM "env_meta.txt";
 
 	// Open file and deserialize
 	std::ifstream is(path.c_str(), std::ios_base::binary);
@@ -738,7 +738,7 @@ void ServerEnvironment::loadMeta()
 		// If missing, do as if clearObjects was never called
 		args.getU64("last_clear_objects_time") : 0;
 
-	std::string lbm_introduction_times;
+	String lbm_introduction_times;
 	try {
 		u64 ver = args.getU64("lbm_introduction_times_version");
 		if (ver == 1) {
@@ -823,16 +823,16 @@ public:
 			aabm.max_y = abm->getMaxY();
 
 			// Trigger neighbors
-			const std::vector<std::string> &required_neighbors_s =
+			const std::vector<String> &required_neighbors_s =
 				abm->getRequiredNeighbors();
-			for (const std::string &required_neighbor_s : required_neighbors_s) {
+			for (const String &required_neighbor_s : required_neighbors_s) {
 				ndef->getIds(required_neighbor_s, aabm.required_neighbors);
 			}
 			aabm.check_required_neighbors = !required_neighbors_s.empty();
 
 			// Trigger contents
-			const std::vector<std::string> &contents_s = abm->getTriggerContents();
-			for (const std::string &content_s : contents_s) {
+			const std::vector<String> &contents_s = abm->getTriggerContents();
+			for (const String &content_s : contents_s) {
 				std::vector<content_t> ids;
 				ndef->getIds(content_s, ids);
 				for (content_t c : ids) {
@@ -1927,7 +1927,7 @@ void ServerEnvironment::removeRemovedObjects()
 	m_ao_manager.clearIf(clear_cb);
 }
 
-static void print_hexdump(std::ostream &o, const std::string &data)
+static void print_hexdump(std::ostream &o, const String &data)
 {
 	const int linelength = 16;
 	for (int l = 0;; l++) {
@@ -1962,7 +1962,7 @@ static void print_hexdump(std::ostream &o, const std::string &data)
 }
 
 std::unique_ptr<ServerActiveObject> ServerEnvironment::createSAO(ActiveObjectType type,
-		v3f pos, const std::string &data)
+		v3f pos, const String &data)
 {
 	switch (type) {
 		case ACTIVEOBJECT_TYPE_LUAENTITY:
@@ -2221,22 +2221,22 @@ bool ServerEnvironment::saveStaticToBlock(
 	return true;
 }
 
-PlayerDatabase *ServerEnvironment::openPlayerDatabase(const std::string &name,
-		const std::string &savedir, const Settings &conf)
+PlayerDatabase *ServerEnvironment::openPlayerDatabase(const String &name,
+		const String &savedir, const Settings &conf)
 {
 
 	if (name == "sqlite3")
 		return new PlayerDatabaseSQLite3(savedir);
 
-	throw BaseException(std::string("Database backend ") + name + " not supported.");
+	throw BaseException(String("Database backend ") + name + " not supported.");
 }
 
 bool ServerEnvironment::migratePlayersDatabase(const GameParams &game_params,
 		const Settings &cmd_args)
 {
-	std::string migrate_to = cmd_args.get("migrate-players");
+	String migrate_to = cmd_args.get("migrate-players");
 	Settings world_mt;
-	std::string world_mt_path = game_params.world_path + DIR_DELIM + "world.mt";
+	String world_mt_path = game_params.world_path + DIR_DELIM + "world.mt";
 	if (!world_mt.readConfigFile(world_mt_path.c_str())) {
 		errorstream << "Cannot read world.mt!" << std::endl;
 		return false;
@@ -2250,14 +2250,14 @@ bool ServerEnvironment::migratePlayersDatabase(const GameParams &game_params,
 		return false;
 	}
 
-	std::string backend = world_mt.get("player_backend");
+	String backend = world_mt.get("player_backend");
 	if (backend == migrate_to) {
 		errorstream << "Cannot migrate: new backend is same"
 			<< " as the old one" << std::endl;
 		return false;
 	}
 
-	const std::string players_backup_path = game_params.world_path + DIR_DELIM
+	const String players_backup_path = game_params.world_path + DIR_DELIM
 		+ "players.bak";
 
 	if (backend == "files") {
@@ -2271,9 +2271,9 @@ bool ServerEnvironment::migratePlayersDatabase(const GameParams &game_params,
 		PlayerDatabase *dstdb = ServerEnvironment::openPlayerDatabase(migrate_to,
 			game_params.world_path, world_mt);
 
-		std::vector<std::string> player_list;
+		std::vector<String> player_list;
 		srcdb->listPlayers(player_list);
-		for (std::vector<std::string>::const_iterator it = player_list.begin();
+		for (std::vector<String>::const_iterator it = player_list.begin();
 			it != player_list.end(); ++it) {
 			actionstream << "Migrating player " << it->c_str() << std::endl;
 			RemotePlayer player(it->c_str(), NULL);
@@ -2281,7 +2281,7 @@ bool ServerEnvironment::migratePlayersDatabase(const GameParams &game_params,
 
 			srcdb->loadPlayer(&player, &playerSAO);
 
-			playerSAO.finalize(&player, std::set<std::string>());
+			playerSAO.finalize(&player, std::set<String>());
 			player.setPlayerSAO(&playerSAO);
 
 			dstdb->savePlayer(&player);
@@ -2319,26 +2319,26 @@ bool ServerEnvironment::migratePlayersDatabase(const GameParams &game_params,
 }
 
 AuthDatabase *ServerEnvironment::openAuthDatabase(
-		const std::string &name, const std::string &savedir, const Settings &conf)
+		const String &name, const String &savedir, const Settings &conf)
 {
 	if (name == "sqlite3")
 		return new AuthDatabaseSQLite3(savedir);
 
-	throw BaseException(std::string("Database backend ") + name + " not supported.");
+	throw BaseException(String("Database backend ") + name + " not supported.");
 }
 
 bool ServerEnvironment::migrateAuthDatabase(
 		const GameParams &game_params, const Settings &cmd_args)
 {
-	std::string migrate_to = cmd_args.get("migrate-auth");
+	String migrate_to = cmd_args.get("migrate-auth");
 	Settings world_mt;
-	std::string world_mt_path = game_params.world_path + DIR_DELIM + "world.mt";
+	String world_mt_path = game_params.world_path + DIR_DELIM + "world.mt";
 	if (!world_mt.readConfigFile(world_mt_path.c_str())) {
 		errorstream << "Cannot read world.mt!" << std::endl;
 		return false;
 	}
 
-	std::string backend = "files";
+	String backend = "files";
 	if (world_mt.exists("auth_backend"))
 		backend = world_mt.get("auth_backend");
 	else
@@ -2357,9 +2357,9 @@ bool ServerEnvironment::migrateAuthDatabase(
 		const std::unique_ptr<AuthDatabase> dstdb(ServerEnvironment::openAuthDatabase(
 				migrate_to, game_params.world_path, world_mt));
 
-		std::vector<std::string> names_list;
+		std::vector<String> names_list;
 		srcdb->listNames(names_list);
-		for (const std::string &name : names_list) {
+		for (const String &name : names_list) {
 			actionstream << "Migrating auth entry for " << name << std::endl;
 			bool success;
 			AuthEntry authEntry;
@@ -2380,9 +2380,9 @@ bool ServerEnvironment::migrateAuthDatabase(
 		if (backend == "files") {
 			// special-case files migration:
 			// move auth.txt to auth.txt.bak if possible
-			std::string auth_txt_path =
+			String auth_txt_path =
 					game_params.world_path + DIR_DELIM + "auth.txt";
-			std::string auth_bak_path = auth_txt_path + ".bak";
+			String auth_bak_path = auth_txt_path + ".bak";
 			if (!fs::PathExists(auth_bak_path))
 				if (fs::Rename(auth_txt_path, auth_bak_path))
 					actionstream << "Renamed auth.txt to auth.txt.bak"

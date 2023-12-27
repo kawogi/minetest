@@ -44,22 +44,22 @@ public:
 	void setInventoryModified(const InventoryLocation &loc);
 
 	// Creates or resets inventory
-	Inventory *createDetachedInventory(const std::string &name, IItemDefManager *idef,
-			const std::string &player = "");
-	bool removeDetachedInventory(const std::string &name);
-	bool checkDetachedInventoryAccess(const InventoryLocation &loc, const std::string &player) const;
+	Inventory *createDetachedInventory(const String &name, IItemDefManager *idef,
+			const String &player = "");
+	bool removeDetachedInventory(const String &name);
+	bool checkDetachedInventoryAccess(const InventoryLocation &loc, const String &player) const;
 
-	void sendDetachedInventories(const std::string &peer_name, bool incremental,
-			std::function<void(const std::string &, Inventory *)> apply_cb);
+	void sendDetachedInventories(const String &peer_name, bool incremental,
+			std::function<void(const String &, Inventory *)> apply_cb);
 
 private:
 	struct DetachedInventory
 	{
 		std::unique_ptr<Inventory> inventory;
-		std::string owner;
+		String owner;
 	};
 
 	ServerEnvironment *m_env = nullptr;
 
-	std::unordered_map<std::string, DetachedInventory> m_detached_inventories;
+	std::unordered_map<String, DetachedInventory> m_detached_inventories;
 };

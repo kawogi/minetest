@@ -70,7 +70,7 @@ enum EmergeAction {
 	EMERGE_GENERATED,
 };
 
-const static std::string emergeActionStrs[] = {
+const static String emergeActionStrs[] = {
 	"cancelled",
 	"errored",
 	"from_memory",

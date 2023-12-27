@@ -61,8 +61,8 @@ public:
 	void stepAsync();
 
 	// Pass job to async threads
-	u32 queueAsync(std::string &&serialized_func,
-		PackedValue *param, const std::string &mod_origin);
+	u32 queueAsync(String &&serialized_func,
+		PackedValue *param, const String &mod_origin);
 
 private:
 	void InitializeModApi(lua_State *L, int top);

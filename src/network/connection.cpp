@@ -864,7 +864,7 @@ void Peer::DecUseCount()
 	delete this;
 }
 
-void Peer::RTTStatistics(float rtt, const std::string &profiler_id,
+void Peer::RTTStatistics(float rtt, const String &profiler_id,
 		unsigned int num_samples) {
 
 	if (m_last_rtt > 0) {
@@ -934,11 +934,11 @@ void Peer::Drop()
 			return;
 	}
 
-	PROFILE(std::stringstream peerIdentifier1);
+	PROFILE(Stringstream peerIdentifier1);
 	PROFILE(peerIdentifier1 << "runTimeouts[" << m_connection->getDesc()
 			<< ";" << id << ";RELIABLE]");
 	PROFILE(g_profiler->remove(peerIdentifier1.str()));
-	PROFILE(std::stringstream peerIdentifier2);
+	PROFILE(Stringstream peerIdentifier2);
 	PROFILE(peerIdentifier2 << "sendPackets[" << m_connection->getDesc()
 			<< ";" << id << ";RELIABLE]");
 	PROFILE(ScopeProfiler peerprofiler(g_profiler, peerIdentifier2.str(), SPT_AVG));
@@ -1596,10 +1596,10 @@ u16 Connection::createPeer(Address& sender, MTProtocols protocol, int fd)
 	return peer_id_new;
 }
 
-const std::string Connection::getDesc()
+const String Connection::getDesc()
 {
 	MutexAutoLock _(m_info_mutex);
-	return std::string("con(")+
+	return String("con(")+
 			itos(m_udpSocket.GetHandle())+"/"+itos(m_peer_id)+")";
 }
 

@@ -30,7 +30,7 @@ public:
 	const char *getName() { return "TestMapSettingsManager"; }
 
 	void makeUserConfig();
-	std::string makeMetaFile(bool make_corrupt);
+	String makeMetaFile(bool make_corrupt);
 
 	void runTests(IGameDef *gamedef);
 
@@ -79,9 +79,9 @@ void TestMapSettingsManager::makeUserConfig()
 }
 
 
-std::string TestMapSettingsManager::makeMetaFile(bool make_corrupt)
+String TestMapSettingsManager::makeMetaFile(bool make_corrupt)
 {
-	std::string metafile = getTestTempFile();
+	String metafile = getTestTempFile();
 
 	const char *metafile_contents =
 		"mg_name = v5\n"
@@ -107,10 +107,10 @@ void TestMapSettingsManager::testMapSettingsManager()
 {
 	makeUserConfig();
 
-	std::string test_mapmeta_path = makeMetaFile(false);
+	String test_mapmeta_path = makeMetaFile(false);
 
 	MapSettingsManager mgr(test_mapmeta_path);
-	std::string value;
+	String value;
 
 	UASSERT(mgr.getMapSetting("mg_name", &value));
 	UASSERT(value == "v7");
@@ -174,7 +174,7 @@ void TestMapSettingsManager::testMapSettingsManager()
 	};
 
 	SHA1 ctx;
-	std::string metafile_contents;
+	String metafile_contents;
 	UASSERT(fs::ReadFile(test_mapmeta_path, metafile_contents));
 	ctx.addBytes(&metafile_contents[0], metafile_contents.size());
 	unsigned char *sha1_result = ctx.getDigest();
@@ -188,7 +188,7 @@ void TestMapSettingsManager::testMapSettingsManager()
 
 void TestMapSettingsManager::testMapMetaSaveLoad()
 {
-	std::string path = getTestTempDirectory()
+	String path = getTestTempDirectory()
 		+ DIR_DELIM + "foobar" + DIR_DELIM + "map_meta.txt";
 
 	makeUserConfig();
@@ -198,7 +198,7 @@ void TestMapSettingsManager::testMapMetaSaveLoad()
 
 void TestMapSettingsManager::testMapMetaFailures()
 {
-	std::string test_mapmeta_path;
+	String test_mapmeta_path;
 
 	// Check to see if it'll fail on a non-existent map meta file
 	{

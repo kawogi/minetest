@@ -45,7 +45,7 @@ static PcgRandom g_callerid_randomness;
 HTTPFetchRequest::HTTPFetchRequest() :
 	timeout(g_settings->getS32("curl_timeout")),
 	connect_timeout(10 * 1000),
-	useragent(std::string(PROJECT_NAME_C "/") + g_version_hash + " (" + porting::get_sysinfo() + ")")
+	useragent(String(PROJECT_NAME_C "/") + g_version_hash + " (" + porting::get_sysinfo() + ")")
 {
 	timeout = std::max(timeout, MIN_HTTPFETCH_TIMEOUT_INTERACTIVE);
 }
@@ -242,7 +242,7 @@ HTTPFetchOngoing::HTTPFetchOngoing(const HTTPFetchRequest &request_,
 	curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 3);
 	curl_easy_setopt(curl, CURLOPT_ENCODING, "gzip");
 
-	std::string bind_address = g_settings->get("bind_address");
+	String bind_address = g_settings->get("bind_address");
 	if (!bind_address.empty()) {
 		curl_easy_setopt(curl, CURLOPT_INTERFACE, bind_address.c_str());
 	}
@@ -324,7 +324,7 @@ HTTPFetchOngoing::HTTPFetchOngoing(const HTTPFetchRequest &request_,
 				curl_easy_setopt(curl, CURLOPT_POSTFIELDS,
 						request.raw_data.c_str());
 			} else if (!request.fields.empty()) {
-				std::string str;
+				String str;
 				for (auto &field : request.fields) {
 					if (!str.empty())
 						str += "&";
@@ -340,7 +340,7 @@ HTTPFetchOngoing::HTTPFetchOngoing(const HTTPFetchRequest &request_,
 		}
 	}
 	// Set additional HTTP headers
-	for (const std::string &extra_header : request.extra_headers) {
+	for (const String &extra_header : request.extra_headers) {
 		http_header = curl_slist_append(http_header, extra_header.c_str());
 	}
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, http_header);
@@ -661,8 +661,6 @@ protected:
 		FATAL_ERROR_IF(!m_all_ongoing.empty(), "Expected empty");
 
 		while (!stopRequested()) {
-			BEGIN_DEBUG_EXCEPTION_HANDLER
-
 			/*
 				Handle new async requests
 			*/
@@ -708,8 +706,6 @@ protected:
 				waitForRequest(100000000);
 			else
 				waitForIO(100);
-
-			END_DEBUG_EXCEPTION_HANDLER
 		}
 
 		// Call curl_multi_remove_handle and cleanup easy handles

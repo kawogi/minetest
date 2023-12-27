@@ -25,7 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 int ModApiStorage::l_get_mod_storage(lua_State *L)
 {
 	// Note that this is wrapped in Lua, see builtin/common/mod_storage.lua
-	std::string mod_name = readParam<std::string>(L, 1);
+	String mod_name = readParam<String>(L, 1);
 
 	if (IGameDef *gamedef = getGameDef(L)) {
 		StorageRef::create(L, mod_name, gamedef->getModStorageDatabase());
@@ -41,7 +41,7 @@ void ModApiStorage::Initialize(lua_State *L, int top)
 	API_FCT(get_mod_storage);
 }
 
-void StorageRef::create(lua_State *L, const std::string &mod_name, ModStorageDatabase *db)
+void StorageRef::create(lua_State *L, const String &mod_name, ModStorageDatabase *db)
 {
 	StorageRef *o = new StorageRef(mod_name, db);
 	*(void **)(lua_newuserdata(L, sizeof(void *))) = o;

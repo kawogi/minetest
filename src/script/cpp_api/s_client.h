@@ -44,14 +44,14 @@ public:
 	void on_shutdown();
 
 	// Chat message handlers
-	bool on_sending_message(const std::string &message);
-	bool on_receiving_message(const std::string &message);
+	bool on_sending_message(const String &message);
+	bool on_receiving_message(const String &message);
 
 	void on_damage_taken(int32_t damage_amount);
 	void on_hp_modification(int32_t newhp);
 	void on_death();
 	void environment_step(float dtime);
-	void on_formspec_input(const std::string &formname, const StringMap &fields);
+	void on_formspec_input(const String &formname, const StringMap &fields);
 
 	bool on_dignode(v3s16 p, MapNode node);
 	bool on_punchnode(v3s16 p, MapNode node);

@@ -92,7 +92,7 @@ public:
 	GenerateNotifier(u32 notify_on, const std::set<u32> *notify_on_deco_ids);
 
 	bool addEvent(GenNotifyType type, v3s16 pos, u32 id=0);
-	void getEvents(std::map<std::string, std::vector<v3s16> > &event_map);
+	void getEvents(std::map<String, std::vector<v3s16> > &event_map);
 	void clearEvents();
 
 private:
@@ -232,7 +232,7 @@ public:
 	virtual int getSpawnLevelAtPoint(v2s16 p) { return 0; }
 
 	// Mapgen management functions
-	static MapgenType getMapgenType(const std::string &mgname);
+	static MapgenType getMapgenType(const String &mgname);
 	static const char *getMapgenName(MapgenType mgtype);
 	static Mapgen *createMapgen(MapgenType mgtype, MapgenParams *params,
 		EmergeParams *emerge);

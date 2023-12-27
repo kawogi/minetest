@@ -26,7 +26,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #define override_cast static_cast<override_t>
 
-static const std::map<std::string, OverrideTarget> override_LUT = {
+static const std::map<String, OverrideTarget> override_LUT = {
 	{ "top", OverrideTarget::TOP },
 	{ "bottom", OverrideTarget::BOTTOM },
 	{ "left", OverrideTarget::LEFT },
@@ -46,10 +46,10 @@ static const std::map<std::string, OverrideTarget> override_LUT = {
 	{ "*", OverrideTarget::ALL_FACES }
 };
 
-TextureOverrideSource::TextureOverrideSource(std::string filepath)
+TextureOverrideSource::TextureOverrideSource(String filepath)
 {
 	std::ifstream infile(filepath.c_str());
-	std::string line;
+	String line;
 	int line_index = 0;
 	while (std::getline(infile, line)) {
 		line_index++;
@@ -62,7 +62,7 @@ TextureOverrideSource::TextureOverrideSource(std::string filepath)
 			continue;
 
 		// Format: mod_name:item_name target1[,...] texture_name.png
-		std::vector<std::string> splitted = str_split(line, ' ');
+		std::vector<String> splitted = str_split(line, ' ');
 		if (splitted.size() < 3) {
 			warningstream << filepath << ":" << line_index
 					<< " Syntax error in texture override \"" << line
@@ -76,9 +76,9 @@ TextureOverrideSource::TextureOverrideSource(std::string filepath)
 		texture_override.texture = splitted[2];
 
 		// Parse the target mask
-		std::vector<std::string> targets = str_split(splitted[1], ',');
-		for (const std::string &target : targets) {
-			std::vector<std::string> kvpair = str_split(target, '=');
+		std::vector<String> targets = str_split(splitted[1], ',');
+		for (const String &target : targets) {
+			std::vector<String> kvpair = str_split(target, '=');
 			if (kvpair.size() == 2) {
 				// Key-value pairs
 				if (kvpair[0] == "align_world") {

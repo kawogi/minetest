@@ -70,15 +70,15 @@ struct QuicktuneValue
 
 	QuicktuneValue() = default;
 
-	std::string getString();
+	String getString();
 	void relativeAdd(float amount);
 };
 
-std::vector<std::string> getQuicktuneNames();
-QuicktuneValue getQuicktuneValue(const std::string &name);
-void setQuicktuneValue(const std::string &name, const QuicktuneValue &val);
+std::vector<String> getQuicktuneNames();
+QuicktuneValue getQuicktuneValue(const String &name);
+void setQuicktuneValue(const String &name, const QuicktuneValue &val);
 
-void updateQuicktuneValue(const std::string &name, QuicktuneValue &val);
+void updateQuicktuneValue(const String &name, QuicktuneValue &val);
 
 #ifndef NDEBUG
 	#define QUICKTUNE(type_, var, min_, max_, name){\

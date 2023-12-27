@@ -55,7 +55,7 @@ void TestMoveAction::runTests(IGameDef *gamedef)
 	try {
 		server_scripting.loadMod(Server::getBuiltinLuaPath() + DIR_DELIM "init.lua", BUILTIN_MOD_NAME);
 		server_scripting.loadMod(
-			std::string(HELPERS_PATH) + DIR_DELIM "helper_moveaction.lua", BUILTIN_MOD_NAME
+			String(HELPERS_PATH) + DIR_DELIM "helper_moveaction.lua", BUILTIN_MOD_NAME
 		);
 	} catch (ModError &e) {
 		// Print backtrace in case of syntax errors

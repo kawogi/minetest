@@ -45,7 +45,7 @@ public:
 	void node_after_destruct(v3s16 p, MapNode node);
 	bool node_on_timer(v3s16 p, MapNode node, f32 dtime);
 	void node_on_receive_fields(v3s16 p,
-			const std::string &formname,
+			const String &formname,
 			const StringMap &fields,
 			ServerActiveObject *sender);
 public:

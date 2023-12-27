@@ -63,12 +63,12 @@ void TestSchematic::testMtsSerializeDeserialize(const NodeDefManager *ndef)
 	static const v3s16 size(7, 6, 4);
 	static const u32 volume = size.X * size.Y * size.Z;
 
-	std::stringstream ss(std::ios_base::binary |
+	Stringstream ss(std::ios_base::binary |
 		std::ios_base::in | std::ios_base::out);
 
 	Schematic schem;
 	{
-		std::vector<std::string> &names = schem.m_nodenames;
+		std::vector<String> &names = schem.m_nodenames;
 		names.emplace_back("foo");
 		names.emplace_back("bar");
 		names.emplace_back("baz");
@@ -92,12 +92,12 @@ void TestSchematic::testMtsSerializeDeserialize(const NodeDefManager *ndef)
 	UASSERT(schem2.deserializeFromMts(&ss));
 
 	{
-		std::vector<std::string> &names = schem2.m_nodenames;
+		std::vector<String> &names = schem2.m_nodenames;
 		UASSERTEQ(size_t, names.size(), 4);
-		UASSERTEQ(std::string, names[0], "foo");
-		UASSERTEQ(std::string, names[1], "bar");
-		UASSERTEQ(std::string, names[2], "baz");
-		UASSERTEQ(std::string, names[3], "qux");
+		UASSERTEQ(String, names[0], "foo");
+		UASSERTEQ(String, names[1], "bar");
+		UASSERTEQ(String, names[2], "baz");
+		UASSERTEQ(String, names[3], "qux");
 	}
 
 	UASSERT(schem2.size == size);
@@ -124,7 +124,7 @@ void TestSchematic::testLuaTableSerialize(const NodeDefManager *ndef)
 	for (s16 y = 0; y != size.Y; y++)
 		schem.slice_probs[y] = MTSCHEM_PROB_ALWAYS;
 
-	std::vector<std::string> &names = schem.m_nodenames;
+	std::vector<String> &names = schem.m_nodenames;
 	names.emplace_back("air");
 	names.emplace_back("default:lava_source");
 	names.emplace_back("default:glass");
@@ -132,7 +132,7 @@ void TestSchematic::testLuaTableSerialize(const NodeDefManager *ndef)
 	std::ostringstream ss(std::ios_base::binary);
 
 	UASSERT(schem.serializeToLua(&ss, false, 0));
-	UASSERTEQ(std::string, ss.str(), expected_lua_output);
+	UASSERTEQ(String, ss.str(), expected_lua_output);
 }
 
 
@@ -171,7 +171,7 @@ void TestSchematic::testFileSerializeDeserialize(const NodeDefManager *ndef)
 		schem1.schemdata[i] = MapNode(c, test_schem2_prob[i], 0);
 	}
 
-	std::string temp_file = getTestTempFile();
+	String temp_file = getTestTempFile();
 	UASSERT(schem1.saveSchematicToFile(temp_file, ndef));
 	UASSERT(schem2.loadSchematicFromFile(temp_file, ndef, &replace_names));
 

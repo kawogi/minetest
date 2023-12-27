@@ -53,7 +53,7 @@ DEALINGS IN THE SOFTWARE.
 
 class Thread {
 public:
-	Thread(const std::string &name="");
+	Thread(const String &name="");
 	virtual ~Thread();
 	DISABLE_CLASS_COPY(Thread)
 
@@ -120,7 +120,7 @@ public:
 	 * Sets the currently executing thread's name to where supported; useful
 	 * for debugging.
 	 */
-	static void setName(const std::string &name);
+	static void setName(const String &name);
 
 	/*
 	 * Returns the number of processors/cores configured and active on this machine.
@@ -128,7 +128,7 @@ public:
 	static unsigned int getNumberOfProcessors();
 
 protected:
-	std::string m_name;
+	String m_name;
 
 	virtual void *run() = 0;
 

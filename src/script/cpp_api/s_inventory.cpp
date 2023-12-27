@@ -187,7 +187,7 @@ void ScriptApiDetached::detached_inventory_OnTake(
 // If that is a function, returns true and pushes the
 // function onto the stack
 bool ScriptApiDetached::getDetachedInventoryCallback(
-		const std::string &name, const char *callbackname)
+		const String &name, const char *callbackname)
 {
 	lua_State *L = getStack();
 

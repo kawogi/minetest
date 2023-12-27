@@ -34,9 +34,9 @@ FloatType g_serialize_f32_type = FLOATTYPE_UNKNOWN;
 //// String
 ////
 
-std::string serializeString16(const std::string &plain)
+String serializeString16(const String &plain)
 {
-	std::string s;
+	String s;
 	char buf[2];
 
 	if (plain.size() > STRING_MAX_LEN)
@@ -50,9 +50,9 @@ std::string serializeString16(const std::string &plain)
 	return s;
 }
 
-std::string deSerializeString16(std::istream &is)
+String deSerializeString16(std::istream &is)
 {
-	std::string s;
+	String s;
 	char buf[2];
 
 	is.read(buf, 2);
@@ -76,9 +76,9 @@ std::string deSerializeString16(std::istream &is)
 //// Long String
 ////
 
-std::string serializeString32(const std::string &plain)
+String serializeString32(const String &plain)
 {
-	std::string s;
+	String s;
 	char buf[4];
 
 	if (plain.size() > LONG_STRING_MAX_LEN)
@@ -91,9 +91,9 @@ std::string serializeString32(const std::string &plain)
 	return s;
 }
 
-std::string deSerializeString32(std::istream &is)
+String deSerializeString32(std::istream &is)
 {
-	std::string s;
+	String s;
 	char buf[4];
 
 	is.read(buf, 4);
@@ -122,9 +122,9 @@ std::string deSerializeString32(std::istream &is)
 //// JSON-like strings
 ////
 
-std::string serializeJsonString(const std::string &plain)
+String serializeJsonString(const String &plain)
 {
-	std::string tmp;
+	String tmp;
 
 	tmp.reserve(plain.size() + 2);
 	tmp.push_back('"');
@@ -171,7 +171,7 @@ std::string serializeJsonString(const std::string &plain)
 	return tmp;
 }
 
-static void deSerializeJsonString(std::string &s)
+static void deSerializeJsonString(String &s)
 {
 	assert(s.size() >= 2);
 	assert(s.front() == '"' && s.back() == '"');
@@ -232,9 +232,9 @@ static void deSerializeJsonString(std::string &s)
 	s.resize(w);
 }
 
-std::string deSerializeJsonString(std::istream &is)
+String deSerializeJsonString(std::istream &is)
 {
-	std::string tmp;
+	String tmp;
 	char c;
 	bool was_backslash = false;
 
@@ -263,7 +263,7 @@ std::string deSerializeJsonString(std::istream &is)
 	return tmp;
 }
 
-std::string serializeJsonStringIfNeeded(const std::string &s)
+String serializeJsonStringIfNeeded(const String &s)
 {
 	for (size_t i = 0; i < s.size(); ++i) {
 		if (s[i] <= 0x1f || s[i] >= 0x7f || s[i] == ' ' || s[i] == '\"')
@@ -272,7 +272,7 @@ std::string serializeJsonStringIfNeeded(const std::string &s)
 	return s;
 }
 
-std::string deSerializeJsonStringIfNeeded(std::istream &is)
+String deSerializeJsonStringIfNeeded(std::istream &is)
 {
 	// Check for initial quote
 	char c = is.peek();
@@ -285,7 +285,7 @@ std::string deSerializeJsonStringIfNeeded(std::istream &is)
 	}
 
 	// not a json string:
-	std::string tmp;
+	String tmp;
 	std::getline(is, tmp, ' ');
 	if (!is.eof())
 		is.unget(); // we hit a space, put it back

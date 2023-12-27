@@ -28,11 +28,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "server.h"
 #include "serverenvironment.h"
 
-LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &data)
+LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const String &data)
 	: UnitSAO(env, pos)
 {
-	std::string name;
-	std::string state;
+	String name;
+	String state;
 	u16 hp = 1;
 	v3f velocity;
 	v3f rotation;
@@ -137,7 +137,7 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 	if(!m_properties_sent)
 	{
 		m_properties_sent = true;
-		std::string str = getPropertyPacket();
+		String str = getPropertyPacket();
 		// create message and add to list
 		m_messages_out.emplace(getId(), true, str);
 	}
@@ -239,7 +239,7 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 	sendOutdatedData();
 }
 
-std::string LuaEntitySAO::getClientInitializationData(u16 protocol_version)
+String LuaEntitySAO::getClientInitializationData(u16 protocol_version)
 {
 	std::ostringstream os(std::ios::binary);
 
@@ -276,14 +276,14 @@ std::string LuaEntitySAO::getClientInitializationData(u16 protocol_version)
 	message_count++;
 
 	writeU8(os, message_count);
-	std::string serialized = msg_os.str();
+	String serialized = msg_os.str();
 	os.write(serialized.c_str(), serialized.size());
 
 	// return result
 	return os.str();
 }
 
-void LuaEntitySAO::getStaticData(std::string *result) const
+void LuaEntitySAO::getStaticData(String *result) const
 {
 	std::ostringstream os(std::ios::binary);
 	// version must be 1 to keep backwards-compatibility. See version2
@@ -292,7 +292,7 @@ void LuaEntitySAO::getStaticData(std::string *result) const
 	os<<serializeString16(m_init_name);
 	// state
 	if(m_registered){
-		std::string state = m_env->getScriptIface()->
+		String state = m_env->getScriptIface()->
 			luaentity_GetStaticdata(m_id);
 		os<<serializeString32(state);
 	} else {
@@ -389,7 +389,7 @@ float LuaEntitySAO::getMinimumSavedMovement()
 	return 0.1 * BS;
 }
 
-std::string LuaEntitySAO::getDescription()
+String LuaEntitySAO::getDescription()
 {
 	std::ostringstream oss;
 	oss << "LuaEntitySAO \"" << m_init_name << "\" ";
@@ -442,20 +442,20 @@ v3f LuaEntitySAO::getAcceleration()
 	return m_acceleration;
 }
 
-void LuaEntitySAO::setTextureMod(const std::string &mod)
+void LuaEntitySAO::setTextureMod(const String &mod)
 {
 	m_current_texture_modifier = mod;
 	// create message and add to list
 	m_messages_out.emplace(getId(), true, generateSetTextureModCommand());
 }
 
-std::string LuaEntitySAO::getTextureMod() const
+String LuaEntitySAO::getTextureMod() const
 {
 	return m_current_texture_modifier;
 }
 
 
-std::string LuaEntitySAO::generateSetTextureModCommand() const
+String LuaEntitySAO::generateSetTextureModCommand() const
 {
 	std::ostringstream os(std::ios::binary);
 	// command
@@ -465,7 +465,7 @@ std::string LuaEntitySAO::generateSetTextureModCommand() const
 	return os.str();
 }
 
-std::string LuaEntitySAO::generateSetSpriteCommand(v2s16 p, u16 num_frames,
+String LuaEntitySAO::generateSetSpriteCommand(v2s16 p, u16 num_frames,
 	f32 framelength, bool select_horiz_by_yawpitch)
 {
 	std::ostringstream os(std::ios::binary);
@@ -482,7 +482,7 @@ std::string LuaEntitySAO::generateSetSpriteCommand(v2s16 p, u16 num_frames,
 void LuaEntitySAO::setSprite(v2s16 p, int num_frames, float framelength,
 		bool select_horiz_by_yawpitch)
 {
-	std::string str = generateSetSpriteCommand(
+	String str = generateSetSpriteCommand(
 		p,
 		num_frames,
 		framelength,
@@ -492,12 +492,12 @@ void LuaEntitySAO::setSprite(v2s16 p, int num_frames, float framelength,
 	m_messages_out.emplace(getId(), true, str);
 }
 
-std::string LuaEntitySAO::getName()
+String LuaEntitySAO::getName()
 {
 	return m_init_name;
 }
 
-std::string LuaEntitySAO::getPropertyPacket()
+String LuaEntitySAO::getPropertyPacket()
 {
 	return generateSetPropertiesCommand(m_prop);
 }
@@ -521,7 +521,7 @@ void LuaEntitySAO::sendPosition(bool do_interpolate, bool is_movement_end)
 
 	float update_interval = m_env->getSendRecommendedInterval();
 
-	std::string str = generateUpdatePositionCommand(
+	String str = generateUpdatePositionCommand(
 		m_base_position,
 		m_velocity,
 		m_acceleration,

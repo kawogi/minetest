@@ -54,7 +54,7 @@ private:
 class SQLite3Provider : public AuthDatabaseProvider
 {
 public:
-	SQLite3Provider(const std::string &dir) : dir(dir){};
+	SQLite3Provider(const String &dir) : dir(dir){};
 	virtual ~SQLite3Provider() { delete auth_db; };
 	virtual AuthDatabase *getAuthDatabase()
 	{
@@ -64,7 +64,7 @@ public:
 	};
 
 private:
-	std::string dir;
+	String dir;
 	AuthDatabase *auth_db = nullptr;
 };
 }
@@ -97,7 +97,7 @@ static TestAuthDatabase g_test_instance;
 void TestAuthDatabase::runTests(IGameDef *gamedef)
 {
 	// fixed directory, for persistence
-	thread_local const std::string test_dir = getTestTempDirectory();
+	thread_local const String test_dir = getTestTempDirectory();
 
 	// Each set of tests is run twice for each database type:
 	// one where we reuse the same AuthDatabase object (to test local caching),
@@ -172,11 +172,11 @@ void TestAuthDatabase::testRecall()
 	AuthEntry authEntry;
 
 	UASSERT(auth_db->getAuth("TestName", authEntry));
-	UASSERTEQ(std::string, authEntry.name, "TestName");
-	UASSERTEQ(std::string, authEntry.password, "TestPassword");
+	UASSERTEQ(String, authEntry.name, "TestName");
+	UASSERTEQ(String, authEntry.password, "TestPassword");
 	// the order of privileges is unimportant
 	std::sort(authEntry.privileges.begin(), authEntry.privileges.end());
-	UASSERTEQ(std::string, str_join(authEntry.privileges, ","), "interact,shout");
+	UASSERTEQ(String, str_join(authEntry.privileges, ","), "interact,shout");
 }
 
 void TestAuthDatabase::testChange()
@@ -196,10 +196,10 @@ void TestAuthDatabase::testRecallChanged()
 	AuthEntry authEntry;
 
 	UASSERT(auth_db->getAuth("TestName", authEntry));
-	UASSERTEQ(std::string, authEntry.password, "NewPassword");
+	UASSERTEQ(String, authEntry.password, "NewPassword");
 	// the order of privileges is unimportant
 	std::sort(authEntry.privileges.begin(), authEntry.privileges.end());
-	UASSERTEQ(std::string, str_join(authEntry.privileges, ","), "interact,shout");
+	UASSERTEQ(String, str_join(authEntry.privileges, ","), "interact,shout");
 	UASSERTEQ(u64, authEntry.last_login, 1002);
 }
 
@@ -224,14 +224,14 @@ void TestAuthDatabase::testRecallChangedPrivileges()
 	UASSERT(auth_db->getAuth("TestName", authEntry));
 	// the order of privileges is unimportant
 	std::sort(authEntry.privileges.begin(), authEntry.privileges.end());
-	UASSERTEQ(std::string, str_join(authEntry.privileges, ","), "dig,fly,interact");
+	UASSERTEQ(String, str_join(authEntry.privileges, ","), "dig,fly,interact");
 }
 
 void TestAuthDatabase::testListNames()
 {
 
 	AuthDatabase *auth_db = auth_provider->getAuthDatabase();
-	std::vector<std::string> list;
+	std::vector<String> list;
 
 	AuthEntry authEntry;
 
@@ -245,7 +245,7 @@ void TestAuthDatabase::testListNames()
 	auth_db->listNames(list);
 	// not necessarily sorted, so sort before comparing
 	std::sort(list.begin(), list.end());
-	UASSERTEQ(std::string, str_join(list, ","), "SecondName,TestName");
+	UASSERTEQ(String, str_join(list, ","), "SecondName,TestName");
 }
 
 void TestAuthDatabase::testDelete()

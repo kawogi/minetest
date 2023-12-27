@@ -126,8 +126,8 @@ void ServerScripting::stepAsync()
 	asyncEngine.step(getStack());
 }
 
-u32 ServerScripting::queueAsync(std::string &&serialized_func,
-	PackedValue *param, const std::string &mod_origin)
+u32 ServerScripting::queueAsync(String &&serialized_func,
+	PackedValue *param, const String &mod_origin)
 {
 	return asyncEngine.queueAsyncJob(std::move(serialized_func),
 			param, mod_origin);

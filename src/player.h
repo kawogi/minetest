@@ -121,7 +121,7 @@ struct PlayerSettings
 	bool noclip = false;
 	bool autojump = false;
 
-	const std::string setting_names[8] = {
+	const String setting_names[8] = {
 		"free_move", "pitch_move", "fast_move", "continuous_forward", "always_fly_fast",
 		"aux1_descends", "noclip", "autojump"
 	};
@@ -194,14 +194,14 @@ public:
 	v2s32 local_animations[4];
 	float local_animation_speed;
 
-	std::string inventory_formspec;
-	std::string formspec_prepend;
+	String inventory_formspec;
+	String formspec_prepend;
 
 	PlayerControl control;
 	const PlayerControl& getPlayerControl() { return control; }
 	PlayerPhysicsOverride physics_override;
 	PlayerSettings &getPlayerSettings() { return m_player_settings; }
-	static void settingsChangedCallback(const std::string &name, void *data);
+	static void settingsChangedCallback(const String &name, void *data);
 
 	// Returns non-empty `selected` ItemStack. `hand` is a fallback, if specified
 	ItemStack &getWieldedItem(ItemStack *selected, ItemStack *hand) const;

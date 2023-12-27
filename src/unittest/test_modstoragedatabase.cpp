@@ -61,7 +61,7 @@ private:
 class SQLite3Provider : public ModStorageDatabaseProvider
 {
 public:
-	SQLite3Provider(const std::string &dir): m_dir(dir) {}
+	SQLite3Provider(const String &dir): m_dir(dir) {}
 
 	~SQLite3Provider()
 	{
@@ -81,7 +81,7 @@ public:
 	}
 
 private:
-	std::string m_dir;
+	String m_dir;
 	ModStorageDatabase *m_db = nullptr;
 };
 
@@ -113,7 +113,7 @@ static TestModStorageDatabase g_test_instance;
 void TestModStorageDatabase::runTests(IGameDef *gamedef)
 {
 	// fixed directory, for persistence
-	thread_local const std::string test_dir = getTestTempDirectory();
+	thread_local const String test_dir = getTestTempDirectory();
 
 	// Each set of tests is run twice for each database type except dummy:
 	// one where we reuse the same ModStorageDatabase object (to test local caching),
@@ -164,12 +164,12 @@ void TestModStorageDatabase::testRecallFail()
 {
 	ModStorageDatabase *mod_storage_db = mod_storage_provider->getModStorageDatabase();
 	StringMap recalled;
-	std::vector<std::string> recalled_keys;
+	std::vector<String> recalled_keys;
 	mod_storage_db->getModEntries("mod1", &recalled);
 	mod_storage_db->getModKeys("mod1", &recalled_keys);
 	UASSERT(recalled.empty());
 	UASSERT(recalled_keys.empty());
-	std::string key1_value;
+	String key1_value;
 	UASSERT(!mod_storage_db->getModEntry("mod1", "key1", &key1_value));
 	UASSERT(!mod_storage_db->hasModEntry("mod1", "key1"));
 }
@@ -184,16 +184,16 @@ void TestModStorageDatabase::testRecall()
 {
 	ModStorageDatabase *mod_storage_db = mod_storage_provider->getModStorageDatabase();
 	StringMap recalled;
-	std::vector<std::string> recalled_keys;
+	std::vector<String> recalled_keys;
 	mod_storage_db->getModEntries("mod1", &recalled);
 	mod_storage_db->getModKeys("mod1", &recalled_keys);
 	UASSERTCMP(std::size_t, ==, recalled.size(), 1);
 	UASSERTCMP(std::size_t, ==, recalled_keys.size(), 1);
-	UASSERTCMP(std::string, ==, recalled["key1"], "value1");
-	UASSERTCMP(std::string, ==, recalled_keys[0], "key1");
-	std::string key1_value;
+	UASSERTCMP(String, ==, recalled["key1"], "value1");
+	UASSERTCMP(String, ==, recalled_keys[0], "key1");
+	String key1_value;
 	UASSERT(mod_storage_db->getModEntry("mod1", "key1", &key1_value));
-	UASSERTCMP(std::string, ==, key1_value, "value1");
+	UASSERTCMP(String, ==, key1_value, "value1");
 	UASSERT(mod_storage_db->hasModEntry("mod1", "key1"));
 }
 
@@ -209,10 +209,10 @@ void TestModStorageDatabase::testRecallChanged()
 	StringMap recalled;
 	mod_storage_db->getModEntries("mod1", &recalled);
 	UASSERTCMP(std::size_t, ==, recalled.size(), 1);
-	UASSERTCMP(std::string, ==, recalled["key1"], "value2");
-	std::string key1_value;
+	UASSERTCMP(String, ==, recalled["key1"], "value2");
+	String key1_value;
 	UASSERT(mod_storage_db->getModEntry("mod1", "key1", &key1_value));
-	UASSERTCMP(std::string, ==, key1_value, "value2");
+	UASSERTCMP(String, ==, key1_value, "value2");
 	UASSERT(mod_storage_db->hasModEntry("mod1", "key1"));
 }
 
@@ -221,7 +221,7 @@ void TestModStorageDatabase::testListMods()
 	ModStorageDatabase *mod_storage_db = mod_storage_provider->getModStorageDatabase();
 	UASSERT(mod_storage_db->setModEntry("mod2", "key1", "value1"));
 	UASSERT(mod_storage_db->setModEntry("mod2", "key2", "value1"));
-	std::vector<std::string> mod_list;
+	std::vector<String> mod_list;
 	mod_storage_db->listMods(&mod_list);
 	UASSERTCMP(size_t, ==, mod_list.size(), 2);
 	UASSERT(std::find(mod_list.cbegin(), mod_list.cend(), "mod1") != mod_list.cend());

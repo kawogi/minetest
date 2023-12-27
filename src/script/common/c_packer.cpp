@@ -140,7 +140,7 @@ namespace {
 		PackOutFunc fout;
 	};
 
-	typedef std::pair<std::string, Packer> PackerTuple;
+	typedef std::pair<String, Packer> PackerTuple;
 }
 
 static inline auto emplace(PackedValue &pv, s16 type)
@@ -164,7 +164,7 @@ static inline auto emplace(PackedValue &pv, s16 type)
 // Management of registered packers
 //
 
-static std::unordered_map<std::string, Packer> g_packers;
+static std::unordered_map<String, Packer> g_packers;
 static std::mutex g_packers_lock;
 
 void script_register_packer(lua_State *L, const char *regname,
@@ -337,7 +337,7 @@ static VectorRef<PackedInstr> pack_inner(lua_State *L, int idx, int vidx, Packed
 			return r;
 		}
 		default: {
-			std::string err = "Cannot serialize type ";
+			String err = "Cannot serialize type ";
 			err += lua_typename(L, lua_type(L, idx));
 			throw LuaError(err);
 		}

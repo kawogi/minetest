@@ -71,7 +71,7 @@ bool ScriptApiEntity::luaentity_Add(u16 id, const char *name)
 }
 
 void ScriptApiEntity::luaentity_Activate(u16 id,
-		const std::string &staticdata, u32 dtime_s)
+		const String &staticdata, u32 dtime_s)
 {
 	SCRIPTAPI_PRECHECKHEADER
 
@@ -139,7 +139,7 @@ void ScriptApiEntity::luaentity_Remove(u16 id)
 	lua_pop(L, 2); // pop luaentities, core
 }
 
-std::string ScriptApiEntity::luaentity_GetStaticdata(u16 id)
+String ScriptApiEntity::luaentity_GetStaticdata(u16 id)
 {
 	SCRIPTAPI_PRECHECKHEADER
 
@@ -167,10 +167,10 @@ std::string ScriptApiEntity::luaentity_GetStaticdata(u16 id)
 	size_t len = 0;
 	const char *s = lua_tolstring(L, -1, &len);
 	lua_pop(L, 1); // Pop static data
-	return std::string(s, len);
+	return String(s, len);
 }
 
-void ScriptApiEntity::logDeprecationForExistingProperties(lua_State *L, int index, const std::string &name)
+void ScriptApiEntity::logDeprecationForExistingProperties(lua_State *L, int index, const String &name)
 {
 	if (deprecation_warned_init_properties.find(name) != deprecation_warned_init_properties.end())
 		return;
@@ -202,7 +202,7 @@ void ScriptApiEntity::logDeprecationForExistingProperties(lua_State *L, int inde
 }
 
 void ScriptApiEntity::luaentity_GetProperties(u16 id,
-		ServerActiveObject *self, ObjectProperties *prop, const std::string &entity_name)
+		ServerActiveObject *self, ObjectProperties *prop, const String &entity_name)
 {
 	SCRIPTAPI_PRECHECKHEADER
 

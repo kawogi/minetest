@@ -67,16 +67,16 @@ public:
 		*ratio = m_day_night_ratio;
 	}
 
-	void setHotbarImage(const std::string &name) { hud_hotbar_image = name; }
+	void setHotbarImage(const String &name) { hud_hotbar_image = name; }
 
-	const std::string &getHotbarImage() const { return hud_hotbar_image; }
+	const String &getHotbarImage() const { return hud_hotbar_image; }
 
-	void setHotbarSelectedImage(const std::string &name)
+	void setHotbarSelectedImage(const String &name)
 	{
 		hud_hotbar_selected_image = name;
 	}
 
-	const std::string &getHotbarSelectedImage() const
+	const String &getHotbarSelectedImage() const
 	{
 		return hud_hotbar_selected_image;
 	}
@@ -154,8 +154,8 @@ private:
 
 	bool m_day_night_ratio_do_override = false;
 	float m_day_night_ratio;
-	std::string hud_hotbar_image = "";
-	std::string hud_hotbar_selected_image = "";
+	String hud_hotbar_image = "";
+	String hud_hotbar_selected_image = "";
 
 	CloudParams m_cloud_params;
 

@@ -43,11 +43,11 @@ const std::wstring &Translations::getTranslation(
 	}
 }
 
-void Translations::loadTranslation(const std::string &data)
+void Translations::loadTranslation(const String &data)
 {
 	std::istringstream is(data);
 	std::wstring textdomain;
-	std::string line;
+	String line;
 
 	while (is.good()) {
 		std::getline(is, line);

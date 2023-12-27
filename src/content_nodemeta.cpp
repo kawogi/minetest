@@ -54,8 +54,8 @@ static bool content_nodemeta_deserialize_legacy_body(
 
 		int num_vars = readU32(is);
 		for(int i=0; i<num_vars; i++){
-			std::string name = deSerializeString16(is);
-			std::string var = deSerializeString32(is);
+			String name = deSerializeString16(is);
+			String var = deSerializeString32(is);
 			meta->setString(name, var);
 		}
 		return false;
@@ -65,7 +65,7 @@ static bool content_nodemeta_deserialize_legacy_body(
 		meta->setString("text", deSerializeString16(is));
 		//meta->setString("infotext","\"${text}\"");
 		meta->setString("infotext",
-				std::string("\"") + meta->getString("text") + "\"");
+				String("\"") + meta->getString("text") + "\"");
 		meta->setString("formspec","field[text;;${text}]");
 		return false;
 	}
@@ -138,7 +138,7 @@ static bool content_nodemeta_deserialize_legacy_meta(
 	s16 id = readS16(is);
 
 	// Read data
-	std::string data = deSerializeString16(is);
+	String data = deSerializeString16(is);
 	std::istringstream tmp_is(data, std::ios::binary);
 	return content_nodemeta_deserialize_legacy_body(tmp_is, id, meta);
 }

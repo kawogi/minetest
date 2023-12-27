@@ -33,10 +33,10 @@ class InventoryManager;
 
 struct RollbackNode
 {
-	std::string name;
+	String name;
 	int param1 = 0;
 	int param2 = 0;
-	std::string meta;
+	String meta;
 
 	bool operator == (const RollbackNode &other)
 	{
@@ -60,15 +60,15 @@ struct RollbackAction
 	} type = TYPE_NOTHING;
 
 	time_t unix_time = 0;
-	std::string actor;
+	String actor;
 	bool actor_is_guess = false;
 
 	v3s16 p;
 	RollbackNode n_old;
 	RollbackNode n_new;
 
-	std::string inventory_location;
-	std::string inventory_list;
+	String inventory_location;
+	String inventory_list;
 	u32 inventory_index;
 	bool inventory_add;
 	ItemStack inventory_stack;
@@ -84,8 +84,8 @@ struct RollbackAction
 		n_new = n_new_;
 	}
 
-	void setModifyInventoryStack(const std::string &inventory_location_,
-			const std::string &inventory_list_, u32 index_,
+	void setModifyInventoryStack(const String &inventory_location_,
+			const String &inventory_list_, u32 index_,
 			bool add_, const ItemStack &inventory_stack_)
 	{
 		type = TYPE_MODIFY_INVENTORY_STACK;
@@ -97,7 +97,7 @@ struct RollbackAction
 	}
 
 	// String should not contain newlines or nulls
-	std::string toString() const;
+	String toString() const;
 
 	// Eg. flowing water level changes are not important
 	bool isImportant(IGameDef *gamedef) const;
@@ -112,10 +112,10 @@ class IRollbackManager
 {
 public:
 	virtual void reportAction(const RollbackAction &action) = 0;
-	virtual std::string getActor() = 0;
+	virtual String getActor() = 0;
 	virtual bool isActorGuess() = 0;
-	virtual void setActor(const std::string &actor, bool is_guess) = 0;
-	virtual std::string getSuspect(v3s16 p, float nearness_shortcut,
+	virtual void setActor(const String &actor, bool is_guess) = 0;
+	virtual String getSuspect(v3s16 p, float nearness_shortcut,
 	                               float min_nearness) = 0;
 
 	virtual ~IRollbackManager() = default;;
@@ -125,7 +125,7 @@ public:
 	virtual std::list<RollbackAction> getNodeActors(v3s16 pos, int range,
 	                time_t seconds, int limit) = 0;
 	// Get actions to revert <seconds> of history made by <actor>
-	virtual std::list<RollbackAction> getRevertActions(const std::string &actor,
+	virtual std::list<RollbackAction> getRevertActions(const String &actor,
 	                time_t seconds) = 0;
 };
 
@@ -134,7 +134,7 @@ class RollbackScopeActor
 {
 public:
 	RollbackScopeActor(IRollbackManager * rollback_,
-			const std::string & actor, bool is_guess = false) :
+			const String & actor, bool is_guess = false) :
 		rollback(rollback_)
 	{
 		if (rollback) {
@@ -152,6 +152,6 @@ public:
 
 private:
 	IRollbackManager * rollback;
-	std::string old_actor;
+	String old_actor;
 	bool old_actor_guess;
 };

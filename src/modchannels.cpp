@@ -63,12 +63,12 @@ void ModChannel::setState(ModChannelState state)
 	m_state = state;
 }
 
-bool ModChannelMgr::channelRegistered(const std::string &channel) const
+bool ModChannelMgr::channelRegistered(const String &channel) const
 {
 	return m_registered_channels.find(channel) != m_registered_channels.end();
 }
 
-ModChannel *ModChannelMgr::getModChannel(const std::string &channel)
+ModChannel *ModChannelMgr::getModChannel(const String &channel)
 {
 	if (!channelRegistered(channel))
 		return nullptr;
@@ -76,7 +76,7 @@ ModChannel *ModChannelMgr::getModChannel(const std::string &channel)
 	return m_registered_channels[channel].get();
 }
 
-bool ModChannelMgr::canWriteOnChannel(const std::string &channel) const
+bool ModChannelMgr::canWriteOnChannel(const String &channel) const
 {
 	const auto channel_it = m_registered_channels.find(channel);
 	if (channel_it == m_registered_channels.end()) {
@@ -86,12 +86,12 @@ bool ModChannelMgr::canWriteOnChannel(const std::string &channel) const
 	return channel_it->second->canWrite();
 }
 
-void ModChannelMgr::registerChannel(const std::string &channel)
+void ModChannelMgr::registerChannel(const String &channel)
 {
 	m_registered_channels[channel] = std::make_unique<ModChannel>(channel);
 }
 
-bool ModChannelMgr::setChannelState(const std::string &channel, ModChannelState state)
+bool ModChannelMgr::setChannelState(const String &channel, ModChannelState state)
 {
 	if (!channelRegistered(channel))
 		return false;
@@ -102,7 +102,7 @@ bool ModChannelMgr::setChannelState(const std::string &channel, ModChannelState 
 	return true;
 }
 
-bool ModChannelMgr::removeChannel(const std::string &channel)
+bool ModChannelMgr::removeChannel(const String &channel)
 {
 	if (!channelRegistered(channel))
 		return false;
@@ -111,7 +111,7 @@ bool ModChannelMgr::removeChannel(const std::string &channel)
 	return true;
 }
 
-bool ModChannelMgr::joinChannel(const std::string &channel, session_t peer_id)
+bool ModChannelMgr::joinChannel(const String &channel, session_t peer_id)
 {
 	if (!channelRegistered(channel))
 		registerChannel(channel);
@@ -119,7 +119,7 @@ bool ModChannelMgr::joinChannel(const std::string &channel, session_t peer_id)
 	return m_registered_channels[channel]->registerConsumer(peer_id);
 }
 
-bool ModChannelMgr::leaveChannel(const std::string &channel, session_t peer_id)
+bool ModChannelMgr::leaveChannel(const String &channel, session_t peer_id)
 {
 	if (!channelRegistered(channel))
 		return false;
@@ -141,7 +141,7 @@ void ModChannelMgr::leaveAllChannels(session_t peer_id)
 }
 
 static std::vector<u16> empty_channel_list;
-const std::vector<u16> &ModChannelMgr::getChannelPeers(const std::string &channel) const
+const std::vector<u16> &ModChannelMgr::getChannelPeers(const String &channel) const
 {
 	const auto &channel_it = m_registered_channels.find(channel);
 	if (channel_it == m_registered_channels.end())

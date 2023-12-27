@@ -55,5 +55,5 @@ public:
 			ServerActiveObject *player);
 private:
 	bool getDetachedInventoryCallback(
-			const std::string &name, const char *callbackname);
+			const String &name, const char *callbackname);
 };

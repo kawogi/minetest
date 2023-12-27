@@ -36,7 +36,7 @@ public:
 	void testFlagDesc();
 
 	static const char *config_text_before;
-	static const std::string config_text_after;
+	static const String config_text_after;
 };
 
 static TestSettings g_test_instance;
@@ -76,7 +76,7 @@ const char *TestSettings::config_text_before =
 	"zoop = true\n"
 	"[dummy_eof_end_tag]\n";
 
-const std::string TestSettings::config_text_after =
+const String TestSettings::config_text_after =
 	"leet = 1337\n"
 	"leetleet = 13371337\n"
 	"leetleet_neg = -13371337\n"
@@ -118,11 +118,11 @@ const std::string TestSettings::config_text_after =
 	"}\n"
 	"[dummy_eof_end_tag]";
 
-void compare_settings(const std::string &name, Settings *a, Settings *b)
+void compare_settings(const String &name, Settings *a, Settings *b)
 {
 	auto keys = a->getNames();
 	Settings *group1, *group2;
-	std::string value1, value2;
+	String value1, value2;
 	for (auto &key : keys) {
 		if (a->getGroupNoEx(key, group1)) {
 			UASSERT(b->getGroupNoEx(key, group2));
@@ -135,7 +135,7 @@ void compare_settings(const std::string &name, Settings *a, Settings *b)
 		// For identification
 		value1 = name + "->" + key + "=" + value1;
 		value2 = name + "->" + key + "=" + a->get(key);
-		UASSERTCMP(std::string, ==, value2, value1);
+		UASSERTCMP(String, ==, value2, value1);
 	}
 }
 

@@ -47,7 +47,7 @@ public:
 		return m_logger.hasOutput(m_level);
 	}
 
-	virtual void log(const std::string &buf) override {
+	virtual void log(const String &buf) override {
 		if (!m_raw) {
 			m_logger.log(m_level, buf);
 		} else {
@@ -97,7 +97,7 @@ thread_local LogStream dout_con(trace_target);
 //// Logger
 ////
 
-LogLevel Logger::stringToLevel(const std::string &name)
+LogLevel Logger::stringToLevel(const String &name)
 {
 	if (name == "none")
 		return LL_NONE;
@@ -172,7 +172,7 @@ void Logger::setLevelSilenced(LogLevel lev, bool silenced)
 	m_silenced_levels[lev] = silenced;
 }
 
-void Logger::registerThread(const std::string &name)
+void Logger::registerThread(const String &name)
 {
 	std::thread::id id = std::this_thread::get_id();
 	MutexAutoLock lock(m_mutex);
@@ -186,9 +186,9 @@ void Logger::deregisterThread()
 	m_thread_names.erase(id);
 }
 
-const std::string Logger::getLevelLabel(LogLevel lev)
+const String Logger::getLevelLabel(LogLevel lev)
 {
-	static const std::string names[] = {
+	static const String names[] = {
 		"",
 		"ERROR",
 		"WARNING",
@@ -205,9 +205,9 @@ const std::string Logger::getLevelLabel(LogLevel lev)
 
 LogColor Logger::color_mode = LOG_COLOR_AUTO;
 
-const std::string Logger::getThreadName()
+const String Logger::getThreadName()
 {
-	std::map<std::thread::id, std::string>::const_iterator it;
+	std::map<std::thread::id, String>::const_iterator it;
 
 	std::thread::id id = std::this_thread::get_id();
 	it = m_thread_names.find(id);
@@ -219,21 +219,21 @@ const std::string Logger::getThreadName()
 	return os.str();
 }
 
-void Logger::log(LogLevel lev, const std::string &text)
+void Logger::log(LogLevel lev, const String &text)
 {
 	if (m_silenced_levels[lev])
 		return;
 
-	const std::string thread_name = getThreadName();
-	const std::string label = getLevelLabel(lev);
-	const std::string timestamp = getTimestamp();
+	const String thread_name = getThreadName();
+	const String label = getLevelLabel(lev);
+	const String timestamp = getTimestamp();
 	std::ostringstream os(std::ios_base::binary);
 	os << timestamp << ": " << label << "[" << thread_name << "]: " << text;
 
 	logToOutputs(lev, os.str(), timestamp, thread_name, text);
 }
 
-void Logger::logRaw(LogLevel lev, const std::string &text)
+void Logger::logRaw(LogLevel lev, const String &text)
 {
 	if (m_silenced_levels[lev])
 		return;
@@ -241,16 +241,16 @@ void Logger::logRaw(LogLevel lev, const std::string &text)
 	logToOutputsRaw(lev, text);
 }
 
-void Logger::logToOutputsRaw(LogLevel lev, const std::string &line)
+void Logger::logToOutputsRaw(LogLevel lev, const String &line)
 {
 	MutexAutoLock lock(m_mutex);
 	for (size_t i = 0; i != m_outputs[lev].size(); i++)
 		m_outputs[lev][i]->logRaw(lev, line);
 }
 
-void Logger::logToOutputs(LogLevel lev, const std::string &combined,
-	const std::string &time, const std::string &thread_name,
-	const std::string &payload_text)
+void Logger::logToOutputs(LogLevel lev, const String &combined,
+	const String &time, const String &thread_name,
+	const String &payload_text)
 {
 	MutexAutoLock lock(m_mutex);
 	for (size_t i = 0; i != m_outputs[lev].size(); i++)
@@ -261,7 +261,7 @@ void Logger::logToOutputs(LogLevel lev, const std::string &combined,
 //// *LogOutput methods
 ////
 
-void FileLogOutput::setFile(const std::string &filename, s64 file_size_max)
+void FileLogOutput::setFile(const String &filename, s64 file_size_max)
 {
 	// Only move debug.txt if there is a valid maximum file size
 	bool is_too_large = false;
@@ -272,7 +272,7 @@ void FileLogOutput::setFile(const std::string &filename, s64 file_size_max)
 	}
 
 	if (is_too_large) {
-		std::string filename_secondary = filename + ".1";
+		String filename_secondary = filename + ".1";
 		actionstream << "The log file grew too big; it is moved to " <<
 			filename_secondary << std::endl;
 		remove(filename_secondary.c_str());
@@ -289,7 +289,7 @@ void FileLogOutput::setFile(const std::string &filename, s64 file_size_max)
 		"-------------\n" << std::endl;
 }
 
-void StreamLogOutput::logRaw(LogLevel lev, const std::string &line)
+void StreamLogOutput::logRaw(LogLevel lev, const String &line)
 {
 	bool colored_message = (Logger::color_mode == LOG_COLOR_ALWAYS) ||
 		(Logger::color_mode == LOG_COLOR_AUTO && is_tty);
@@ -328,7 +328,7 @@ void StreamLogOutput::logRaw(LogLevel lev, const std::string &line)
 
 void LogOutputBuffer::updateLogLevel()
 {
-	const std::string &conf_loglev = g_settings->get("chat_log_level");
+	const String &conf_loglev = g_settings->get("chat_log_level");
 	LogLevel log_level = Logger::stringToLevel(conf_loglev);
 	if (log_level == LL_MAX) {
 		warningstream << "Supplied unrecognized chat_log_level; "
@@ -340,9 +340,9 @@ void LogOutputBuffer::updateLogLevel()
 	m_logger.addOutputMaxLevel(this, log_level);
 }
 
-void LogOutputBuffer::logRaw(LogLevel lev, const std::string &line)
+void LogOutputBuffer::logRaw(LogLevel lev, const String &line)
 {
-	std::string color;
+	String color;
 
 	if (!g_settings->getBool("disable_escape_sequences")) {
 		switch (lev) {

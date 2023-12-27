@@ -57,7 +57,7 @@ public:
 	virtual ICraftDefManager* getCraftDefManager()=0;
 
 	// Used for keeping track of names/ids of unknown nodes
-	virtual u16 allocateUnknownNodeId(const std::string &name)=0;
+	virtual u16 allocateUnknownNodeId(const String &name)=0;
 
 	// Only usable on the server, and NOT thread-safe. It is usable from the
 	// environment thread.
@@ -72,14 +72,14 @@ public:
 	IRollbackManager *rollback() { return getRollbackManager(); }
 
 	virtual const std::vector<ModSpec> &getMods() const = 0;
-	virtual const ModSpec* getModSpec(const std::string &modname) const = 0;
+	virtual const ModSpec* getModSpec(const String &modname) const = 0;
 	virtual const SubgameSpec* getGameSpec() const { return nullptr; }
-	virtual std::string getWorldPath() const { return ""; }
+	virtual String getWorldPath() const { return ""; }
 	virtual ModStorageDatabase *getModStorageDatabase() = 0;
 
-	virtual bool joinModChannel(const std::string &channel) = 0;
-	virtual bool leaveModChannel(const std::string &channel) = 0;
-	virtual bool sendModChannelMessage(const std::string &channel,
-		const std::string &message) = 0;
-	virtual ModChannel *getModChannel(const std::string &channel) = 0;
+	virtual bool joinModChannel(const String &channel) = 0;
+	virtual bool leaveModChannel(const String &channel) = 0;
+	virtual bool sendModChannelMessage(const String &channel,
+		const String &message) = 0;
+	virtual ModChannel *getModChannel(const String &channel) = 0;
 };

@@ -27,7 +27,7 @@ class Translations;
 class Translations
 {
 public:
-	void loadTranslation(const std::string &data);
+	void loadTranslation(const String &data);
 	void clear();
 	const std::wstring &getTranslation(
 			const std::wstring &textdomain, const std::wstring &s);

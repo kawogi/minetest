@@ -127,3 +127,8 @@ lib/irrlichtmt
 
 # Generated mod storage database
 client/mod_storage.sqlite
+
+
+# Added by cargo
+
+/target

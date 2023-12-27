@@ -56,7 +56,7 @@ void ModApiAuth::pushAuthEntry(lua_State *L, const AuthEntry &authEntry)
 	// privileges
 	lua_newtable(L);
 	int privtable = lua_gettop(L);
-	for (const std::string &privs : authEntry.privileges) {
+	for (const String &privs : authEntry.privileges) {
 		lua_pushboolean(L, true);
 		lua_setfield(L, privtable, privs.c_str());
 	}
@@ -77,7 +77,7 @@ int ModApiAuth::l_auth_read(lua_State *L)
 		return 0;
 	AuthEntry authEntry;
 	const char *name = luaL_checkstring(L, 1);
-	bool success = auth_db->getAuth(std::string(name), authEntry);
+	bool success = auth_db->getAuth(String(name), authEntry);
 	if (!success)
 		return 0;
 
@@ -168,7 +168,7 @@ int ModApiAuth::l_auth_delete(lua_State *L)
 	AuthDatabase *auth_db = getAuthDb(L);
 	if (!auth_db)
 		return 0;
-	std::string name(luaL_checkstring(L, 1));
+	String name(luaL_checkstring(L, 1));
 	lua_pushboolean(L, auth_db->deleteAuth(name));
 	return 1;
 }
@@ -180,12 +180,12 @@ int ModApiAuth::l_auth_list_names(lua_State *L)
 	AuthDatabase *auth_db = getAuthDb(L);
 	if (!auth_db)
 		return 0;
-	std::vector<std::string> names;
+	std::vector<String> names;
 	auth_db->listNames(names);
 	lua_createtable(L, names.size(), 0);
 	int table = lua_gettop(L);
 	int i = 1;
-	for (const std::string &name : names) {
+	for (const String &name : names) {
 		lua_pushstring(L, name.c_str());
 		lua_rawseti(L, table, i++);
 	}

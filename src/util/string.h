@@ -67,7 +67,7 @@ class Translations;
 	(((unsigned char)(x) < 0xe0) ? 2 :     \
 	(((unsigned char)(x) < 0xf0) ? 3 : 4))
 
-typedef std::unordered_map<std::string, std::string> StringMap;
+typedef std::unordered_map<String, String> StringMap;
 
 struct FlagDesc {
 	const char *name;
@@ -76,17 +76,17 @@ struct FlagDesc {
 
 // Try to avoid converting between wide and UTF-8 unless you need to
 // input/output stuff via Irrlicht
-std::wstring utf8_to_wide(const std::string &input);
-std::string wide_to_utf8(const std::wstring &input);
+std::wstring utf8_to_wide(const String &input);
+String wide_to_utf8(const std::wstring &input);
 
-std::string urlencode(const std::string &str);
-std::string urldecode(const std::string &str);
-u32 readFlagString(std::string str, const FlagDesc *flagdesc, u32 *flagmask);
-std::string writeFlagString(u32 flags, const FlagDesc *flagdesc, u32 flagmask);
+String urlencode(const String &str);
+String urldecode(const String &str);
+u32 readFlagString(String str, const FlagDesc *flagdesc, u32 *flagmask);
+String writeFlagString(u32 flags, const FlagDesc *flagdesc, u32 flagmask);
 size_t mystrlcpy(char *dst, const char *src, size_t size);
 char *mystrtok_r(char *s, const char *sep, char **lasts);
 u64 read_seed(const char *str);
-bool parseColorString(const std::string &value, video::SColor &color, bool quiet,
+bool parseColorString(const String &value, video::SColor &color, bool quiet,
 		unsigned char default_alpha = 0xff);
 
 
@@ -95,7 +95,7 @@ bool parseColorString(const std::string &value, video::SColor &color, bool quiet
  * that the string is \p len characters in length. If \p str is <= \p len then the
  * returned string will be identical to str.
  */
-inline std::string padStringRight(std::string str, size_t len)
+inline String padStringRight(String str, size_t len)
 {
 	if (len > str.size())
 		str.insert(str.end(), len - str.size(), ' ');
@@ -114,13 +114,13 @@ inline std::string padStringRight(std::string str, size_t len)
  *
  * @return If no end could be removed then "" is returned.
  */
-inline std::string removeStringEnd(const std::string &str,
+inline String removeStringEnd(const String &str,
 		const char *ends[])
 {
 	const char **p = ends;
 
 	for (; *p && (*p)[0] != '\0'; p++) {
-		std::string end = *p;
+		String end = *p;
 		if (str.size() < end.size())
 			continue;
 		if (str.compare(str.size() - end.size(), end.size(), end) == 0)
@@ -281,9 +281,9 @@ inline std::vector<std::basic_string<T> > str_split(
  * @param str
  * @return A copy of \p str converted to all lowercase characters.
  */
-inline std::string lowercase(const std::string &str)
+inline String lowercase(const String &str)
 {
-	std::string s2;
+	String s2;
 
 	s2.reserve(str.size());
 
@@ -298,7 +298,7 @@ inline std::string lowercase(const std::string &str)
  * @param str
  * @return A copy of \p str with leading and trailing whitespace removed.
  */
-inline std::string trim(const std::string &str)
+inline String trim(const String &str)
 {
 	size_t front = 0;
 	size_t back = str.size();
@@ -319,9 +319,9 @@ inline std::string trim(const std::string &str)
  * true are "y", "yes", "true" and any number that is not 0.
  * @param str
  */
-inline bool is_yes(const std::string &str)
+inline bool is_yes(const String &str)
 {
-	std::string s2 = lowercase(trim(str));
+	String s2 = lowercase(trim(str));
 
 	return s2 == "y" || s2 == "yes" || s2 == "true" || atoi(s2.c_str()) != 0;
 }
@@ -339,7 +339,7 @@ inline bool is_yes(const std::string &str)
  * @return The value converted to a signed 32-bit integer and constrained
  *	within the range defined by min and max (inclusive)
  */
-inline s32 mystoi(const std::string &str, s32 min, s32 max)
+inline s32 mystoi(const String &str, s32 min, s32 max)
 {
 	s32 i = atoi(str.c_str());
 
@@ -355,7 +355,7 @@ inline s32 mystoi(const std::string &str, s32 min, s32 max)
  * Returns a 32-bit value reprensented by the string \p str (decimal).
  * @see atoi(3) for further limitations
  */
-inline s32 mystoi(const std::string &str)
+inline s32 mystoi(const String &str)
 {
 	return atoi(str.c_str());
 }
@@ -364,7 +364,7 @@ inline s32 mystoi(const std::string &str)
  * Returns a float reprensented by the string \p str (decimal).
  * @see atof(3)
  */
-inline float mystof(const std::string &str)
+inline float mystof(const String &str)
 {
 	return atof(str.c_str());
 }
@@ -374,16 +374,16 @@ inline float mystof(const std::string &str)
 
 /// Returns a value represented by the string \p val.
 template <typename T>
-inline T from_string(const std::string &str)
+inline T from_string(const String &str)
 {
-	std::stringstream tmp(str);
+	Stringstream tmp(str);
 	T t;
 	tmp >> t;
 	return t;
 }
 
 /// Returns a 64-bit signed value represented by the string \p str (decimal).
-inline s64 stoi64(const std::string &str) { return from_string<s64>(str); }
+inline s64 stoi64(const String &str) { return from_string<s64>(str); }
 
 #if __cplusplus < 201103L
 namespace std {
@@ -422,12 +422,12 @@ inline wstring to_wstring(T val)
 #endif
 
 /// Returns a string representing the decimal value of the 32-bit value \p i.
-inline std::string itos(s32 i) { return std::to_string(i); }
+inline String itos(s32 i) { return std::to_string(i); }
 /// Returns a string representing the decimal value of the 64-bit value \p i.
-inline std::string i64tos(s64 i) { return std::to_string(i); }
+inline String i64tos(s64 i) { return std::to_string(i); }
 
 /// Returns a string representing the exact decimal value of the float value \p f.
-inline std::string ftos(float f)
+inline String ftos(float f)
 {
 	std::ostringstream oss;
 	oss << std::setprecision(std::numeric_limits<float>::max_digits10) << f;
@@ -442,10 +442,10 @@ inline std::string ftos(float f)
  * @param pattern The pattern to replace.
  * @param replacement What to replace the pattern with.
  */
-inline void str_replace(std::string &str, const std::string &pattern,
-		const std::string &replacement)
+inline void str_replace(String &str, const String &pattern,
+		const String &replacement)
 {
-	std::string::size_type start = str.find(pattern, 0);
+	String::size_type start = str.find(pattern, 0);
 	while (start != str.npos) {
 		str.replace(start, pattern.size(), replacement);
 		start = str.find(pattern, start + replacement.size());
@@ -455,7 +455,7 @@ inline void str_replace(std::string &str, const std::string &pattern,
 /**
  * Escapes characters [ ] \ , ; that cannot be used in formspecs
  */
-inline void str_formspec_escape(std::string &str)
+inline void str_formspec_escape(String &str)
 {
 	str_replace(str, "\\", "\\\\");
 	str_replace(str, "]", "\\]");
@@ -472,7 +472,7 @@ inline void str_formspec_escape(std::string &str)
  * @param from The character in str to replace.
  * @param to The replacement character.
  */
-void str_replace(std::string &str, char from, char to);
+void str_replace(String &str, char from, char to);
 
 
 /**
@@ -485,7 +485,7 @@ void str_replace(std::string &str, char from, char to);
  *
  * @see string_allowed_blacklist()
  */
-inline bool string_allowed(const std::string &str, const std::string &allowed_chars)
+inline bool string_allowed(const String &str, const String &allowed_chars)
 {
 	return str.find_first_not_of(allowed_chars) == str.npos;
 }
@@ -501,8 +501,8 @@ inline bool string_allowed(const std::string &str, const std::string &allowed_ch
 
  * @see string_allowed()
  */
-inline bool string_allowed_blacklist(const std::string &str,
-		const std::string &blacklisted_chars)
+inline bool string_allowed_blacklist(const String &str,
+		const String &blacklisted_chars)
 {
 	return str.find_first_of(blacklisted_chars) == str.npos;
 }
@@ -523,10 +523,10 @@ inline bool string_allowed_blacklist(const std::string &str,
  * @param row_len The row length (in characters).
  * @return A new string with the wrapping applied.
  */
-inline std::string wrap_rows(const std::string &from,
+inline String wrap_rows(const String &from,
 		unsigned row_len)
 {
-	std::string to;
+	String to;
 
 	size_t character_idx = 0;
 	for (size_t i = 0; i < from.size(); i++) {
@@ -645,7 +645,7 @@ inline std::wstring unescape_translate(const std::wstring &s) {
  * @return true if to_check is not empty and all characters in to_check are
  *	decimal digits, otherwise false
  */
-inline bool is_number(const std::string &to_check)
+inline bool is_number(const String &to_check)
 {
 	for (char i : to_check)
 		if (!std::isdigit(i))
@@ -672,7 +672,7 @@ inline const char *bool_to_cstr(bool val)
  * @param sec duration in seconds
  * @return pretty-printed duration
  */
-inline const std::string duration_to_string(int sec)
+inline const String duration_to_string(int sec)
 {
 	std::ostringstream ss;
 	const char *neg = "";
@@ -716,10 +716,10 @@ inline const std::string duration_to_string(int sec)
 /**
  * Joins a vector of strings by the string \p delimiter.
  *
- * @return A std::string
+ * @return A String
  */
-inline std::string str_join(const std::vector<std::string> &list,
-		const std::string &delimiter)
+inline String str_join(const std::vector<String> &list,
+		const String &delimiter)
 {
 	std::ostringstream oss;
 	bool first = true;
@@ -733,18 +733,18 @@ inline std::string str_join(const std::vector<std::string> &list,
 }
 
 /**
- * Create a UTF8 std::string from an irr::core::stringw.
+ * Create a UTF8 String from an irr::core::stringw.
  */
-inline std::string stringw_to_utf8(const irr::core::stringw &input)
+inline String stringw_to_utf8(const irr::core::stringw &input)
 {
 	std::wstring str(input.c_str());
 	return wide_to_utf8(str);
 }
 
  /**
-  * Create an irr::core:stringw from a UTF8 std::string.
+  * Create an irr::core:stringw from a UTF8 String.
   */
-inline irr::core::stringw utf8_to_stringw(const std::string &input)
+inline irr::core::stringw utf8_to_stringw(const String &input)
 {
 	std::wstring str = utf8_to_wide(input);
 	return irr::core::stringw(str.c_str());
@@ -756,7 +756,7 @@ inline irr::core::stringw utf8_to_stringw(const std::string &input)
  *    and add a prefix to them
  * 2. Remove 'unsafe' characters from the name by replacing them with '_'
  */
-std::string sanitizeDirName(const std::string &str, const std::string &optional_prefix);
+String sanitizeDirName(const String &str, const String &optional_prefix);
 
 /**
  * Prints a sanitized version of a string without control characters.
@@ -764,7 +764,7 @@ std::string sanitizeDirName(const std::string &str, const std::string &optional_
  * ASCII control characters are replaced with their hex encoding in angle
  * brackets (e.g. "a\x1eb" -> "a<1e>b").
  */
-void safe_print_string(std::ostream &os, const std::string &str);
+void safe_print_string(std::ostream &os, const String &str);
 
 /**
  * Parses a string of form `(1, 2, 3)` to a v3f
@@ -772,4 +772,4 @@ void safe_print_string(std::ostream &os, const std::string &str);
  * @param str String
  * @return
  */
-v3f str_to_v3f(const std::string &str);
+v3f str_to_v3f(const String &str);

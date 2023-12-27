@@ -22,9 +22,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "common/c_converter.h"
 #include "util/numeric.h" // myrand
 
-bool ScriptApiServer::getAuth(const std::string &playername,
-		std::string *dst_password,
-		std::set<std::string> *dst_privs,
+bool ScriptApiServer::getAuth(const String &playername,
+		String *dst_password,
+		std::set<String> *dst_privs,
 		s64 *dst_last_login)
 {
 	SCRIPTAPI_PRECHECKHEADER
@@ -44,7 +44,7 @@ bool ScriptApiServer::getAuth(const std::string &playername,
 		return false;
 	luaL_checktype(L, -1, LUA_TTABLE);
 
-	std::string password;
+	String password;
 	if (!getstringfield(L, -1, "password", password))
 		throw LuaError("Authentication handler didn't return password");
 	if (dst_password)
@@ -84,7 +84,7 @@ void ScriptApiServer::getAuthHandler()
 		throw LuaError("Authentication handler table not valid");
 }
 
-void ScriptApiServer::readPrivileges(int index, std::set<std::string> &result)
+void ScriptApiServer::readPrivileges(int index, std::set<String> &result)
 {
 	lua_State *L = getStack();
 
@@ -94,7 +94,7 @@ void ScriptApiServer::readPrivileges(int index, std::set<std::string> &result)
 		index -= 1;
 	while (lua_next(L, index) != 0) {
 		// key at index -2 and value at index -1
-		std::string key = luaL_checkstring(L, -2);
+		String key = luaL_checkstring(L, -2);
 		bool value = readParam<bool>(L, -1);
 		if (value)
 			result.insert(key);
@@ -103,8 +103,8 @@ void ScriptApiServer::readPrivileges(int index, std::set<std::string> &result)
 	}
 }
 
-void ScriptApiServer::createAuth(const std::string &playername,
-		const std::string &password)
+void ScriptApiServer::createAuth(const String &playername,
+		const String &password)
 {
 	SCRIPTAPI_PRECHECKHEADER
 
@@ -120,8 +120,8 @@ void ScriptApiServer::createAuth(const std::string &playername,
 	lua_pop(L, 1); // Pop error handler
 }
 
-bool ScriptApiServer::setPassword(const std::string &playername,
-		const std::string &password)
+bool ScriptApiServer::setPassword(const String &playername,
+		const String &password)
 {
 	SCRIPTAPI_PRECHECKHEADER
 
@@ -138,8 +138,8 @@ bool ScriptApiServer::setPassword(const std::string &playername,
 	return lua_toboolean(L, -1);
 }
 
-bool ScriptApiServer::on_chat_message(const std::string &name,
-		const std::string &message)
+bool ScriptApiServer::on_chat_message(const String &name,
+		const String &message)
 {
 	SCRIPTAPI_PRECHECKHEADER
 
@@ -175,8 +175,8 @@ void ScriptApiServer::on_shutdown()
 	runCallbacks(0, RUN_CALLBACKS_MODE_FIRST);
 }
 
-std::string ScriptApiServer::formatChatMessage(const std::string &name,
-	const std::string &message)
+String ScriptApiServer::formatChatMessage(const String &name,
+	const String &message)
 {
 	SCRIPTAPI_PRECHECKHEADER
 
@@ -192,7 +192,7 @@ std::string ScriptApiServer::formatChatMessage(const std::string &name,
 	lua_call(L, 2, 1);
 
 	// Fetch return value
-	std::string ret = lua_tostring(L, -1);
+	String ret = lua_tostring(L, -1);
 	lua_pop(L, 1);
 
 	return ret;

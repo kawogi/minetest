@@ -64,7 +64,7 @@ void Client::handleCommand_Hello(NetworkPacket* pkt)
 	u16 proto_ver;
 	u16 compression_mode;
 	u32 auth_mechs;
-	std::string username_legacy; // for case insensitivity
+	String username_legacy; // for case insensitivity
 	*pkt >> serialization_ver >> compression_mode >> proto_ver
 		>> auth_mechs >> username_legacy;
 
@@ -153,7 +153,7 @@ void Client::handleCommand_AuthAccept(NetworkPacket* pkt)
 	/*~ DO NOT TRANSLATE THIS LITERALLY!
 	This is a special string which needs to contain the translation's
 	language code (e.g. "de" for German). */
-	std::string lang = gettext("LANG_CODE");
+	String lang = gettext("LANG_CODE");
 	if (lang == "LANG_CODE")
 		lang.clear();
 
@@ -273,7 +273,7 @@ void Client::handleCommand_NodemetaChanged(NetworkPacket *pkt)
 		return;
 
 	std::istringstream is(pkt->readLongString(), std::ios::binary);
-	std::stringstream sstr(std::ios::binary | std::ios::in | std::ios::out);
+	Stringstream sstr(std::ios::binary | std::ios::in | std::ios::out);
 	decompressZlib(is, sstr);
 
 	NodeMetadataList meta_updates_list(false);
@@ -302,7 +302,7 @@ void Client::handleCommand_BlockData(NetworkPacket* pkt)
 	v3s16 p;
 	*pkt >> p;
 
-	std::string datastring(pkt->getString(6), pkt->getSize() - 6);
+	String datastring(pkt->getString(6), pkt->getSize() - 6);
 	std::istringstream istr(datastring, std::ios_base::binary);
 
 	MapSector *sector;
@@ -345,7 +345,7 @@ void Client::handleCommand_Inventory(NetworkPacket* pkt)
 	if (pkt->getSize() < 1)
 		return;
 
-	std::string datastring(pkt->getString(0), pkt->getSize());
+	String datastring(pkt->getString(0), pkt->getSize());
 	std::istringstream is(datastring, std::ios_base::binary);
 
 	LocalPlayer *player = m_env.getLocalPlayer();
@@ -499,7 +499,7 @@ void Client::handleCommand_ActiveObjectMessages(NetworkPacket* pkt)
 			string message
 		}
 	*/
-	std::string datastring(pkt->getString(0), pkt->getSize());
+	String datastring(pkt->getString(0), pkt->getSize());
 	std::istringstream is(datastring, std::ios_base::binary);
 
 	try {
@@ -508,7 +508,7 @@ void Client::handleCommand_ActiveObjectMessages(NetworkPacket* pkt)
 			if (!is.good())
 				break;
 
-			std::string message = deSerializeString16(is);
+			String message = deSerializeString16(is);
 
 			// Pass on to the environment
 			m_env.processActiveObjectMessage(id, message);
@@ -678,21 +678,21 @@ void Client::handleCommand_AnnounceMedia(NetworkPacket* pkt)
 	sanity_check(!m_mesh_update_manager->isRunning());
 
 	for (u16 i = 0; i < num_files; i++) {
-		std::string name, sha1_base64;
+		String name, sha1_base64;
 
 		*pkt >> name >> sha1_base64;
 
-		std::string sha1_raw = base64_decode(sha1_base64);
+		String sha1_raw = base64_decode(sha1_base64);
 		m_media_downloader->addFile(name, sha1_raw);
 	}
 
 	{
-		std::string str;
+		String str;
 		*pkt >> str;
 
 		Strfnd sf(str);
 		while (!sf.at_end()) {
-			std::string baseurl = trim(sf.next(","));
+			String baseurl = trim(sf.next(","));
 			if (!baseurl.empty()) {
 				m_remote_media_servers.emplace_back(baseurl);
 				m_media_downloader->addRemoteServer(baseurl);
@@ -739,7 +739,7 @@ void Client::handleCommand_Media(NetworkPacket* pkt)
 	}
 
 	for (u32 i = 0; i < num_files; i++) {
-		std::string name, data;
+		String name, data;
 
 		*pkt >> name;
 		data = pkt->readLongString();
@@ -776,7 +776,7 @@ void Client::handleCommand_NodeDef(NetworkPacket* pkt)
 
 	// Decompress node definitions
 	std::istringstream tmp_is(pkt->readLongString(), std::ios::binary);
-	std::stringstream tmp_os(std::ios::binary | std::ios::in | std::ios::out);
+	Stringstream tmp_os(std::ios::binary | std::ios::in | std::ios::out);
 	decompressZlib(tmp_is, tmp_os);
 
 	// Deserialize node definitions
@@ -795,7 +795,7 @@ void Client::handleCommand_ItemDef(NetworkPacket* pkt)
 
 	// Decompress item definitions
 	std::istringstream tmp_is(pkt->readLongString(), std::ios::binary);
-	std::stringstream tmp_os(std::ios::binary | std::ios::in | std::ios::out);
+	Stringstream tmp_os(std::ios::binary | std::ios::in | std::ios::out);
 	decompressZlib(tmp_is, tmp_os);
 
 	// Deserialize node definitions
@@ -919,7 +919,7 @@ void Client::handleCommand_Privileges(NetworkPacket* pkt)
 	*pkt >> num_privileges;
 
 	for (u16 i = 0; i < num_privileges; i++) {
-		std::string priv;
+		String priv;
 
 		*pkt >> priv;
 
@@ -940,7 +940,7 @@ void Client::handleCommand_InventoryFormSpec(NetworkPacket* pkt)
 
 void Client::handleCommand_DetachedInventory(NetworkPacket* pkt)
 {
-	std::string name;
+	String name;
 	bool keep_inv = true;
 	*pkt >> name >> keep_inv;
 
@@ -966,15 +966,15 @@ void Client::handleCommand_DetachedInventory(NetworkPacket* pkt)
 	u16 ignore;
 	*pkt >> ignore; // this used to be the length of the following string, ignore it
 
-	std::string contents(pkt->getRemainingString(), pkt->getRemainingBytes());
+	String contents(pkt->getRemainingString(), pkt->getRemainingBytes());
 	std::istringstream is(contents, std::ios::binary);
 	inv->deSerialize(is);
 }
 
 void Client::handleCommand_ShowFormSpec(NetworkPacket* pkt)
 {
-	std::string formspec = pkt->readLongString();
-	std::string formname;
+	String formspec = pkt->readLongString();
+	String formname;
 
 	*pkt >> formname;
 
@@ -982,14 +982,14 @@ void Client::handleCommand_ShowFormSpec(NetworkPacket* pkt)
 	event->type = CE_SHOW_FORMSPEC;
 	// pointer is required as event is a struct only!
 	// adding a std:string to a struct isn't possible
-	event->show_formspec.formspec = new std::string(formspec);
-	event->show_formspec.formname = new std::string(formname);
+	event->show_formspec.formspec = new String(formspec);
+	event->show_formspec.formname = new String(formname);
 	m_client_event_queue.push(event);
 }
 
 void Client::handleCommand_SpawnParticle(NetworkPacket* pkt)
 {
-	std::string datastring(pkt->getString(0), pkt->getSize());
+	String datastring(pkt->getString(0), pkt->getSize());
 	std::istringstream is(datastring, std::ios_base::binary);
 
 	ParticleParameters p;
@@ -1004,7 +1004,7 @@ void Client::handleCommand_SpawnParticle(NetworkPacket* pkt)
 
 void Client::handleCommand_AddParticleSpawner(NetworkPacket* pkt)
 {
-	std::string datastring(pkt->getString(0), pkt->getSize());
+	String datastring(pkt->getString(0), pkt->getSize());
 	std::istringstream is(datastring, std::ios_base::binary);
 
 	ParticleSpawnerParameters p;
@@ -1148,9 +1148,9 @@ void Client::handleCommand_HudAdd(NetworkPacket* pkt)
 	u32 server_id;
 	u8 type;
 	v2f pos;
-	std::string name;
+	String name;
 	v2f scale;
-	std::string text;
+	String text;
 	u32 number;
 	u32 item;
 	u32 dir;
@@ -1159,7 +1159,7 @@ void Client::handleCommand_HudAdd(NetworkPacket* pkt)
 	v3f world_pos;
 	v2s32 size;
 	s16 z_index = 0;
-	std::string text2;
+	String text2;
 	u32 style = 0;
 
 	*pkt >> server_id >> type >> pos >> name >> scale >> text >> number >> item
@@ -1208,7 +1208,7 @@ void Client::handleCommand_HudRemove(NetworkPacket* pkt)
 
 void Client::handleCommand_HudChange(NetworkPacket* pkt)
 {
-	std::string sdata;
+	String sdata;
 	v2f v2fdata;
 	v3f v3fdata;
 	u32 intdata = 0;
@@ -1295,7 +1295,7 @@ void Client::handleCommand_HudSetFlags(NetworkPacket* pkt)
 
 void Client::handleCommand_HudSetParam(NetworkPacket* pkt)
 {
-	u16 param; std::string value;
+	u16 param; String value;
 
 	*pkt >> param >> value;
 
@@ -1320,12 +1320,12 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 	if (m_proto_ver < 39) {
 		// Handle Protocol 38 and below servers with old set_sky,
 		// ensuring the classic look is kept.
-		std::string datastring(pkt->getString(0), pkt->getSize());
+		String datastring(pkt->getString(0), pkt->getSize());
 		std::istringstream is(datastring, std::ios_base::binary);
 
 		SkyboxParams skybox;
 		skybox.bgcolor = video::SColor(readARGB8(is));
-		skybox.type = std::string(deSerializeString16(is));
+		skybox.type = String(deSerializeString16(is));
 		u16 count = readU16(is);
 
 		for (size_t i = 0; i < count; i++)
@@ -1377,7 +1377,7 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 	} else {
 		SkyboxParams skybox;
 		u16 texture_count;
-		std::string texture;
+		String texture;
 
 		*pkt >> skybox.bgcolor >> skybox.type >> skybox.clouds >>
 			skybox.fog_sun_tint >> skybox.fog_moon_tint >> skybox.fog_tint_type;
@@ -1533,7 +1533,7 @@ void Client::handleCommand_UpdatePlayerList(NetworkPacket* pkt)
 	PlayerListModifer notice_type = (PlayerListModifer) type;
 
 	for (u16 i = 0; i < num_players; i++) {
-		std::string name;
+		String name;
 		*pkt >> name;
 		switch (notice_type) {
 		case PLAYER_LIST_INIT:
@@ -1560,8 +1560,8 @@ void Client::handleCommand_SrpBytesSandB(NetworkPacket* pkt)
 	char *bytes_M = 0;
 	size_t len_M = 0;
 	SRPUser *usr = (SRPUser *) m_auth_data;
-	std::string s;
-	std::string B;
+	String s;
+	String B;
 	*pkt >> s >> B;
 
 	infostream << "Client: Received TOCLIENT_SRP_BYTES_S_B." << std::endl;
@@ -1576,7 +1576,7 @@ void Client::handleCommand_SrpBytesSandB(NetworkPacket* pkt)
 	}
 
 	NetworkPacket resp_pkt(TOSERVER_SRP_BYTES_M, 0);
-	resp_pkt << std::string(bytes_M, len_M);
+	resp_pkt << String(bytes_M, len_M);
 	Send(&resp_pkt);
 }
 
@@ -1611,7 +1611,7 @@ void Client::handleCommand_PlayerSpeed(NetworkPacket *pkt)
 
 void Client::handleCommand_MediaPush(NetworkPacket *pkt)
 {
-	std::string raw_hash, filename, filedata;
+	String raw_hash, filename, filedata;
 	u32 token;
 	bool cached;
 
@@ -1637,7 +1637,7 @@ void Client::handleCommand_MediaPush(NetworkPacket *pkt)
 	if (!filedata.empty()) {
 		// LEGACY CODEPATH
 		// Compute and check checksum of data
-		std::string computed_hash;
+		String computed_hash;
 		{
 			SHA1 ctx;
 			ctx.addBytes(filedata.c_str(), filedata.size());
@@ -1675,7 +1675,7 @@ void Client::handleCommand_MediaPush(NetworkPacket *pkt)
 
 void Client::handleCommand_ModChannelMsg(NetworkPacket *pkt)
 {
-	std::string channel_name, sender, channel_msg;
+	String channel_name, sender, channel_msg;
 	*pkt >> channel_name >> sender >> channel_msg;
 
 	verbosestream << "Mod channel message received from server " << pkt->getPeerId()
@@ -1695,7 +1695,7 @@ void Client::handleCommand_ModChannelSignal(NetworkPacket *pkt)
 {
 	u8 signal_tmp;
 	ModChannelSignal signal;
-	std::string channel;
+	String channel;
 
 	*pkt >> signal_tmp >> channel;
 
@@ -1773,9 +1773,9 @@ void Client::handleCommand_MinimapModes(NetworkPacket *pkt)
 
 	for (size_t index = 0; index < count; index++) {
 		u16 type;
-		std::string label;
+		String label;
 		u16 size;
-		std::string texture;
+		String texture;
 		u16 scale;
 
 		*pkt >> type >> label >> size >> texture >> scale;

@@ -57,7 +57,7 @@ int MetaDataRef::l_contains(lua_State *L)
 	MAP_LOCK_REQUIRED;
 
 	MetaDataRef *ref = checkAnyMetadata(L, 1);
-	std::string name = luaL_checkstring(L, 2);
+	String name = luaL_checkstring(L, 2);
 
 	IMetadata *meta = ref->getmeta(false);
 	if (meta == NULL)
@@ -73,13 +73,13 @@ int MetaDataRef::l_get(lua_State *L)
 	MAP_LOCK_REQUIRED;
 
 	MetaDataRef *ref = checkAnyMetadata(L, 1);
-	std::string name = luaL_checkstring(L, 2);
+	String name = luaL_checkstring(L, 2);
 
 	IMetadata *meta = ref->getmeta(false);
 	if (meta == NULL)
 		return 0;
 
-	std::string str;
+	String str;
 	if (meta->getStringToRef(name, str)) {
 		lua_pushlstring(L, str.c_str(), str.size());
 	} else {
@@ -94,7 +94,7 @@ int MetaDataRef::l_get_string(lua_State *L)
 	MAP_LOCK_REQUIRED;
 
 	MetaDataRef *ref = checkAnyMetadata(L, 1);
-	std::string name = luaL_checkstring(L, 2);
+	String name = luaL_checkstring(L, 2);
 
 	IMetadata *meta = ref->getmeta(false);
 	if (meta == NULL) {
@@ -102,8 +102,8 @@ int MetaDataRef::l_get_string(lua_State *L)
 		return 1;
 	}
 
-	std::string str_;
-	const std::string &str = meta->getString(name, &str_);
+	String str_;
+	const String &str = meta->getString(name, &str_);
 	lua_pushlstring(L, str.c_str(), str.size());
 	return 1;
 }
@@ -114,10 +114,10 @@ int MetaDataRef::l_set_string(lua_State *L)
 	MAP_LOCK_REQUIRED;
 
 	MetaDataRef *ref = checkAnyMetadata(L, 1);
-	std::string name = luaL_checkstring(L, 2);
+	String name = luaL_checkstring(L, 2);
 	size_t len = 0;
 	const char *s = lua_tolstring(L, 3, &len);
-	std::string str(s, len);
+	String str(s, len);
 
 	IMetadata *meta = ref->getmeta(!str.empty());
 	if (meta != NULL && meta->setString(name, str))
@@ -131,7 +131,7 @@ int MetaDataRef::l_get_int(lua_State *L)
 	MAP_LOCK_REQUIRED;
 
 	MetaDataRef *ref = checkAnyMetadata(L, 1);
-	std::string name = luaL_checkstring(L, 2);
+	String name = luaL_checkstring(L, 2);
 
 	IMetadata *meta = ref->getmeta(false);
 	if (meta == NULL) {
@@ -139,8 +139,8 @@ int MetaDataRef::l_get_int(lua_State *L)
 		return 1;
 	}
 
-	std::string str_;
-	const std::string &str = meta->getString(name, &str_);
+	String str_;
+	const String &str = meta->getString(name, &str_);
 	lua_pushnumber(L, stoi(str));
 	return 1;
 }
@@ -151,9 +151,9 @@ int MetaDataRef::l_set_int(lua_State *L)
 	MAP_LOCK_REQUIRED;
 
 	MetaDataRef *ref = checkAnyMetadata(L, 1);
-	std::string name = luaL_checkstring(L, 2);
+	String name = luaL_checkstring(L, 2);
 	int a = luaL_checkint(L, 3);
-	std::string str = itos(a);
+	String str = itos(a);
 
 	IMetadata *meta = ref->getmeta(true);
 	if (meta != NULL && meta->setString(name, str))
@@ -167,7 +167,7 @@ int MetaDataRef::l_get_float(lua_State *L)
 	MAP_LOCK_REQUIRED;
 
 	MetaDataRef *ref = checkAnyMetadata(L, 1);
-	std::string name = luaL_checkstring(L, 2);
+	String name = luaL_checkstring(L, 2);
 
 	IMetadata *meta = ref->getmeta(false);
 	if (meta == NULL) {
@@ -175,8 +175,8 @@ int MetaDataRef::l_get_float(lua_State *L)
 		return 1;
 	}
 
-	std::string str_;
-	const std::string &str = meta->getString(name, &str_);
+	String str_;
+	const String &str = meta->getString(name, &str_);
 	// Convert with Lua, as is done in set_float.
 	lua_pushlstring(L, str.data(), str.size());
 	lua_pushnumber(L, lua_tonumber(L, -1));
@@ -189,10 +189,10 @@ int MetaDataRef::l_set_float(lua_State *L)
 	MAP_LOCK_REQUIRED;
 
 	MetaDataRef *ref = checkAnyMetadata(L, 1);
-	std::string name = luaL_checkstring(L, 2);
+	String name = luaL_checkstring(L, 2);
 	luaL_checknumber(L, 3);
 	// Convert number to string with Lua as it gives good precision.
-	std::string str = readParam<std::string>(L, 3);
+	String str = readParam<String>(L, 3);
 
 	IMetadata *meta = ref->getmeta(true);
 	if (meta != NULL && meta->setString(name, str))
@@ -213,12 +213,12 @@ int MetaDataRef::l_get_keys(lua_State *L)
 		return 1;
 	}
 
-	std::vector<std::string> keys_;
-	const std::vector<std::string> &keys = meta->getKeys(&keys_);
+	std::vector<String> keys_;
+	const std::vector<String> &keys = meta->getKeys(&keys_);
 
 	int i = 0;
 	lua_createtable(L, keys.size(), 0);
-	for (const std::string &key : keys) {
+	for (const String &key : keys) {
 		lua_pushlstring(L, key.c_str(), key.size());
 		lua_rawseti(L, -2, ++i);
 	}
@@ -280,8 +280,8 @@ void MetaDataRef::handleToTable(lua_State *L, IMetadata *meta)
 		StringMap fields_;
 		const StringMap &fields = meta->getStrings(&fields_);
 		for (const auto &field : fields) {
-			const std::string &name = field.first;
-			const std::string &value = field.second;
+			const String &name = field.first;
+			const String &value = field.second;
 			lua_pushlstring(L, name.c_str(), name.size());
 			lua_pushlstring(L, value.c_str(), value.size());
 			lua_settable(L, -3);
@@ -299,10 +299,10 @@ bool MetaDataRef::handleFromTable(lua_State *L, int table, IMetadata *meta)
 		lua_pushnil(L);
 		while (lua_next(L, fieldstable) != 0) {
 			// key at index -2 and value at index -1
-			std::string name = readParam<std::string>(L, -2);
+			String name = readParam<String>(L, -2);
 			size_t cl;
 			const char *cs = lua_tolstring(L, -1, &cl);
-			meta->setString(name, std::string(cs, cl));
+			meta->setString(name, String(cs, cl));
 			lua_pop(L, 1); // Remove value, keep key for next iteration
 		}
 		lua_pop(L, 1);

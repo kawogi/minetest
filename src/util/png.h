@@ -24,4 +24,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 /*	Simple PNG encoder. Encodes an RGBA image with no predictors.
 	Returns a binary string. */
-std::string encodePNG(const u8 *data, u32 width, u32 height, s32 compression);
+String encodePNG(const u8 *data, u32 width, u32 height, s32 compression);

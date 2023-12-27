@@ -315,7 +315,7 @@ bool Schematic::deserializeFromMts(std::istream *is)
 
 	u16 nidmapcount = readU16(ss);
 	for (int i = 0; i != nidmapcount; i++) {
-		std::string name = deSerializeString16(ss);
+		String name = deSerializeString16(ss);
 
 		// Instances of "ignore" from v1 are converted to air (and instances
 		// are fixed to have MTSCHEM_PROB_NEVER later on).
@@ -337,7 +337,7 @@ bool Schematic::deserializeFromMts(std::istream *is)
 	delete []schemdata;
 	schemdata = new MapNode[nodecount];
 
-	std::stringstream d_ss(std::ios_base::binary | std::ios_base::in | std::ios_base::out);
+	Stringstream d_ss(std::ios_base::binary | std::ios_base::in | std::ios_base::out);
 	decompress(ss, d_ss, MTSCHEM_MAPNODE_SER_FMT_VER);
 	MapNode::deSerializeBulk(d_ss, MTSCHEM_MAPNODE_SER_FMT_VER, schemdata,
 		nodecount, 2, 2);
@@ -397,7 +397,7 @@ bool Schematic::serializeToLua(std::ostream *os, bool use_comments,
 {
 	std::ostream &ss = *os;
 
-	std::string indent("\t");
+	String indent("\t");
 	if (indent_spaces > 0)
 		indent.assign(indent_spaces, ' ');
 
@@ -482,7 +482,7 @@ bool Schematic::serializeToLua(std::ostream *os, bool use_comments,
 }
 
 
-bool Schematic::loadSchematicFromFile(const std::string &filename,
+bool Schematic::loadSchematicFromFile(const String &filename,
 	const NodeDefManager *ndef, StringMap *replace_names)
 {
 	std::ifstream is(filename.c_str(), std::ios_base::binary);
@@ -501,7 +501,7 @@ bool Schematic::loadSchematicFromFile(const std::string &filename,
 	name = filename;
 
 	if (replace_names) {
-		for (std::string &node_name : m_nodenames) {
+		for (String &node_name : m_nodenames) {
 			StringMap::iterator it = replace_names->find(node_name);
 			if (it != replace_names->end())
 				node_name = it->second;
@@ -515,7 +515,7 @@ bool Schematic::loadSchematicFromFile(const std::string &filename,
 }
 
 
-bool Schematic::saveSchematicToFile(const std::string &filename,
+bool Schematic::saveSchematicToFile(const String &filename,
 	const NodeDefManager *ndef)
 {
 	Schematic *schem = this;

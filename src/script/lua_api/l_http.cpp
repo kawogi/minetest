@@ -48,7 +48,7 @@ void ModApiHttp::read_http_fetch_request(lua_State *L, HTTPFetchRequest &req)
 
 	lua_getfield(L, 1, "method");
 	if (lua_isstring(L, -1)) {
-		std::string mth = getstringfield_default(L, 1, "method", "");
+		String mth = getstringfield_default(L, 1, "method", "");
 		if (mth == "GET")
 			req.method = HTTP_GET;
 		else if (mth == "POST")
@@ -73,11 +73,11 @@ void ModApiHttp::read_http_fetch_request(lua_State *L, HTTPFetchRequest &req)
 	if (lua_istable(L, 2)) {
 		lua_pushnil(L);
 		while (lua_next(L, 2) != 0) {
-			req.fields[readParam<std::string>(L, -2)] = readParam<std::string>(L, -1);
+			req.fields[readParam<String>(L, -2)] = readParam<String>(L, -1);
 			lua_pop(L, 1);
 		}
 	} else if (lua_isstring(L, 2)) {
-		req.raw_data = readParam<std::string>(L, 2);
+		req.raw_data = readParam<String>(L, 2);
 	}
 
 	lua_pop(L, 1);
@@ -86,7 +86,7 @@ void ModApiHttp::read_http_fetch_request(lua_State *L, HTTPFetchRequest &req)
 	if (lua_istable(L, 2)) {
 		lua_pushnil(L);
 		while (lua_next(L, 2) != 0) {
-			req.extra_headers.emplace_back(readParam<std::string>(L, -1));
+			req.extra_headers.emplace_back(readParam<String>(L, -1));
 			lua_pop(L, 1);
 		}
 	}
@@ -133,9 +133,9 @@ int ModApiHttp::l_http_fetch_async(lua_State *L)
 	httpfetch_async(req);
 
 	// Convert handle to hex string since lua can't handle 64-bit integers
-	std::stringstream handle_conversion_stream;
+	Stringstream handle_conversion_stream;
 	handle_conversion_stream << std::hex << req.caller;
-	std::string caller_handle(handle_conversion_stream.str());
+	String caller_handle(handle_conversion_stream.str());
 
 	lua_pushstring(L, caller_handle.c_str());
 	return 1;
@@ -146,11 +146,11 @@ int ModApiHttp::l_http_fetch_async_get(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 
-	std::string handle_str = luaL_checkstring(L, 1);
+	String handle_str = luaL_checkstring(L, 1);
 
 	// Convert hex string back to 64-bit handle
 	u64 handle;
-	std::stringstream handle_conversion_stream;
+	Stringstream handle_conversion_stream;
 	handle_conversion_stream << std::hex << handle_str;
 	handle_conversion_stream >> handle;
 

@@ -557,7 +557,7 @@ class Peer {
 		virtual void reportRTT(float rtt) {};
 
 		void RTTStatistics(float rtt,
-							const std::string &profiler_id = "",
+							const String &profiler_id = "",
 							unsigned int num_samples = 1000);
 
 		bool IncUseCount();
@@ -722,7 +722,7 @@ public:
 	float getPeerStat(session_t peer_id, rtt_stat_type type);
 	float getLocalStat(rate_stat_type type);
 	u32 GetProtocolID() const { return m_protocol_id; };
-	const std::string getDesc();
+	const String getDesc();
 	void DisconnectPeer(session_t peer_id);
 
 protected:

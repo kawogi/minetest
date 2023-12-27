@@ -137,7 +137,7 @@ void TestLua::testCxxExceptions()
 	});
 
 	int caught = 0;
-	std::string errmsg;
+	String errmsg;
 	try {
 		if (lua_pcall(L, 0, 0, 0) != 0) {
 			caught = 2;
@@ -151,5 +151,5 @@ void TestLua::testCxxExceptions()
 		lua_close(L);
 
 	UASSERTEQ(int, caught, 2);
-	UASSERT(errmsg.find("example") != std::string::npos);
+	UASSERT(errmsg.find("example") != String::npos);
 }

@@ -51,7 +51,7 @@ public:
 	bool isIPv6() const { return m_addr_family == AF_INET6; }
 	bool isZero() const;
 	void print(std::ostream &s) const;
-	std::string serializeString() const;
+	String serializeString() const;
 	bool isLocalhost() const;
 
 	// Resolve() may throw ResolveError (address is unchanged in this case)

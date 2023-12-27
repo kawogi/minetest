@@ -42,7 +42,7 @@ namespace fs
 #include <sys/wait.h>
 #include <unistd.h>
 
-std::vector<DirListNode> GetDirListing(const std::string &pathstring)
+std::vector<DirListNode> GetDirListing(const String &pathstring)
 {
 	std::vector<DirListNode> listing;
 
@@ -95,7 +95,7 @@ std::vector<DirListNode> GetDirListing(const std::string &pathstring)
 	return listing;
 }
 
-bool CreateDir(const std::string &path)
+bool CreateDir(const String &path)
 {
 	int r = mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	if (r == 0) {
@@ -109,18 +109,18 @@ bool CreateDir(const std::string &path)
 
 }
 
-bool PathExists(const std::string &path)
+bool PathExists(const String &path)
 {
 	struct stat st{};
 	return (stat(path.c_str(),&st) == 0);
 }
 
-bool IsPathAbsolute(const std::string &path)
+bool IsPathAbsolute(const String &path)
 {
 	return path[0] == '/';
 }
 
-bool IsDir(const std::string &path)
+bool IsDir(const String &path)
 {
 	struct stat statbuf{};
 	if(stat(path.c_str(), &statbuf))
@@ -128,7 +128,7 @@ bool IsDir(const std::string &path)
 	return ((statbuf.st_mode & S_IFDIR) == S_IFDIR);
 }
 
-bool IsExecutable(const std::string &path)
+bool IsExecutable(const String &path)
 {
 	return access(path.c_str(), X_OK) == 0;
 }
@@ -138,7 +138,7 @@ bool IsDirDelimiter(char c)
 	return c == '/';
 }
 
-bool RecursiveDelete(const std::string &path)
+bool RecursiveDelete(const String &path)
 {
 	/*
 		Execute the 'rm' command directly, by fork() and execve()
@@ -178,7 +178,7 @@ bool RecursiveDelete(const std::string &path)
 	}
 }
 
-bool DeleteSingleFileOrEmptyDirectory(const std::string &path)
+bool DeleteSingleFileOrEmptyDirectory(const String &path)
 {
 	if (IsDir(path)) {
 		bool did = (rmdir(path.c_str()) == 0);
@@ -195,7 +195,7 @@ bool DeleteSingleFileOrEmptyDirectory(const std::string &path)
 	return did;
 }
 
-std::string TempPath()
+String TempPath()
 {
 	/*
 		Should the environment variables TMPDIR, TMP and TEMP
@@ -210,9 +210,9 @@ std::string TempPath()
 	return DIR_DELIM "tmp";
 }
 
-std::string CreateTempFile()
+String CreateTempFile()
 {
-	std::string path = TempPath() + DIR_DELIM "MT_XXXXXX";
+	String path = TempPath() + DIR_DELIM "MT_XXXXXX";
 	int fd = mkstemp(&path[0]); // modifies path
 	if (fd == -1)
 		return "";
@@ -224,7 +224,7 @@ std::string CreateTempFile()
  * portable implementations *
  ****************************/
 
-void GetRecursiveDirs(std::vector<std::string> &dirs, const std::string &dir)
+void GetRecursiveDirs(std::vector<String> &dirs, const String &dir)
 {
 	static const std::set<char> chars_to_ignore = { '_', '.' };
 	if (dir.empty() || !IsDir(dir))
@@ -233,21 +233,21 @@ void GetRecursiveDirs(std::vector<std::string> &dirs, const std::string &dir)
 	fs::GetRecursiveSubPaths(dir, dirs, false, chars_to_ignore);
 }
 
-std::vector<std::string> GetRecursiveDirs(const std::string &dir)
+std::vector<String> GetRecursiveDirs(const String &dir)
 {
-	std::vector<std::string> result;
+	std::vector<String> result;
 	GetRecursiveDirs(result, dir);
 	return result;
 }
 
-void GetRecursiveSubPaths(const std::string &path,
-		  std::vector<std::string> &dst,
+void GetRecursiveSubPaths(const String &path,
+		  std::vector<String> &dst,
 		  bool list_files,
 		  const std::set<char> &ignore)
 {
 	std::vector<DirListNode> content = GetDirListing(path);
 	for (const auto &n : content) {
-		std::string fullpath = path + DIR_DELIM + n.name;
+		String fullpath = path + DIR_DELIM + n.name;
 		if (ignore.count(n.name[0]))
 			continue;
 		if (list_files || n.dir)
@@ -257,14 +257,14 @@ void GetRecursiveSubPaths(const std::string &path,
 	}
 }
 
-bool RecursiveDeleteContent(const std::string &path)
+bool RecursiveDeleteContent(const String &path)
 {
 	infostream<<"Removing content of \""<<path<<"\""<<std::endl;
 	std::vector<DirListNode> list = GetDirListing(path);
 	for (const DirListNode &dln : list) {
 		if(trim(dln.name) == "." || trim(dln.name) == "..")
 			continue;
-		std::string childpath = path + DIR_DELIM + dln.name;
+		String childpath = path + DIR_DELIM + dln.name;
 		bool r = RecursiveDelete(childpath);
 		if(!r) {
 			errorstream << "Removing \"" << childpath << "\" failed" << std::endl;
@@ -274,11 +274,11 @@ bool RecursiveDeleteContent(const std::string &path)
 	return true;
 }
 
-bool CreateAllDirs(const std::string &path)
+bool CreateAllDirs(const String &path)
 {
 
-	std::vector<std::string> tocreate;
-	std::string basepath = path;
+	std::vector<String> tocreate;
+	String basepath = path;
 	while(!PathExists(basepath))
 	{
 		tocreate.push_back(basepath);
@@ -292,7 +292,7 @@ bool CreateAllDirs(const std::string &path)
 	return true;
 }
 
-bool CopyFileContents(const std::string &source, const std::string &target)
+bool CopyFileContents(const String &source, const String &target)
 {
 	FILE *sourcefile = fopen(source.c_str(), "rb");
 	if(sourcefile == NULL){
@@ -346,7 +346,7 @@ bool CopyFileContents(const std::string &source, const std::string &target)
 	return retval;
 }
 
-bool CopyDir(const std::string &source, const std::string &target)
+bool CopyDir(const String &source, const String &target)
 {
 	if(PathExists(source)){
 		if(!PathExists(target)){
@@ -356,8 +356,8 @@ bool CopyDir(const std::string &source, const std::string &target)
 		std::vector<DirListNode> content = fs::GetDirListing(source);
 
 		for (const auto &dln : content) {
-			std::string sourcechild = source + DIR_DELIM + dln.name;
-			std::string targetchild = target + DIR_DELIM + dln.name;
+			String sourcechild = source + DIR_DELIM + dln.name;
+			String targetchild = target + DIR_DELIM + dln.name;
 			if(dln.dir){
 				if(!fs::CopyDir(sourcechild, targetchild)){
 					retval = false;
@@ -375,7 +375,7 @@ bool CopyDir(const std::string &source, const std::string &target)
 	return false;
 }
 
-bool MoveDir(const std::string &source, const std::string &target)
+bool MoveDir(const String &source, const String &target)
 {
 	infostream << "Moving \"" << source << "\" to \"" << target << "\"" << std::endl;
 
@@ -399,7 +399,7 @@ bool MoveDir(const std::string &source, const std::string &target)
 	return retval;
 }
 
-bool PathStartsWith(const std::string &path, const std::string &prefix)
+bool PathStartsWith(const String &path, const String &prefix)
 {
 	size_t pathsize = path.size();
 	size_t pathpos = 0;
@@ -449,8 +449,8 @@ bool PathStartsWith(const std::string &path, const std::string &prefix)
 	}
 }
 
-std::string RemoveLastPathComponent(const std::string &path,
-		std::string *removed, int count)
+String RemoveLastPathComponent(const String &path,
+		String *removed, int count)
 {
 	if(removed)
 		removed->clear();
@@ -470,7 +470,7 @@ std::string RemoveLastPathComponent(const std::string &path,
 		while(remaining != 0 && IsDirDelimiter(path[remaining-1]))
 			remaining--;
 		if(removed){
-			std::string component = path.substr(component_start,
+			String component = path.substr(component_start,
 					component_end - component_start);
 			if(i)
 				*removed = component + DIR_DELIM + *removed;
@@ -481,7 +481,7 @@ std::string RemoveLastPathComponent(const std::string &path,
 	return path.substr(0, remaining);
 }
 
-std::string RemoveRelativePathComponents(std::string path)
+String RemoveRelativePathComponents(String path)
 {
 	size_t pos = path.size();
 	size_t dotdot_count = 0;
@@ -496,7 +496,7 @@ std::string RemoveRelativePathComponents(std::string path)
 			pos--;
 		size_t component_start = pos;
 
-		std::string component = path.substr(component_start,
+		String component = path.substr(component_start,
 				component_end - component_start);
 		bool remove_this_component = false;
 		if (component == ".") {
@@ -514,10 +514,10 @@ std::string RemoveRelativePathComponents(std::string path)
 				pos--;
 			if (component_start == 0) {
 				// We need to remove the delemiter too
-				path = path.substr(component_with_delim_end, std::string::npos);
+				path = path.substr(component_with_delim_end, String::npos);
 			} else {
 				path = path.substr(0, pos) + DIR_DELIM +
-					path.substr(component_with_delim_end, std::string::npos);
+					path.substr(component_with_delim_end, String::npos);
 			}
 			if (pos > 0)
 				pos++;
@@ -534,11 +534,11 @@ std::string RemoveRelativePathComponents(std::string path)
 	return path.substr(0, pos);
 }
 
-std::string AbsolutePath(const std::string &path)
+String AbsolutePath(const String &path)
 {
 	char *abs_path = realpath(path.c_str(), NULL);
 	if (!abs_path) return "";
-	std::string abs_path_str(abs_path);
+	String abs_path_str(abs_path);
 	free(abs_path);
 	return abs_path_str;
 }
@@ -555,9 +555,9 @@ const char *GetFilenameFromPath(const char *path)
 	return filename ? filename + 1 : path;
 }
 
-bool safeWriteToFile(const std::string &path, const std::string &content)
+bool safeWriteToFile(const String &path, const String &content)
 {
-	std::string tmp_file = path + ".~mt";
+	String tmp_file = path + ".~mt";
 
 	// Write to a tmp file
 	bool tmp_success = false;
@@ -594,7 +594,7 @@ bool safeWriteToFile(const std::string &path, const std::string &content)
 	return true;
 }
 
-bool ReadFile(const std::string &path, std::string &out)
+bool ReadFile(const String &path, String &out)
 {
 	std::ifstream is(path, std::ios::binary | std::ios::ate);
 	if (!is.good()) {
@@ -609,7 +609,7 @@ bool ReadFile(const std::string &path, std::string &out)
 	return !is.fail();
 }
 
-bool Rename(const std::string &from, const std::string &to)
+bool Rename(const String &from, const String &to)
 {
 	return rename(from.c_str(), to.c_str()) == 0;
 }

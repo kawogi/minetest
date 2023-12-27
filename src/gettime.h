@@ -47,7 +47,7 @@ inline struct tm mt_localtime()
 }
 
 
-inline std::string getTimestamp()
+inline String getTimestamp()
 {
 	const struct tm tm = mt_localtime();
 	char cs[20]; // YYYY-MM-DD HH:MM:SS + '\0'

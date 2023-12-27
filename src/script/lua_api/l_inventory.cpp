@@ -451,7 +451,7 @@ int ModApiInventory::l_get_inventory(lua_State *L)
 	InventoryLocation loc;
 
 	lua_getfield(L, 1, "type");
-	std::string type = luaL_checkstring(L, -1);
+	String type = luaL_checkstring(L, -1);
 	lua_pop(L, 1);
 
 	if(type == "node"){
@@ -492,7 +492,7 @@ int ModApiInventory::l_create_detached_inventory_raw(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 	const char *name = luaL_checkstring(L, 1);
-	std::string player = readParam<std::string>(L, 2, "");
+	String player = readParam<String>(L, 2, "");
 	if (getServerInventoryMgr(L)->createDetachedInventory(name, getServer(L)->idef(), player) != NULL) {
 		InventoryLocation loc;
 		loc.setDetached(name);
@@ -507,7 +507,7 @@ int ModApiInventory::l_create_detached_inventory_raw(lua_State *L)
 int ModApiInventory::l_remove_detached_inventory_raw(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	const std::string &name = luaL_checkstring(L, 1);
+	const String &name = luaL_checkstring(L, 1);
 	lua_pushboolean(L, getServerInventoryMgr(L)->removeDetachedInventory(name));
 	return 1;
 }

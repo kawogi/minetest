@@ -87,15 +87,15 @@ inline bool ser_ver_supported(s32 v) {
 */
 
 void compressZlib(const u8 *data, size_t data_size, std::ostream &os, int level = -1);
-void compressZlib(const std::string &data, std::ostream &os, int level = -1);
+void compressZlib(const String &data, std::ostream &os, int level = -1);
 void decompressZlib(std::istream &is, std::ostream &os, size_t limit = 0);
 
 void compressZstd(const u8 *data, size_t data_size, std::ostream &os, int level = 0);
-void compressZstd(const std::string &data, std::ostream &os, int level = 0);
+void compressZstd(const String &data, std::ostream &os, int level = 0);
 void decompressZstd(std::istream &is, std::ostream &os);
 
 // These choose between zlib and a self-made one according to version
 void compress(const SharedBuffer<u8> &data, std::ostream &os, u8 version, int level = -1);
-void compress(const std::string &data, std::ostream &os, u8 version, int level = -1);
+void compress(const String &data, std::ostream &os, u8 version, int level = -1);
 void compress(u8 *data, u32 size, std::ostream &os, u8 version, int level = -1);
 void decompress(std::istream &is, std::ostream &os, u8 version);

@@ -65,7 +65,7 @@ PlayerSAO::PlayerSAO(ServerEnvironment *env_, RemotePlayer *player_, session_t p
 		m_armor_groups["immortal"] = 1;
 }
 
-void PlayerSAO::finalize(RemotePlayer *player, const std::set<std::string> &privs)
+void PlayerSAO::finalize(RemotePlayer *player, const std::set<String> &privs)
 {
 	assert(player);
 	m_player = player;
@@ -77,9 +77,9 @@ v3f PlayerSAO::getEyeOffset() const
 	return v3f(0, BS * m_prop.eye_height, 0);
 }
 
-std::string PlayerSAO::getDescription()
+String PlayerSAO::getDescription()
 {
-	return std::string("player ") + m_player->getName();
+	return String("player ") + m_player->getName();
 }
 
 // Called after id has been set and has been inserted in environment
@@ -104,7 +104,7 @@ void PlayerSAO::removingFromEnvironment()
 	}
 }
 
-std::string PlayerSAO::getClientInitializationData(u16 protocol_version)
+String PlayerSAO::getClientInitializationData(u16 protocol_version)
 {
 	std::ostringstream os(std::ios::binary);
 
@@ -139,14 +139,14 @@ std::string PlayerSAO::getClientInitializationData(u16 protocol_version)
 	}
 
 	writeU8(os, message_count);
-	std::string serialized = msg_os.str();
+	String serialized = msg_os.str();
 	os.write(serialized.c_str(), serialized.size());
 
 	// return result
 	return os.str();
 }
 
-void PlayerSAO::getStaticData(std::string * result) const
+void PlayerSAO::getStaticData(String * result) const
 {
 	FATAL_ERROR("This function shall not be called for PlayerSAO");
 }
@@ -184,7 +184,7 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 
 	if (!isImmortal() && m_node_hurt_interval.step(dtime, 1.0f)) {
 		u32 damage_per_second = 0;
-		std::string nodename;
+		String nodename;
 		v3s16 node_pos;
 		// Lowest and highest damage points are 0.1 within collisionbox
 		float dam_top = m_prop.collisionbox.MaxEdge.Y - 0.1f;
@@ -223,7 +223,7 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 
 	if (!m_properties_sent) {
 		m_properties_sent = true;
-		std::string str = getPropertyPacket();
+		String str = getPropertyPacket();
 		// create message and add to list
 		m_messages_out.emplace(getId(), true, str);
 		m_env->getScriptIface()->player_event(this, "properties_changed");
@@ -284,7 +284,7 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 		else
 			pos = m_base_position;
 
-		std::string str = generateUpdatePositionCommand(
+		String str = generateUpdatePositionCommand(
 			pos,
 			v3f(0.0f, 0.0f, 0.0f),
 			v3f(0.0f, 0.0f, 0.0f),
@@ -306,7 +306,7 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 	sendOutdatedData();
 }
 
-std::string PlayerSAO::generateUpdatePhysicsOverrideCommand() const
+String PlayerSAO::generateUpdatePhysicsOverrideCommand() const
 {
 	if (!m_player) {
 		// Will output a format warning client-side
@@ -567,7 +567,7 @@ void PlayerSAO::unlinkPlayerSessionAndSave()
 	m_env->removePlayer(m_player);
 }
 
-std::string PlayerSAO::getPropertyPacket()
+String PlayerSAO::getPropertyPacket()
 {
 	m_prop.is_visible = (true);
 	return generateSetPropertiesCommand(m_prop);

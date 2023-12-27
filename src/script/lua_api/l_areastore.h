@@ -50,7 +50,7 @@ public:
 	AreaStore *as = nullptr;
 
 	LuaAreaStore();
-	LuaAreaStore(const std::string &type);
+	LuaAreaStore(const String &type);
 	~LuaAreaStore();
 
 	// AreaStore()

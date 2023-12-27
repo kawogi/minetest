@@ -40,8 +40,8 @@ class MapDatabase : public Database
 public:
 	virtual ~MapDatabase() = default;
 
-	virtual bool saveBlock(const v3s16 &pos, const std::string &data) = 0;
-	virtual void loadBlock(const v3s16 &pos, std::string *block) = 0;
+	virtual bool saveBlock(const v3s16 &pos, const String &data) = 0;
+	virtual void loadBlock(const v3s16 &pos, String *block) = 0;
 	virtual bool deleteBlock(const v3s16 &pos) = 0;
 
 	static s64 getBlockAsInteger(const v3s16 &pos);
@@ -60,16 +60,16 @@ public:
 
 	virtual void savePlayer(RemotePlayer *player) = 0;
 	virtual bool loadPlayer(RemotePlayer *player, PlayerSAO *sao) = 0;
-	virtual bool removePlayer(const std::string &name) = 0;
-	virtual void listPlayers(std::vector<std::string> &res) = 0;
+	virtual bool removePlayer(const String &name) = 0;
+	virtual void listPlayers(std::vector<String> &res) = 0;
 };
 
 struct AuthEntry
 {
 	u64 id;
-	std::string name;
-	std::string password;
-	std::vector<std::string> privileges;
+	String name;
+	String password;
+	std::vector<String> privileges;
 	s64 last_login;
 };
 
@@ -78,11 +78,11 @@ class AuthDatabase
 public:
 	virtual ~AuthDatabase() = default;
 
-	virtual bool getAuth(const std::string &name, AuthEntry &res) = 0;
+	virtual bool getAuth(const String &name, AuthEntry &res) = 0;
 	virtual bool saveAuth(const AuthEntry &authEntry) = 0;
 	virtual bool createAuth(AuthEntry &authEntry) = 0;
-	virtual bool deleteAuth(const std::string &name) = 0;
-	virtual void listNames(std::vector<std::string> &res) = 0;
+	virtual bool deleteAuth(const String &name) = 0;
+	virtual void listNames(std::vector<String> &res) = 0;
 	virtual void reload() = 0;
 };
 
@@ -91,14 +91,14 @@ class ModStorageDatabase : public Database
 public:
 	virtual ~ModStorageDatabase() = default;
 
-	virtual void getModEntries(const std::string &modname, StringMap *storage) = 0;
-	virtual void getModKeys(const std::string &modname, std::vector<std::string> *storage) = 0;
-	virtual bool hasModEntry(const std::string &modname, const std::string &key) = 0;
-	virtual bool getModEntry(const std::string &modname,
-		const std::string &key, std::string *value) = 0;
-	virtual bool setModEntry(const std::string &modname,
-		const std::string &key, const std::string &value) = 0;
-	virtual bool removeModEntry(const std::string &modname, const std::string &key) = 0;
-	virtual bool removeModEntries(const std::string &modname) = 0;
-	virtual void listMods(std::vector<std::string> *res) = 0;
+	virtual void getModEntries(const String &modname, StringMap *storage) = 0;
+	virtual void getModKeys(const String &modname, std::vector<String> *storage) = 0;
+	virtual bool hasModEntry(const String &modname, const String &key) = 0;
+	virtual bool getModEntry(const String &modname,
+		const String &key, String *value) = 0;
+	virtual bool setModEntry(const String &modname,
+		const String &key, const String &value) = 0;
+	virtual bool removeModEntry(const String &modname, const String &key) = 0;
+	virtual bool removeModEntries(const String &modname) = 0;
+	virtual void listMods(std::vector<String> *res) = 0;
 };

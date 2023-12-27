@@ -52,17 +52,17 @@ public:
 		return m_inventory;
 	}
 
-	inline bool isPrivate(const std::string &name) const
+	inline bool isPrivate(const String &name) const
 	{
 		return m_privatevars.count(name) != 0;
 	}
-	void markPrivate(const std::string &name, bool set);
+	void markPrivate(const String &name, bool set);
 
 private:
 	int countNonPrivate() const;
 
 	Inventory *m_inventory;
-	std::unordered_set<std::string> m_privatevars;
+	std::unordered_set<String> m_privatevars;
 };
 
 

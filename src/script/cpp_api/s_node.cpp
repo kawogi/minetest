@@ -251,7 +251,7 @@ bool ScriptApiNode::node_on_timer(v3s16 p, MapNode node, f32 dtime)
 }
 
 void ScriptApiNode::node_on_receive_fields(v3s16 p,
-		const std::string &formname,
+		const String &formname,
 		const StringMap &fields,
 		ServerActiveObject *sender)
 {
@@ -276,8 +276,8 @@ void ScriptApiNode::node_on_receive_fields(v3s16 p,
 	lua_newtable(L);                     // fields
 	StringMap::const_iterator it;
 	for (it = fields.begin(); it != fields.end(); ++it) {
-		const std::string &name = it->first;
-		const std::string &value = it->second;
+		const String &name = it->first;
+		const String &value = it->second;
 		lua_pushstring(L, name.c_str());
 		lua_pushlstring(L, value.c_str(), value.size());
 		lua_settable(L, -3);

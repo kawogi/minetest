@@ -238,7 +238,7 @@ public:
 	u16 net_proto_version = 0;
 
 	/* Authentication information */
-	std::string enc_pwd = "";
+	String enc_pwd = "";
 	bool create_player_on_auth_success = false;
 	AuthMechanism chosen_mech  = AUTH_MECHANISM_NONE;
 	void *auth_data = nullptr;
@@ -311,9 +311,9 @@ public:
 
 	ClientState getState() const { return m_state; }
 
-	std::string getName() const { return m_name; }
+	String getName() const { return m_name; }
 
-	void setName(const std::string &name) { m_name = name; }
+	void setName(const String &name) { m_name = name; }
 
 	/* update internal client state */
 	void notifyEvent(ClientStateEvent event);
@@ -332,7 +332,7 @@ public:
 	u64 uptime() const;
 
 	/* set version information */
-	void setVersionInfo(u8 major, u8 minor, u8 patch, const std::string &full)
+	void setVersionInfo(u8 major, u8 minor, u8 patch, const String &full)
 	{
 		m_version_major = major;
 		m_version_minor = minor;
@@ -344,10 +344,10 @@ public:
 	u8 getMajor() const { return m_version_major; }
 	u8 getMinor() const { return m_version_minor; }
 	u8 getPatch() const { return m_version_patch; }
-	const std::string &getFullVer() const { return m_full_version; }
+	const String &getFullVer() const { return m_full_version; }
 
-	void setLangCode(const std::string &code) { m_lang_code = code; }
-	const std::string &getLangCode() const { return m_lang_code; }
+	void setLangCode(const String &code) { m_lang_code = code; }
+	const String &getLangCode() const { return m_lang_code; }
 
 	void setCachedAddress(const Address &addr) { m_addr = addr; }
 	const Address &getAddress() const { return m_addr; }
@@ -366,7 +366,7 @@ private:
 	Address m_addr;
 
 	// Client-sent language code
-	std::string m_lang_code;
+	String m_lang_code;
 
 	// Client-sent dynamic info
 	ClientDynamicInfo m_dynamic_info{};
@@ -439,7 +439,7 @@ private:
 	/*
 		name of player using this client
 	*/
-	std::string m_name = "";
+	String m_name = "";
 
 	/*
 		client information
@@ -448,7 +448,7 @@ private:
 	u8 m_version_minor = 0;
 	u8 m_version_patch = 0;
 
-	std::string m_full_version = "unknown";
+	String m_full_version = "unknown";
 
 	u16 m_deployed_compression = 0;
 
@@ -481,7 +481,7 @@ public:
 	bool isUserLimitReached();
 
 	/* get list of client player names */
-	const std::vector<std::string> &getPlayerNames() const { return m_clients_names; }
+	const std::vector<String> &getPlayerNames() const { return m_clients_names; }
 
 	/* send message to client */
 	void send(session_t peer_id, u8 channelnum, NetworkPacket *pkt, bool reliable);
@@ -505,14 +505,14 @@ public:
 	ClientState getClientState(session_t peer_id);
 
 	/* set client playername */
-	void setPlayerName(session_t peer_id, const std::string &name);
+	void setPlayerName(session_t peer_id, const String &name);
 
 	/* get protocol version of client */
 	u16 getProtocolVersion(session_t peer_id);
 
 	/* set client version */
 	void setClientVersion(session_t peer_id, u8 major, u8 minor, u8 patch,
-			const std::string &full);
+			const String &full);
 
 	/* event to update client state */
 	void event(session_t peer_id, ClientStateEvent event);
@@ -524,7 +524,7 @@ public:
 		m_env = env;
 	}
 
-	static std::string state2Name(ClientState state);
+	static String state2Name(ClientState state);
 protected:
 	class AutoLock {
 	public:
@@ -545,7 +545,7 @@ private:
 	std::recursive_mutex m_clients_mutex;
 	// Connected clients (behind the con mutex)
 	RemoteClientMap m_clients;
-	std::vector<std::string> m_clients_names; //for announcing masterserver
+	std::vector<String> m_clients_names; //for announcing masterserver
 
 	// Environment
 	ServerEnvironment *m_env;

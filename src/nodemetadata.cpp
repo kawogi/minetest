@@ -63,8 +63,8 @@ void NodeMetadata::deSerialize(std::istream &is, u8 version)
 	clear();
 	int num_vars = readU32(is);
 	for(int i=0; i<num_vars; i++){
-		std::string name = deSerializeString16(is);
-		std::string var = deSerializeString32(is);
+		String name = deSerializeString16(is);
+		String var = deSerializeString32(is);
 		m_stringvars[name] = var;
 		if (version >= 2) {
 			if (readU8(is) == 1)
@@ -88,7 +88,7 @@ bool NodeMetadata::empty() const
 }
 
 
-void NodeMetadata::markPrivate(const std::string &name, bool set)
+void NodeMetadata::markPrivate(const String &name, bool set)
 {
 	if (set)
 		m_privatevars.insert(name);
@@ -163,7 +163,7 @@ void NodeMetadataList::deSerialize(std::istream &is,
 	}
 
 	if (version > 2) {
-		std::string err_str = std::string(FUNCTION_NAME)
+		String err_str = String(FUNCTION_NAME)
 			+ ": version " + itos(version) + " not supported";
 		infostream << err_str << std::endl;
 		throw SerializationError(err_str);

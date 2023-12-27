@@ -69,16 +69,16 @@ private:
 	static int l_to_table(lua_State *L);
 
 	Settings *m_settings = nullptr;
-	std::string m_filename;
+	String m_filename;
 	bool m_is_own_settings = false;
 	bool m_write_allowed = true;
 
 public:
-	LuaSettings(Settings *settings, const std::string &filename);
-	LuaSettings(const std::string &filename, bool write_allowed);
+	LuaSettings(Settings *settings, const String &filename);
+	LuaSettings(const String &filename, bool write_allowed);
 	~LuaSettings();
 
-	static void create(lua_State *L, Settings *settings, const std::string &filename);
+	static void create(lua_State *L, Settings *settings, const String &filename);
 
 	// LuaSettings(filename)
 	// Creates a LuaSettings and leaves it on top of the stack

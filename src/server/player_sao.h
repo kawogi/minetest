@@ -75,7 +75,7 @@ public:
 
 	ActiveObjectType getType() const override { return ACTIVEOBJECT_TYPE_PLAYER; }
 	ActiveObjectType getSendType() const override { return ACTIVEOBJECT_TYPE_GENERIC; }
-	std::string getDescription() override;
+	String getDescription() override;
 
 	/*
 		Active object <-> environment interface
@@ -85,8 +85,8 @@ public:
 	void removingFromEnvironment() override;
 	bool isStaticAllowed() const override { return false; }
 	bool shouldUnload() const override { return false; }
-	std::string getClientInitializationData(u16 protocol_version) override;
-	void getStaticData(std::string *result) const override;
+	String getClientInitializationData(u16 protocol_version) override;
+	void getStaticData(String *result) const override;
 	void step(float dtime, bool send_recommended) override;
 	void setBasePosition(v3f position);
 	void setPos(const v3f &pos) override;
@@ -130,7 +130,7 @@ public:
 	Inventory *getInventory() const override;
 	InventoryLocation getInventoryLocation() const override;
 	void setInventoryModified() override {}
-	std::string getWieldList() const override { return "main"; }
+	String getWieldList() const override { return "main"; }
 	u16 getWieldIndex() const override;
 	ItemStack getWieldedItem(ItemStack *selected, ItemStack *hand = nullptr) const override;
 	bool setWieldedItem(const ItemStack &item) override;
@@ -168,7 +168,7 @@ public:
 
 	// Other
 
-	void updatePrivileges(const std::set<std::string> &privs, bool is_singleplayer)
+	void updatePrivileges(const std::set<String> &privs, bool is_singleplayer)
 	{
 		m_privs = privs;
 		m_is_singleplayer = is_singleplayer;
@@ -178,7 +178,7 @@ public:
 	bool getSelectionBox(aabb3f *toset) const override;
 	bool collideWithObjects() const override { return true; }
 
-	void finalize(RemotePlayer *player, const std::set<std::string> &privs);
+	void finalize(RemotePlayer *player, const std::set<String> &privs);
 
 	v3f getEyePosition() const { return m_base_position + getEyeOffset(); }
 	v3f getEyeOffset() const;
@@ -187,9 +187,9 @@ public:
 	inline SimpleMetadata &getMeta() { return m_meta; }
 
 private:
-	std::string getPropertyPacket();
+	String getPropertyPacket();
 	void unlinkPlayerSessionAndSave();
-	std::string generateUpdatePhysicsOverrideCommand() const;
+	String generateUpdatePhysicsOverrideCommand() const;
 
 	RemotePlayer *m_player = nullptr;
 	session_t m_peer_id = 0;
@@ -213,7 +213,7 @@ private:
 	bool m_position_not_sent = false;
 
 	// Cached privileges for enforcement
-	std::set<std::string> m_privs;
+	std::set<String> m_privs;
 	bool m_is_singleplayer;
 
 	u16 m_breath = PLAYER_MAX_BREATH_DEFAULT;
@@ -249,12 +249,12 @@ struct PlayerHPChangeReason
 	// For PLAYER_PUNCH
 	ServerActiveObject *object = nullptr;
 	// For NODE_DAMAGE
-	std::string node;
+	String node;
 	v3s16 node_pos;
 
 	inline bool hasLuaReference() const { return lua_reference >= 0; }
 
-	bool setTypeFromString(const std::string &typestr)
+	bool setTypeFromString(const String &typestr)
 	{
 		if (typestr == "set_hp")
 			type = SET_HP;
@@ -274,7 +274,7 @@ struct PlayerHPChangeReason
 		return true;
 	}
 
-	std::string getTypeAsString() const
+	String getTypeAsString() const
 	{
 		switch (type) {
 		case PlayerHPChangeReason::SET_HP:
@@ -302,5 +302,5 @@ struct PlayerHPChangeReason
 	{
 	}
 
-	PlayerHPChangeReason(Type type, std::string node, v3s16 node_pos) : type(type), node(node), node_pos(node_pos) {}
+	PlayerHPChangeReason(Type type, String node, v3s16 node_pos) : type(type), node(node), node_pos(node_pos) {}
 };

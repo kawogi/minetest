@@ -36,11 +36,11 @@ namespace treegen {
 	};
 
 	struct TreeDef {
-		std::string initial_axiom;
-		std::string rules_a;
-		std::string rules_b;
-		std::string rules_c;
-		std::string rules_d;
+		String initial_axiom;
+		String rules_a;
+		String rules_b;
+		String rules_c;
+		String rules_d;
 
 		MapNode trunknode;
 		MapNode leavesnode;
@@ -50,7 +50,7 @@ namespace treegen {
 		int angle;
 		int iterations;
 		int iterations_random_level;
-		std::string trunk_type;
+		String trunk_type;
 		bool thin_branches;
 		MapNode fruitnode;
 		int fruit_chance;

@@ -26,7 +26,7 @@ enum ModChannelSignal : u8;
 class ScriptApiModChannels : virtual public ScriptApiBase
 {
 public:
-	void on_modchannel_message(const std::string &channel, const std::string &sender,
-			const std::string &message);
-	void on_modchannel_signal(const std::string &channel, ModChannelSignal signal);
+	void on_modchannel_message(const String &channel, const String &sender,
+			const String &message);
+	void on_modchannel_signal(const String &channel, ModChannelSignal signal);
 };

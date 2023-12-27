@@ -28,7 +28,7 @@ class ScriptApiServer
 public:
 	// Calls on_chat_message handlers
 	// Returns true if script handled message
-	bool on_chat_message(const std::string &name, const std::string &message);
+	bool on_chat_message(const String &name, const String &message);
 
 	// Calls when mods are loaded
 	void on_mods_loaded();
@@ -37,18 +37,18 @@ public:
 	void on_shutdown();
 
 	// Calls core.format_chat_message
-	std::string formatChatMessage(const std::string &name,
-		const std::string &message);
+	String formatChatMessage(const String &name,
+		const String &message);
 
 	/* auth */
-	bool getAuth(const std::string &playername,
-		std::string *dst_password,
-		std::set<std::string> *dst_privs,
+	bool getAuth(const String &playername,
+		String *dst_password,
+		std::set<String> *dst_privs,
 		s64 *dst_last_login = nullptr);
-	void createAuth(const std::string &playername,
-		const std::string &password);
-	bool setPassword(const std::string &playername,
-		const std::string &password);
+	void createAuth(const String &playername,
+		const String &password);
+	bool setPassword(const String &playername,
+		const String &password);
 
 	/* dynamic media handling */
 	static u32 allocateDynamicMediaCallback(lua_State *L, int f_idx);
@@ -57,5 +57,5 @@ public:
 
 private:
 	void getAuthHandler();
-	void readPrivileges(int index, std::set<std::string> &result);
+	void readPrivileges(int index, std::set<String> &result);
 };

@@ -78,7 +78,7 @@ bool * signal_handler_killstatus();
 /*
 	Path of static data directory.
 */
-extern std::string path_share;
+extern String path_share;
 
 /*
 	Directory for storing user data. Examples:
@@ -86,17 +86,17 @@ extern std::string path_share;
 	Linux: "~/.<PROJECT_NAME>"
 	Mac: "~/Library/Application Support/<PROJECT_NAME>"
 */
-extern std::string path_user;
+extern String path_user;
 
 /*
 	Path to gettext locale files
 */
-extern std::string path_locale;
+extern String path_locale;
 
 /*
 	Path to directory for storing caches.
 */
-extern std::string path_cache;
+extern String path_cache;
 
 /*
 	Gets the path of our executable.
@@ -107,7 +107,7 @@ bool getCurrentExecPath(char *buf, size_t len);
 	Get full path of stuff in data directory.
 	Example: "stone.png" -> "../data/stone.png"
 */
-std::string getDataPath(const char *subpath);
+String getDataPath(const char *subpath);
 
 /*
 	Move cache folder from path_user to the
@@ -124,7 +124,7 @@ void initializePaths();
 	Return system information
 	e.g. "Linux/3.12.7 x86_64"
 */
-std::string get_sysinfo();
+String get_sysinfo();
 
 
 // Monotonic timer
@@ -250,7 +250,7 @@ int mt_snprintf(char *buf, const size_t buf_size, const char *fmt, ...);
  * @param url The URL
  * @return true on success, false on failure
  */
-bool open_url(const std::string &url);
+bool open_url(const String &url);
 
 /**
  * Opens a directory in the default file manager
@@ -260,6 +260,6 @@ bool open_url(const std::string &url);
  * @param path Path to directory
  * @return true on success, false on failure
  */
-bool open_directory(const std::string &path);
+bool open_directory(const String &path);
 
 } // namespace porting

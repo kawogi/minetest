@@ -70,7 +70,7 @@ struct PackedInstr
 		- w/ set_into: string key (no null bytes!)
 		- userdata: name in registry
 	*/
-	std::string sdata;
+	String sdata;
 
 	PackedInstr() : type(0), set_into(0), keep_ref(false), pop(false) {}
 };

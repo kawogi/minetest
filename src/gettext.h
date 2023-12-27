@@ -43,16 +43,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define gettext_noop(String) (String)
 #define N_(String) gettext_noop((String))
 
-void init_gettext(const char *path, const std::string &configured_language,
+void init_gettext(const char *path, const String &configured_language,
 	int argc, char *argv[]);
 
-inline std::string strgettext(const char *str)
+inline String strgettext(const char *str)
 {
 	// We must check here that is not an empty string to avoid trying to translate it
 	return str[0] ? gettext(str) : "";
 }
 
-inline std::string strgettext(const std::string &str)
+inline String strgettext(const String &str)
 {
 	return strgettext(str.c_str());
 }
@@ -62,7 +62,7 @@ inline std::wstring wstrgettext(const char *str)
 	return utf8_to_wide(strgettext(str));
 }
 
-inline std::wstring wstrgettext(const std::string &str)
+inline std::wstring wstrgettext(const String &str)
 {
 	return wstrgettext(str.c_str());
 }
@@ -93,16 +93,16 @@ inline std::wstring fwgettext(const char *src, Args&&... args)
  * @return translated string.
  */
 template <typename ...Args>
-inline std::string fmtgettext(const char *format, Args&&... args)
+inline String fmtgettext(const char *format, Args&&... args)
 {
-	std::string buf;
+	String buf;
 	std::size_t buf_size = 256;
 	buf.resize(buf_size);
 
 	format = gettext(format);
 
 	int len = porting::mt_snprintf(&buf[0], buf_size, format, std::forward<Args>(args)...);
-	if (len <= 0) throw std::runtime_error("gettext format error: " + std::string(format));
+	if (len <= 0) throw std::runtime_error("gettext format error: " + String(format));
 	if ((size_t)len >= buf.size()) {
 		buf.resize(len+1); // extra null byte
 		porting::mt_snprintf(&buf[0], buf.size(), format, std::forward<Args>(args)...);

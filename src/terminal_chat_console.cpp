@@ -84,8 +84,6 @@ void TerminalChatConsole::deInitOfCurses()
 
 void *TerminalChatConsole::run()
 {
-	BEGIN_DEBUG_EXCEPTION_HANDLER
-
 	std::cout << "========================" << std::endl;
 	std::cout << "Begin log output over terminal"
 		<< " (no stdout/stderr backlog during that)" << std::endl;
@@ -125,8 +123,6 @@ void *TerminalChatConsole::run()
 		<< " (no stdout/stderr backlog during that)" << std::endl;
 	std::cout << "========================" << std::endl;
 
-	END_DEBUG_EXCEPTION_HANDLER
-
 	return NULL;
 }
 
@@ -153,7 +149,7 @@ void TerminalChatConsole::handleInput(int ch, bool &complete_redraw_needed)
 	/*if (ch != ERR) {
 		m_chat_backend.addMessage(L"",
 			(std::wstring)L"Pressed key " + utf8_to_wide(
-			std::string(keyname(ch)) + " (code " + itos(ch) + ")"));
+			String(keyname(ch)) + " (code " + itos(ch) + ")"));
 		complete_redraw_needed = true;
 	}//*/
 
@@ -343,7 +339,7 @@ void TerminalChatConsole::step(int ch)
 	}
 	while (!m_log_output.queue.empty()) {
 		complete_redraw_needed = true;
-		std::pair<LogLevel, std::string> p = m_log_output.queue.pop_frontNoEx();
+		std::pair<LogLevel, String> p = m_log_output.queue.pop_frontNoEx();
 		if (p.first > m_log_level)
 			continue;
 
@@ -410,7 +406,7 @@ void TerminalChatConsole::step(int ch)
 	if (!m_esc_mode) {
 		// normal prompt
 		ChatPrompt& prompt = m_chat_backend.getPrompt();
-		std::string prompt_text = wide_to_utf8(prompt.getVisiblePortion());
+		String prompt_text = wide_to_utf8(prompt.getVisiblePortion());
 		move(m_rows - 1, 0);
 		clrtoeol();
 		addstr(prompt_text.c_str());

@@ -50,7 +50,7 @@ SQLite format specification:
 
 #define SQLRES(s, r, m) \
 	if ((s) != (r)) { \
-		throw DatabaseException(std::string(m) + ": " +\
+		throw DatabaseException(String(m) + ": " +\
 				sqlite3_errmsg(m_database)); \
 	}
 #define SQLOK(s, m) SQLRES(s, SQLITE_OK, m)
@@ -114,7 +114,7 @@ int Database_SQLite3::busyHandler(void *data, int count)
 }
 
 
-Database_SQLite3::Database_SQLite3(const std::string &savedir, const std::string &dbname) :
+Database_SQLite3::Database_SQLite3(const String &savedir, const String &dbname) :
 	m_savedir(savedir),
 	m_dbname(dbname)
 {
@@ -140,7 +140,7 @@ void Database_SQLite3::openDatabase()
 {
 	if (m_database) return;
 
-	std::string dbp = m_savedir + DIR_DELIM + m_dbname + ".sqlite";
+	String dbp = m_savedir + DIR_DELIM + m_dbname + ".sqlite";
 
 	// Open the database connection
 
@@ -155,7 +155,7 @@ void Database_SQLite3::openDatabase()
 
 	SQLOK(sqlite3_open_v2(dbp.c_str(), &m_database,
 			SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL),
-		std::string("Failed to open SQLite3 database file ") + dbp);
+		String("Failed to open SQLite3 database file ") + dbp);
 
 	SQLOK(sqlite3_busy_handler(m_database, Database_SQLite3::busyHandler,
 		m_busy_handler_data), "Failed to set SQLite3 busy handler");
@@ -164,7 +164,7 @@ void Database_SQLite3::openDatabase()
 		createDatabase();
 	}
 
-	std::string query_str = std::string("PRAGMA synchronous = ")
+	String query_str = String("PRAGMA synchronous = ")
 			 + itos(g_settings->getU16("sqlite_synchronous"));
 	SQLOK(sqlite3_exec(m_database, query_str.c_str(), NULL, NULL, NULL),
 		"Failed to modify sqlite3 synchronous mode");
@@ -198,7 +198,7 @@ Database_SQLite3::~Database_SQLite3()
  * Map database
  */
 
-MapDatabaseSQLite3::MapDatabaseSQLite3(const std::string &savedir):
+MapDatabaseSQLite3::MapDatabaseSQLite3(const String &savedir):
 	Database_SQLite3(savedir, "map"),
 	MapDatabase()
 {
@@ -258,7 +258,7 @@ bool MapDatabaseSQLite3::deleteBlock(const v3s16 &pos)
 	return good;
 }
 
-bool MapDatabaseSQLite3::saveBlock(const v3s16 &pos, const std::string &data)
+bool MapDatabaseSQLite3::saveBlock(const v3s16 &pos, const String &data)
 {
 	verifyDatabase();
 
@@ -272,7 +272,7 @@ bool MapDatabaseSQLite3::saveBlock(const v3s16 &pos, const std::string &data)
 	return true;
 }
 
-void MapDatabaseSQLite3::loadBlock(const v3s16 &pos, std::string *block)
+void MapDatabaseSQLite3::loadBlock(const v3s16 &pos, String *block)
 {
 	verifyDatabase();
 
@@ -310,7 +310,7 @@ void MapDatabaseSQLite3::listAllLoadableBlocks(std::vector<v3s16> &dst)
  * Player Database
  */
 
-PlayerDatabaseSQLite3::PlayerDatabaseSQLite3(const std::string &savedir):
+PlayerDatabaseSQLite3::PlayerDatabaseSQLite3(const String &savedir):
 	Database_SQLite3(savedir, "players"),
 	PlayerDatabase()
 {
@@ -424,7 +424,7 @@ void PlayerDatabaseSQLite3::initStatements()
 	verbosestream << "ServerEnvironment: SQLite3 database opened (players)." << std::endl;
 }
 
-bool PlayerDatabaseSQLite3::playerDataExists(const std::string &name)
+bool PlayerDatabaseSQLite3::playerDataExists(const String &name)
 {
 	verifyDatabase();
 	str_to_sqlite(m_stmt_player_load, 1, name);
@@ -494,7 +494,7 @@ void PlayerDatabaseSQLite3::savePlayer(RemotePlayer *player)
 			oss.str("");
 			oss.clear();
 			list->getItem(j).serialize(oss);
-			std::string itemStr = oss.str();
+			String itemStr = oss.str();
 
 			str_to_sqlite(m_stmt_player_add_inventory_items, 1, player->getName());
 			int_to_sqlite(m_stmt_player_add_inventory_items, 2, i);
@@ -552,7 +552,7 @@ bool PlayerDatabaseSQLite3::loadPlayer(RemotePlayer *player, PlayerSAO *sao)
 		str_to_sqlite(m_stmt_player_load_inventory_items, 1, player->getName());
 		int_to_sqlite(m_stmt_player_load_inventory_items, 2, invId);
 		while (sqlite3_step(m_stmt_player_load_inventory_items) == SQLITE_ROW) {
-			const std::string itemStr = sqlite_to_string(m_stmt_player_load_inventory_items, 1);
+			const String itemStr = sqlite_to_string(m_stmt_player_load_inventory_items, 1);
 			if (itemStr.length() > 0) {
 				ItemStack stack;
 				stack.deSerialize(itemStr);
@@ -566,8 +566,8 @@ bool PlayerDatabaseSQLite3::loadPlayer(RemotePlayer *player, PlayerSAO *sao)
 
 	str_to_sqlite(m_stmt_player_metadata_load, 1, sao->getPlayer()->getName());
 	while (sqlite3_step(m_stmt_player_metadata_load) == SQLITE_ROW) {
-		std::string attr = sqlite_to_string(m_stmt_player_metadata_load, 0);
-		std::string value = sqlite_to_string(m_stmt_player_metadata_load, 1);
+		String attr = sqlite_to_string(m_stmt_player_metadata_load, 0);
+		String value = sqlite_to_string(m_stmt_player_metadata_load, 1);
 
 		sao->getMeta().setString(attr, value);
 	}
@@ -576,7 +576,7 @@ bool PlayerDatabaseSQLite3::loadPlayer(RemotePlayer *player, PlayerSAO *sao)
 	return true;
 }
 
-bool PlayerDatabaseSQLite3::removePlayer(const std::string &name)
+bool PlayerDatabaseSQLite3::removePlayer(const String &name)
 {
 	if (!playerDataExists(name))
 		return false;
@@ -587,7 +587,7 @@ bool PlayerDatabaseSQLite3::removePlayer(const std::string &name)
 	return true;
 }
 
-void PlayerDatabaseSQLite3::listPlayers(std::vector<std::string> &res)
+void PlayerDatabaseSQLite3::listPlayers(std::vector<String> &res)
 {
 	verifyDatabase();
 
@@ -601,7 +601,7 @@ void PlayerDatabaseSQLite3::listPlayers(std::vector<std::string> &res)
  * Auth database
  */
 
-AuthDatabaseSQLite3::AuthDatabaseSQLite3(const std::string &savedir) :
+AuthDatabaseSQLite3::AuthDatabaseSQLite3(const String &savedir) :
 		Database_SQLite3(savedir, "auth"), AuthDatabase()
 {
 }
@@ -660,7 +660,7 @@ void AuthDatabaseSQLite3::initStatements()
 	PREPARE_STATEMENT(last_insert_rowid, "SELECT last_insert_rowid()");
 }
 
-bool AuthDatabaseSQLite3::getAuth(const std::string &name, AuthEntry &res)
+bool AuthDatabaseSQLite3::getAuth(const String &name, AuthEntry &res)
 {
 	verifyDatabase();
 	str_to_sqlite(m_stmt_read, 1, name);
@@ -722,7 +722,7 @@ bool AuthDatabaseSQLite3::createAuth(AuthEntry &authEntry)
 	return true;
 }
 
-bool AuthDatabaseSQLite3::deleteAuth(const std::string &name)
+bool AuthDatabaseSQLite3::deleteAuth(const String &name)
 {
 	verifyDatabase();
 
@@ -736,7 +736,7 @@ bool AuthDatabaseSQLite3::deleteAuth(const std::string &name)
 	return changes > 0;
 }
 
-void AuthDatabaseSQLite3::listNames(std::vector<std::string> &res)
+void AuthDatabaseSQLite3::listNames(std::vector<String> &res)
 {
 	verifyDatabase();
 
@@ -756,7 +756,7 @@ void AuthDatabaseSQLite3::writePrivileges(const AuthEntry &authEntry)
 	int64_to_sqlite(m_stmt_delete_privs, 1, authEntry.id);
 	sqlite3_vrfy(sqlite3_step(m_stmt_delete_privs), SQLITE_DONE);
 	sqlite3_reset(m_stmt_delete_privs);
-	for (const std::string &privilege : authEntry.privileges) {
+	for (const String &privilege : authEntry.privileges) {
 		int64_to_sqlite(m_stmt_write_privs, 1, authEntry.id);
 		str_to_sqlite(m_stmt_write_privs, 2, privilege);
 		sqlite3_vrfy(sqlite3_step(m_stmt_write_privs), SQLITE_DONE);
@@ -764,7 +764,7 @@ void AuthDatabaseSQLite3::writePrivileges(const AuthEntry &authEntry)
 	}
 }
 
-ModStorageDatabaseSQLite3::ModStorageDatabaseSQLite3(const std::string &savedir):
+ModStorageDatabaseSQLite3::ModStorageDatabaseSQLite3(const String &savedir):
 	Database_SQLite3(savedir, "mod_storage"), ModStorageDatabase()
 {
 }
@@ -809,7 +809,7 @@ void ModStorageDatabaseSQLite3::initStatements()
 	PREPARE_STATEMENT(remove_all, "DELETE FROM `entries` WHERE `modname` = ?");
 }
 
-void ModStorageDatabaseSQLite3::getModEntries(const std::string &modname, StringMap *storage)
+void ModStorageDatabaseSQLite3::getModEntries(const String &modname, StringMap *storage)
 {
 	verifyDatabase();
 
@@ -819,15 +819,15 @@ void ModStorageDatabaseSQLite3::getModEntries(const std::string &modname, String
 		size_t key_len = sqlite3_column_bytes(m_stmt_get_all, 0);
 		const char *value_data = (const char *) sqlite3_column_blob(m_stmt_get_all, 1);
 		size_t value_len = sqlite3_column_bytes(m_stmt_get_all, 1);
-		(*storage)[std::string(key_data, key_len)] = std::string(value_data, value_len);
+		(*storage)[String(key_data, key_len)] = String(value_data, value_len);
 	}
 	sqlite3_vrfy(sqlite3_errcode(m_database), SQLITE_DONE);
 
 	sqlite3_reset(m_stmt_get_all);
 }
 
-void ModStorageDatabaseSQLite3::getModKeys(const std::string &modname,
-		std::vector<std::string> *storage)
+void ModStorageDatabaseSQLite3::getModKeys(const String &modname,
+		std::vector<String> *storage)
 {
 	verifyDatabase();
 
@@ -842,8 +842,8 @@ void ModStorageDatabaseSQLite3::getModKeys(const std::string &modname,
 	sqlite3_reset(m_stmt_get_keys);
 }
 
-bool ModStorageDatabaseSQLite3::getModEntry(const std::string &modname,
-	const std::string &key, std::string *value)
+bool ModStorageDatabaseSQLite3::getModEntry(const String &modname,
+	const String &key, String *value)
 {
 	verifyDatabase();
 
@@ -863,8 +863,8 @@ bool ModStorageDatabaseSQLite3::getModEntry(const std::string &modname,
 	return found;
 }
 
-bool ModStorageDatabaseSQLite3::hasModEntry(const std::string &modname,
-		const std::string &key)
+bool ModStorageDatabaseSQLite3::hasModEntry(const String &modname,
+		const String &key)
 {
 	verifyDatabase();
 
@@ -880,8 +880,8 @@ bool ModStorageDatabaseSQLite3::hasModEntry(const std::string &modname,
 	return found;
 }
 
-bool ModStorageDatabaseSQLite3::setModEntry(const std::string &modname,
-	const std::string &key, const std::string &value)
+bool ModStorageDatabaseSQLite3::setModEntry(const String &modname,
+	const String &key, const String &value)
 {
 	verifyDatabase();
 
@@ -897,8 +897,8 @@ bool ModStorageDatabaseSQLite3::setModEntry(const std::string &modname,
 	return true;
 }
 
-bool ModStorageDatabaseSQLite3::removeModEntry(const std::string &modname,
-		const std::string &key)
+bool ModStorageDatabaseSQLite3::removeModEntry(const String &modname,
+		const String &key)
 {
 	verifyDatabase();
 
@@ -913,7 +913,7 @@ bool ModStorageDatabaseSQLite3::removeModEntry(const std::string &modname,
 	return changes > 0;
 }
 
-bool ModStorageDatabaseSQLite3::removeModEntries(const std::string &modname)
+bool ModStorageDatabaseSQLite3::removeModEntries(const String &modname)
 {
 	verifyDatabase();
 
@@ -926,7 +926,7 @@ bool ModStorageDatabaseSQLite3::removeModEntries(const std::string &modname)
 	return changes > 0;
 }
 
-void ModStorageDatabaseSQLite3::listMods(std::vector<std::string> *res)
+void ModStorageDatabaseSQLite3::listMods(std::vector<String> *res)
 {
 	verifyDatabase();
 
@@ -942,7 +942,7 @@ void ModStorageDatabaseSQLite3::listMods(std::vector<std::string> *res)
 			return 0;
 		}, (void *) res, &errmsg);
 	if (status != SQLITE_OK) {
-		DatabaseException e(std::string("Error trying to list mods with metadata: ") + errmsg);
+		DatabaseException e(String("Error trying to list mods with metadata: ") + errmsg);
 		sqlite3_free(errmsg);
 		throw e;
 	}

@@ -44,11 +44,11 @@ private:
 	virtual void clearMeta();
 
 public:
-	StorageRef(const std::string &mod_name, ModStorageDatabase *db): m_object(mod_name, db) {}
+	StorageRef(const String &mod_name, ModStorageDatabase *db): m_object(mod_name, db) {}
 	~StorageRef() = default;
 
 	static void Register(lua_State *L);
-	static void create(lua_State *L, const std::string &mod_name, ModStorageDatabase *db);
+	static void create(lua_State *L, const String &mod_name, ModStorageDatabase *db);
 
 	static const char className[];
 };

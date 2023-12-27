@@ -49,20 +49,20 @@ public:
 	const char *getString(u32 from_offset);
 	// major difference to putCString(): doesn't write len into the buffer
 	void putRawString(const char *src, u32 len);
-	void putRawString(const std::string &src)
+	void putRawString(const String &src)
 	{
 		putRawString(src.c_str(), src.size());
 	}
 
-	NetworkPacket &operator>>(std::string &dst);
-	NetworkPacket &operator<<(const std::string &src);
+	NetworkPacket &operator>>(String &dst);
+	NetworkPacket &operator<<(const String &src);
 
-	void putLongString(const std::string &src);
+	void putLongString(const String &src);
 
 	NetworkPacket &operator>>(std::wstring &dst);
 	NetworkPacket &operator<<(const std::wstring &src);
 
-	std::string readLongString();
+	String readLongString();
 
 	NetworkPacket &operator>>(char &dst);
 	NetworkPacket &operator<<(char src);

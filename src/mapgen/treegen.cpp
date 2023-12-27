@@ -182,9 +182,9 @@ treegen::error make_ltree(MMVManip &vmanip, v3s16 p0,
 	std::stack <v3f> stack_position;
 
 	//generate axiom
-	std::string axiom = tree_definition.initial_axiom;
+	String axiom = tree_definition.initial_axiom;
 	for (s16 i = 0; i < iterations; i++) {
-		std::string temp;
+		String temp;
 		for (s16 j = 0; j < (s16)axiom.size(); j++) {
 			char axiom_char = axiom.at(j);
 			switch (axiom_char) {

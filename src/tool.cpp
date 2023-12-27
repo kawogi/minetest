@@ -66,7 +66,7 @@ void ToolCapabilities::serialize(std::ostream &os, u16 protocol_version) const
 	writeS16(os, max_drop_level);
 	writeU32(os, groupcaps.size());
 	for (const auto &groupcap : groupcaps) {
-		const std::string *name = &groupcap.first;
+		const String *name = &groupcap.first;
 		const ToolGroupCap *cap = &groupcap.second;
 		os << serializeString16(*name);
 		writeS16(os, cap->uses);
@@ -100,7 +100,7 @@ void ToolCapabilities::deSerialize(std::istream &is)
 	groupcaps.clear();
 	u32 groupcaps_size = readU32(is);
 	for (u32 i = 0; i < groupcaps_size; i++) {
-		std::string name = deSerializeString16(is);
+		String name = deSerializeString16(is);
 		ToolGroupCap cap;
 		cap.uses = readS16(is);
 		cap.maxlevel = readS16(is);
@@ -115,7 +115,7 @@ void ToolCapabilities::deSerialize(std::istream &is)
 
 	u32 damage_groups_size = readU32(is);
 	for (u32 i = 0; i < damage_groups_size; i++) {
-		std::string name = deSerializeString16(is);
+		String name = deSerializeString16(is);
 		s16 rating = readS16(is);
 		damageGroups[name] = rating;
 	}
@@ -267,7 +267,7 @@ DigParams getDigParams(const ItemGroupList &groups,
 	bool result_diggable = false;
 	float result_time = 0.0;
 	u32 result_wear = 0;
-	std::string result_main_group;
+	String result_main_group;
 
 	int level = itemgroup_get(groups, "level");
 	for (const auto &groupcap : tp->groupcaps) {
@@ -277,7 +277,7 @@ DigParams getDigParams(const ItemGroupList &groups,
 		if (leveldiff < 0)
 			continue;
 
-		const std::string &groupname = groupcap.first;
+		const String &groupname = groupcap.first;
 		float time = 0;
 		int rating = itemgroup_get(groups, groupname);
 		bool time_exists = cap.getTime(rating, &time);

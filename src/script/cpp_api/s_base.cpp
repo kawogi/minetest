@@ -50,7 +50,7 @@ class ModNameStorer
 private:
 	lua_State *L;
 public:
-	ModNameStorer(lua_State *L_, const std::string &mod_name):
+	ModNameStorer(lua_State *L_, const String &mod_name):
 		L(L_)
 	{
 		// Store current mod name in registry
@@ -166,7 +166,7 @@ int ScriptApiBase::luaPanic(lua_State *L)
 {
 	std::ostringstream oss;
 	oss << "LUA PANIC: unprotected error in call to Lua API ("
-		<< readParam<std::string>(L, -1) << ")";
+		<< readParam<String>(L, -1) << ")";
 	FATAL_ERROR(oss.str().c_str());
 	// NOTREACHED
 	return 0;
@@ -174,7 +174,7 @@ int ScriptApiBase::luaPanic(lua_State *L)
 
 void ScriptApiBase::clientOpenLibs(lua_State *L)
 {
-	static const std::vector<std::pair<std::string, lua_CFunction>> m_libs = {
+	static const std::vector<std::pair<String, lua_CFunction>> m_libs = {
 		{ "", luaopen_base },
 		{ LUA_TABLIBNAME,  luaopen_table   },
 		{ LUA_OSLIBNAME,   luaopen_os      },
@@ -216,15 +216,15 @@ void ScriptApiBase::checkSetByBuiltin()
 	}
 }
 
-void ScriptApiBase::loadMod(const std::string &script_path,
-		const std::string &mod_name)
+void ScriptApiBase::loadMod(const String &script_path,
+		const String &mod_name)
 {
 	ModNameStorer mod_name_storer(getStack(), mod_name);
 
 	loadScript(script_path);
 }
 
-void ScriptApiBase::loadScript(const std::string &script_path)
+void ScriptApiBase::loadScript(const String &script_path)
 {
 	verbosestream << "Loading and running script from " << script_path << std::endl;
 
@@ -298,7 +298,7 @@ void ScriptApiBase::realityCheck()
 	if (top >= 30) {
 		dstream << "Stack is over 30:" << std::endl;
 		stackDump(dstream);
-		std::string traceback = script_get_backtrace(m_luastack);
+		String traceback = script_get_backtrace(m_luastack);
 		throw LuaError("Stack is over 30 (reality check)\n" + traceback);
 	}
 }
@@ -315,7 +315,7 @@ void ScriptApiBase::stackDump(std::ostream &o)
 		int t = lua_type(m_luastack, i);
 		switch (t) {
 			case LUA_TSTRING:  /* strings */
-				o << "\"" << readParam<std::string>(m_luastack, i) << "\"";
+				o << "\"" << readParam<String>(m_luastack, i) << "\"";
 				break;
 			case LUA_TBOOLEAN:  /* booleans */
 				o << (readParam<bool>(m_luastack, i) ? "true" : "false");

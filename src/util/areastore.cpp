@@ -102,7 +102,7 @@ void AreaStore::deserialize(std::istream &is)
 		a.minedge = readV3S16(is);
 		a.maxedge = readV3S16(is);
 		u16 data_len = readU16(is);
-		a.data = std::string(data_len, '\0');
+		a.data = String(data_len, '\0');
 		is.read(&a.data[0], data_len);
 		areas.emplace_back(std::move(a));
 	}

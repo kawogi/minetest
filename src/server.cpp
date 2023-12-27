@@ -95,8 +95,6 @@ private:
 
 void *ServerThread::run()
 {
-	BEGIN_DEBUG_EXCEPTION_HANDLER
-
 	/*
 	 * The real business of the server happens on the ServerThread.
 	 * How this works:
@@ -130,8 +128,6 @@ void *ServerThread::run()
 			m_server->setAsyncFatalError(e);
 		}
 	}
-
-	END_DEBUG_EXCEPTION_HANDLER
 
 	return nullptr;
 }
@@ -172,7 +168,7 @@ void Server::ShutdownState::reset()
 	is_requested = false;
 }
 
-void Server::ShutdownState::trigger(float delay, const std::string &msg, bool reconnect)
+void Server::ShutdownState::trigger(float delay, const String &msg, bool reconnect)
 {
 	m_timer = delay;
 	message = msg;
@@ -224,13 +220,13 @@ std::wstring Server::ShutdownState::getShutdownTimerMessage() const
 */
 
 Server::Server(
-		const std::string &path_world,
+		const String &path_world,
 		const SubgameSpec &gamespec,
 		bool simple_singleplayer_mode,
 		Address bind_addr,
 		bool dedicated,
 		ChatInterface *iface,
-		std::string *shutdown_errmsg
+		String *shutdown_errmsg
 	):
 	m_bind_addr(bind_addr),
 	m_path_world(path_world),
@@ -279,9 +275,9 @@ Server::Server(
 			"Latency value (in seconds)");
 
 
-	const std::string aom_types[] = {"reliable", "unreliable"};
+	const String aom_types[] = {"reliable", "unreliable"};
 	for (u32 i = 0; i < ARRLEN(aom_types); i++) {
-		std::string help_str("Number of active object messages generated (");
+		String help_str("Number of active object messages generated (");
 		help_str.append(aom_types[i]).append(")");
 		m_aom_buffer_counter[i] = m_metrics_backend->addCounter(
 				"minetest_core_aom_generated_count", help_str,
@@ -317,7 +313,7 @@ Server::~Server()
 		m_env->saveLoadedPlayers();
 
 		infostream << "Server: Kicking players" << std::endl;
-		std::string kick_msg;
+		String kick_msg;
 		bool reconnect = false;
 		if (isShutdownRequested()) {
 			reconnect = m_shutdown_state.should_reconnect;
@@ -404,7 +400,7 @@ void Server::init()
 				fs::GetFilenameFromPath(m_path_world.c_str()),
 				m_gamespec, false);
 	} catch (const BaseException &e) {
-		throw ServerError(std::string("Failed to initialize world: ") + e.what());
+		throw ServerError(String("Failed to initialize world: ") + e.what());
 	}
 
 	// Create emerge manager
@@ -418,7 +414,7 @@ void Server::init()
 
 	// complain about mods with unsatisfied dependencies
 	if (!m_modmgr->isConsistent()) {
-		std::string error = m_modmgr->getUnsatisfiedModsError();
+		String error = m_modmgr->getUnsatisfiedModsError();
 		throw ServerError(error);
 	}
 
@@ -452,10 +448,10 @@ void Server::init()
 	m_nodedef->updateAliases(m_itemdef);
 
 	// Apply texture overrides from texturepack/override.txt
-	std::vector<std::string> paths;
+	std::vector<String> paths;
 	fs::GetRecursiveDirs(paths, g_settings->get("texture_path"));
 	fs::GetRecursiveDirs(paths, m_gamespec.path + DIR_DELIM + "textures");
-	for (const std::string &path : paths) {
+	for (const String &path : paths) {
 		TextureOverrideSource override_source(path + DIR_DELIM + "override.txt");
 		m_nodedef->applyTextureOverrides(override_source.getNodeTileOverrides());
 		m_itemdef->applyTextureOverrides(override_source.getItemTextureOverrides());
@@ -573,7 +569,7 @@ void Server::step(float dtime)
 		m_step_dtime += dtime;
 	}
 	// Throw if fatal error occurred in thread
-	std::string async_err = m_async_fatal_error.get();
+	String async_err = m_async_fatal_error.get();
 	if (!async_err.empty()) {
 		if (!m_simple_singleplayer_mode) {
 			m_env->kickAllPlayers(SERVER_ACCESSDENIED_CRASH,
@@ -829,7 +825,7 @@ void Server::AsyncRunStep(bool initial_step)
 			ClientInterface::AutoLock clientlock(m_clients);
 			const RemoteClientMap &clients = m_clients.getClientList();
 			// Route data to every client
-			std::string reliable_data, unreliable_data;
+			String reliable_data, unreliable_data;
 			for (const auto &client_it : clients) {
 				reliable_data.clear();
 				unreliable_data.clear();
@@ -861,11 +857,11 @@ void Server::AsyncRunStep(bool initial_step)
 						}
 
 						// Add full new data to appropriate buffer
-						std::string &buffer = aom.reliable ? reliable_data : unreliable_data;
+						String &buffer = aom.reliable ? reliable_data : unreliable_data;
 						char idbuf[2];
 						writeU16((u8*) idbuf, aom.id);
 						// u16 id
-						// std::string data
+						// String data
 						buffer.append(idbuf, sizeof(idbuf));
 						buffer.append(serializeString16(aom.datastring));
 					}
@@ -1077,7 +1073,7 @@ void Server::Receive()
 
 PlayerSAO* Server::StageTwoClientInit(session_t peer_id)
 {
-	std::string playername;
+	String playername;
 	PlayerSAO *playersao = NULL;
 	{
 		ClientInterface::AutoLock clientlock(m_clients);
@@ -1133,15 +1129,15 @@ PlayerSAO* Server::StageTwoClientInit(session_t peer_id)
 	*/
 	{
 		NetworkPacket notice_pkt(TOCLIENT_UPDATE_PLAYER_LIST, 0, PEER_ID_INEXISTENT);
-		notice_pkt << (u8) PLAYER_LIST_ADD << (u16) 1 << std::string(player->getName());
+		notice_pkt << (u8) PLAYER_LIST_ADD << (u16) 1 << String(player->getName());
 		m_clients.sendToAll(&notice_pkt);
 	}
 	{
-		std::string ip_str = getPeerAddress(player->getPeerId()).serializeString();
+		String ip_str = getPeerAddress(player->getPeerId()).serializeString();
 		const auto &names = m_clients.getPlayerNames();
 
 		actionstream << player->getName() << " [" << ip_str << "] joins game. List of players: ";
-		for (const std::string &name : names)
+		for (const String &name : names)
 			actionstream << name << " ";
 		actionstream << player->getName() << std::endl;
 	}
@@ -1313,7 +1309,7 @@ void Server::handlePeerChanges()
 	}
 }
 
-void Server::printToConsoleOnly(const std::string &text)
+void Server::printToConsoleOnly(const String &text)
 {
 	if (m_admin_chat) {
 		m_admin_chat->outgoing_queue.push_back(
@@ -1388,7 +1384,7 @@ void Server::SendBreath(session_t peer_id, u16 breath)
 }
 
 void Server::SendAccessDenied(session_t peer_id, AccessDeniedCode reason,
-		const std::string &custom_reason, bool reconnect)
+		const String &custom_reason, bool reconnect)
 {
 	assert(reason < SERVER_ACCESSDENIED_MAX);
 
@@ -1481,7 +1477,7 @@ void Server::SendInventory(PlayerSAO *sao, bool incremental)
 	sao->getInventory()->setModified(false);
 	player->setModified(true);
 
-	const std::string &s = os.str();
+	const String &s = os.str();
 	pkt.putRawString(s.c_str(), s.size());
 	Send(&pkt);
 }
@@ -1505,8 +1501,8 @@ void Server::SendChatMessage(session_t peer_id, const ChatMessage &message)
 	}
 }
 
-void Server::SendShowFormspecMessage(session_t peer_id, const std::string &formspec,
-	const std::string &formname)
+void Server::SendShowFormspecMessage(session_t peer_id, const String &formspec,
+	const String &formname)
 {
 	NetworkPacket pkt(TOCLIENT_SHOW_FORMSPEC, 0, peer_id);
 	if (formspec.empty()){
@@ -1746,7 +1742,7 @@ void Server::SendHUDChange(session_t peer_id, u32 id, HudElementStat stat, void 
 		case HUD_STAT_NAME:
 		case HUD_STAT_TEXT:
 		case HUD_STAT_TEXT2:
-			pkt << *(std::string *) value;
+			pkt << *(String *) value;
 			break;
 		case HUD_STAT_WORLD_POS:
 			pkt << *(v3f *) value;
@@ -1773,7 +1769,7 @@ void Server::SendHUDSetFlags(session_t peer_id, u32 flags, u32 mask)
 	Send(&pkt);
 }
 
-void Server::SendHUDSetParam(session_t peer_id, u16 param, const std::string &value)
+void Server::SendHUDSetParam(session_t peer_id, u16 param, const String &value)
 {
 	NetworkPacket pkt(TOCLIENT_HUD_SET_PARAM, 0, peer_id);
 	pkt << param << value;
@@ -1788,7 +1784,7 @@ void Server::SendSetSky(session_t peer_id, const SkyboxParams &params)
 	if (m_clients.getProtocolVersion(peer_id) < 39) {
 		pkt << params.bgcolor << params.type << (u16) params.textures.size();
 
-		for (const std::string& texture : params.textures)
+		for (const String& texture : params.textures)
 			pkt << texture;
 
 		pkt << params.clouds;
@@ -1799,7 +1795,7 @@ void Server::SendSetSky(session_t peer_id, const SkyboxParams &params)
 
 		if (params.type == "skybox") {
 			pkt << (u16) params.textures.size();
-			for (const std::string &texture : params.textures)
+			for (const String &texture : params.textures)
 				pkt << texture;
 		} else if (params.type == "regular") {
 			pkt << params.sky_color.day_sky << params.sky_color.day_horizon
@@ -1963,13 +1959,13 @@ void Server::SendPlayerPrivileges(session_t peer_id)
 	if(player->getPeerId() == PEER_ID_INEXISTENT)
 		return;
 
-	std::set<std::string> privs;
+	std::set<String> privs;
 	m_script->getAuth(player->getName(), NULL, &privs);
 
 	NetworkPacket pkt(TOCLIENT_PRIVILEGES, 0, peer_id);
 	pkt << (u16) privs.size();
 
-	for (const std::string &priv : privs) {
+	for (const String &priv : privs) {
 		pkt << priv;
 	}
 
@@ -2035,7 +2031,7 @@ void Server::SendActiveObjectRemoveAdd(RemoteClient *client, PlayerSAO *playersa
 		return;
 
 	char buf[4];
-	std::string data;
+	String data;
 
 	// Handle removed objects
 	writeU16((u8*)buf, removed_objects.size());
@@ -2100,7 +2096,7 @@ void Server::SendActiveObjectRemoveAdd(RemoteClient *client, PlayerSAO *playersa
 		<< "packet size is " << pkt.getSize() << std::endl;
 }
 
-void Server::SendActiveObjectMessages(session_t peer_id, const std::string &datas,
+void Server::SendActiveObjectMessages(session_t peer_id, const String &datas,
 		bool reliable)
 {
 	NetworkPacket pkt(TOCLIENT_ACTIVE_OBJECT_MESSAGES,
@@ -2356,7 +2352,7 @@ void Server::sendMetadataChanged(const std::unordered_set<v3s16> &positions, flo
 		// Send the meta changes
 		os.str("");
 		meta_updates_list.serialize(os, client->serialization_version, false, true, true);
-		std::string raw = os.str();
+		String raw = os.str();
 		os.str("");
 		compressZlib(raw, os);
 
@@ -2372,7 +2368,7 @@ void Server::SendBlockNoLock(session_t peer_id, MapBlock *block, u8 ver,
 		u16 net_proto_version, SerializedBlockCache *cache)
 {
 	thread_local const int net_compression_level = rangelim(g_settings->getS16("map_compression_level_net"), -1, 9);
-	std::string s, *sptr = nullptr;
+	String s, *sptr = nullptr;
 
 	if (cache) {
 		auto it = cache->find({block->getPos(), ver});
@@ -2485,9 +2481,9 @@ bool Server::SendBlock(session_t peer_id, const v3s16 &blockpos)
 	return true;
 }
 
-bool Server::addMediaFile(const std::string &filename,
-	const std::string &filepath, std::string *filedata_to,
-	std::string *digest_to)
+bool Server::addMediaFile(const String &filename,
+	const String &filepath, String *filedata_to,
+	String *digest_to)
 {
 	// If name contains illegal characters, ignore the file
 	if (!string_allowed(filename, TEXTURENAME_ALLOWED_CHARS)) {
@@ -2512,7 +2508,7 @@ bool Server::addMediaFile(const std::string &filename,
 	// Ok, attempt to load the file and add to cache
 
 	// Read data
-	std::string filedata;
+	String filedata;
 	if (!fs::ReadFile(filepath, filedata)) {
 		errorstream << "Server::addMediaFile(): Failed to open \""
 					<< filename << "\" for reading" << std::endl;
@@ -2536,10 +2532,10 @@ bool Server::addMediaFile(const std::string &filename,
 	sha1.addBytes(filedata.c_str(), filedata.length());
 
 	unsigned char *digest = sha1.getDigest();
-	std::string sha1_base64 = base64_encode(digest, 20);
-	std::string sha1_hex = hex_encode((char*) digest, 20);
+	String sha1_base64 = base64_encode(digest, 20);
+	String sha1_hex = hex_encode((char*) digest, 20);
 	if (digest_to)
-		*digest_to = std::string((char*) digest, 20);
+		*digest_to = String((char*) digest, 20);
 	free(digest);
 
 	// Put in list
@@ -2557,7 +2553,7 @@ void Server::fillMediaCache()
 	infostream << "Server: Calculating media file checksums" << std::endl;
 
 	// Collect all media file paths
-	std::vector<std::string> paths;
+	std::vector<String> paths;
 
 	// ordered in descending priority
 	paths.push_back(getBuiltinLuaPath() + DIR_DELIM + "locale");
@@ -2566,17 +2562,17 @@ void Server::fillMediaCache()
 	m_modmgr->getModsMediaPaths(paths);
 
 	// Collect media file information from paths into cache
-	for (const std::string &mediapath : paths) {
+	for (const String &mediapath : paths) {
 		std::vector<fs::DirListNode> dirlist = fs::GetDirListing(mediapath);
 		for (const fs::DirListNode &dln : dirlist) {
 			if (dln.dir) // Ignore dirs (already in paths)
 				continue;
 
-			const std::string &filename = dln.name;
+			const String &filename = dln.name;
 			if (m_media.find(filename) != m_media.end()) // Do not override
 				continue;
 
-			std::string filepath = mediapath;
+			String filepath = mediapath;
 			filepath.append(DIR_DELIM).append(filename);
 			addMediaFile(filename, filepath);
 		}
@@ -2585,13 +2581,13 @@ void Server::fillMediaCache()
 	infostream << "Server: " << m_media.size() << " media files collected" << std::endl;
 }
 
-void Server::sendMediaAnnouncement(session_t peer_id, const std::string &lang_code)
+void Server::sendMediaAnnouncement(session_t peer_id, const String &lang_code)
 {
 	// Make packet
 	NetworkPacket pkt(TOCLIENT_ANNOUNCE_MEDIA, 0, peer_id);
 
 	u16 media_sent = 0;
-	std::string lang_suffix;
+	String lang_suffix;
 	lang_suffix.append(".").append(lang_code).append(".tr");
 	for (const auto &i : m_media) {
 		if (i.second.no_announce)
@@ -2620,18 +2616,18 @@ void Server::sendMediaAnnouncement(session_t peer_id, const std::string &lang_co
 
 struct SendableMedia
 {
-	std::string name;
-	std::string path;
-	std::string data;
+	String name;
+	String path;
+	String data;
 
-	SendableMedia(const std::string &name, const std::string &path,
-			std::string &&data):
+	SendableMedia(const String &name, const String &path,
+			String &&data):
 		name(name), path(path), data(std::move(data))
 	{}
 };
 
 void Server::sendRequestedMedia(session_t peer_id,
-		const std::vector<std::string> &tosend)
+		const std::vector<String> &tosend)
 {
 	verbosestream<<"Server::sendRequestedMedia(): "
 			<<"Sending files to client"<<std::endl;
@@ -2646,7 +2642,7 @@ void Server::sendRequestedMedia(session_t peer_id,
 
 	u32 file_size_bunch_total = 0;
 
-	for (const std::string &name : tosend) {
+	for (const String &name : tosend) {
 		if (m_media.find(name) == m_media.end()) {
 			errorstream<<"Server::sendRequestedMedia(): Client asked for "
 					<<"unknown file \""<<(name)<<"\""<<std::endl;
@@ -2656,7 +2652,7 @@ void Server::sendRequestedMedia(session_t peer_id,
 		const auto &m = m_media[name];
 
 		// Read data
-		std::string data;
+		String data;
 		if (!fs::ReadFile(m.path, data)) {
 			errorstream << "Server::sendRequestedMedia(): Failed to read \""
 					<< name << "\"" << std::endl;
@@ -2752,7 +2748,7 @@ void Server::SendMinimapModes(session_t peer_id,
 	Send(&pkt);
 }
 
-void Server::sendDetachedInventory(Inventory *inventory, const std::string &name, session_t peer_id)
+void Server::sendDetachedInventory(Inventory *inventory, const String &name, session_t peer_id)
 {
 	NetworkPacket pkt(TOCLIENT_DETACHED_INVENTORY, 0, peer_id);
 	pkt << name;
@@ -2767,7 +2763,7 @@ void Server::sendDetachedInventory(Inventory *inventory, const std::string &name
 		inventory->serialize(os);
 		inventory->setModified(false);
 
-		const std::string &os_str = os.str();
+		const String &os_str = os.str();
 		pkt << static_cast<u16>(os_str.size()); // HACK: to keep compatibility with 5.0.0 clients
 		pkt.putRawString(os_str);
 	}
@@ -2781,12 +2777,12 @@ void Server::sendDetachedInventory(Inventory *inventory, const std::string &name
 void Server::sendDetachedInventories(session_t peer_id, bool incremental)
 {
 	// Lookup player name, to filter detached inventories just after
-	std::string peer_name;
+	String peer_name;
 	if (peer_id != PEER_ID_INEXISTENT) {
 		peer_name = getClient(peer_id, CS_Created)->getName();
 	}
 
-	auto send_cb = [this, peer_id](const std::string &name, Inventory *inv) {
+	auto send_cb = [this, peer_id](const String &name, Inventory *inv) {
 		sendDetachedInventory(inv, name, peer_id);
 	};
 
@@ -2841,7 +2837,7 @@ void Server::DenySudoAccess(session_t peer_id)
 
 
 void Server::DenyAccess(session_t peer_id, AccessDeniedCode reason,
-		const std::string &custom_reason, bool reconnect)
+		const String &custom_reason, bool reconnect)
 {
 	SendAccessDenied(peer_id, reason, custom_reason, reconnect);
 	m_clients.event(peer_id, CSE_SetDenied);
@@ -2914,9 +2910,9 @@ void Server::DeleteClient(session_t peer_id, ClientDeletionReason reason)
 			playersao->clearParentAttachment();
 
 			// inform connected clients
-			const std::string &player_name = player->getName();
+			const String &player_name = player->getName();
 			NetworkPacket notice(TOCLIENT_UPDATE_PLAYER_LIST, 0, PEER_ID_INEXISTENT);
-			// (u16) 1 + std::string represents a vector serialization representation
+			// (u16) 1 + String represents a vector serialization representation
 			notice << (u8) PLAYER_LIST_REMOVE  << (u16) 1 << player_name;
 			m_clients.sendToAll(&notice);
 			// run scripts
@@ -2943,7 +2939,7 @@ void Server::DeleteClient(session_t peer_id, ClientDeletionReason reason)
 					os << player->getName() << " ";
 				}
 
-				std::string name = player->getName();
+				String name = player->getName();
 				actionstream << name << " "
 						<< (reason == CDR_TIMEOUT ? "times out." : "leaves game.")
 						<< " List of players: " << os.str() << std::endl;
@@ -3009,12 +3005,12 @@ void Server::handleChatInterfaceEvent(ChatEvent *evt)
 	}
 }
 
-std::wstring Server::handleChat(const std::string &name,
+std::wstring Server::handleChat(const String &name,
 	std::wstring wmessage, bool check_shout_priv, RemotePlayer *player)
 {
 	// If something goes wrong, this player is to blame
 	RollbackScopeActor rollback_scope(m_rollback,
-			std::string("player:") + name);
+			String("player:") + name);
 
 	if (g_settings->getBool("strip_color_codes"))
 		wmessage = unescape_enriched(wmessage);
@@ -3092,7 +3088,7 @@ std::wstring Server::handleChat(const std::string &name,
 
 void Server::handleAdminChat(const ChatEventChat *evt)
 {
-	std::string name = evt->nick;
+	String name = evt->nick;
 	std::wstring wmessage = evt->evt_msg;
 
 	std::wstring answer = handleChat(name, wmessage);
@@ -3116,7 +3112,7 @@ RemoteClient *Server::getClientNoEx(session_t peer_id, ClientState state_min)
 	return m_clients.getClientNoEx(peer_id, state_min);
 }
 
-std::string Server::getPlayerName(session_t peer_id)
+String Server::getPlayerName(session_t peer_id)
 {
 	RemotePlayer *player = m_env->getPlayer(peer_id);
 	if (!player)
@@ -3132,7 +3128,7 @@ PlayerSAO *Server::getPlayerSAO(session_t peer_id)
 	return player->getPlayerSAO();
 }
 
-std::string Server::getStatusString()
+String Server::getStatusString()
 {
 	std::ostringstream os(std::ios_base::binary);
 	os << "# Server: ";
@@ -3175,20 +3171,20 @@ std::string Server::getStatusString()
 	return os.str();
 }
 
-std::set<std::string> Server::getPlayerEffectivePrivs(const std::string &name)
+std::set<String> Server::getPlayerEffectivePrivs(const String &name)
 {
-	std::set<std::string> privs;
+	std::set<String> privs;
 	m_script->getAuth(name, NULL, &privs);
 	return privs;
 }
 
-bool Server::checkPriv(const std::string &name, const std::string &priv)
+bool Server::checkPriv(const String &name, const String &priv)
 {
-	std::set<std::string> privs = getPlayerEffectivePrivs(name);
+	std::set<String> privs = getPlayerEffectivePrivs(name);
 	return (privs.count(priv) != 0);
 }
 
-void Server::reportPrivsModified(const std::string &name)
+void Server::reportPrivsModified(const String &name)
 {
 	if (name.empty()) {
 		std::vector<session_t> clients = m_clients.getClientIDs();
@@ -3210,7 +3206,7 @@ void Server::reportPrivsModified(const std::string &name)
 	}
 }
 
-void Server::reportInventoryFormspecModified(const std::string &name)
+void Server::reportInventoryFormspecModified(const String &name)
 {
 	RemotePlayer *player = m_env->getPlayer(name.c_str());
 	if (!player)
@@ -3218,7 +3214,7 @@ void Server::reportInventoryFormspecModified(const std::string &name)
 	SendPlayerInventoryFormspec(player->getPeerId());
 }
 
-void Server::reportFormspecPrependModified(const std::string &name)
+void Server::reportFormspecPrependModified(const String &name)
 {
 	RemotePlayer *player = m_env->getPlayer(name.c_str());
 	if (!player)
@@ -3247,8 +3243,8 @@ void Server::notifyPlayer(const char *name, const std::wstring &msg)
 	SendChatMessage(player->getPeerId(), ChatMessage(msg));
 }
 
-bool Server::showFormspec(const char *playername, const std::string &formspec,
-	const std::string &formname)
+bool Server::showFormspec(const char *playername, const String &formspec,
+	const String &formname)
 {
 	// m_env will be NULL if the server is initializing
 	if (!m_env)
@@ -3334,7 +3330,7 @@ bool Server::hudSetHotbarItemcount(RemotePlayer *player, s32 hotbar_itemcount)
 	return true;
 }
 
-void Server::hudSetHotbarImage(RemotePlayer *player, const std::string &name)
+void Server::hudSetHotbarImage(RemotePlayer *player, const String &name)
 {
 	if (!player)
 		return;
@@ -3343,7 +3339,7 @@ void Server::hudSetHotbarImage(RemotePlayer *player, const std::string &name)
 	SendHUDSetParam(player->getPeerId(), HUD_PARAM_HOTBAR_IMAGE, name);
 }
 
-void Server::hudSetHotbarSelectedImage(RemotePlayer *player, const std::string &name)
+void Server::hudSetHotbarSelectedImage(RemotePlayer *player, const String &name)
 {
 	if (!player)
 		return;
@@ -3430,7 +3426,7 @@ void Server::notifyPlayers(const std::wstring &msg)
 	SendChatMessage(PEER_ID_INEXISTENT, ChatMessage(msg));
 }
 
-void Server::spawnParticle(const std::string &playername,
+void Server::spawnParticle(const String &playername,
 	const ParticleParameters &p)
 {
 	// m_env will be NULL if the server is initializing
@@ -3451,7 +3447,7 @@ void Server::spawnParticle(const std::string &playername,
 }
 
 u32 Server::addParticleSpawner(const ParticleSpawnerParameters &p,
-	ServerActiveObject *attached, const std::string &playername)
+	ServerActiveObject *attached, const String &playername)
 {
 	// m_env will be NULL if the server is initializing
 	if (!m_env)
@@ -3479,7 +3475,7 @@ u32 Server::addParticleSpawner(const ParticleSpawnerParameters &p,
 	return id;
 }
 
-void Server::deleteParticleSpawner(const std::string &playername, u32 id)
+void Server::deleteParticleSpawner(const String &playername, u32 id)
 {
 	// m_env will be NULL if the server is initializing
 	if (!m_env)
@@ -3497,10 +3493,10 @@ void Server::deleteParticleSpawner(const std::string &playername, u32 id)
 	SendDeleteParticleSpawner(peer_id, id);
 }
 
-bool Server::dynamicAddMedia(std::string filepath,
-	const u32 token, const std::string &to_player, bool ephemeral)
+bool Server::dynamicAddMedia(String filepath,
+	const u32 token, const String &to_player, bool ephemeral)
 {
-	std::string filename = fs::GetFilenameFromPath(filepath.c_str());
+	String filename = fs::GetFilenameFromPath(filepath.c_str());
 	auto it = m_media.find(filename);
 	if (it != m_media.end()) {
 		// Allow the same path to be "added" again in certain conditions
@@ -3512,7 +3508,7 @@ bool Server::dynamicAddMedia(std::string filepath,
 	}
 
 	// Load the file and add it to our media cache
-	std::string filedata, raw_hash;
+	String filedata, raw_hash;
 	bool ok = addMediaFile(filename, filepath, &filedata, &raw_hash);
 	if (!ok)
 		return false;
@@ -3623,7 +3619,7 @@ bool Server::dynamicAddMedia(std::string filepath,
 // actions: time-reversed list
 // Return value: success/failure
 bool Server::rollbackRevertActions(const std::list<RollbackAction> &actions,
-		std::list<std::string> *log)
+		std::list<String> *log)
 {
 	infostream<<"Server::rollbackRevertActions(len="<<actions.size()<<")"<<std::endl;
 	ServerMap *map = (ServerMap*)(&m_env->getMap());
@@ -3681,7 +3677,7 @@ ICraftDefManager *Server::getCraftDefManager()
 	return m_craftdef;
 }
 
-u16 Server::allocateUnknownNodeId(const std::string &name)
+u16 Server::allocateUnknownNodeId(const String &name)
 {
 	return m_nodedef->allocateDummy(name);
 }
@@ -3706,12 +3702,12 @@ const std::vector<ModSpec> & Server::getMods() const
 	return m_modmgr->getMods();
 }
 
-const ModSpec *Server::getModSpec(const std::string &modname) const
+const ModSpec *Server::getModSpec(const String &modname) const
 {
 	return m_modmgr->getModSpec(modname);
 }
 
-std::string Server::getBuiltinLuaPath()
+String Server::getBuiltinLuaPath()
 {
 	return porting::path_share + DIR_DELIM + "builtin";
 }
@@ -3720,7 +3716,7 @@ std::string Server::getBuiltinLuaPath()
 void Server::addShutdownError(const ModError &e)
 {
 	// DO NOT TRANSLATE the `ModError`, it's used by `ui.lua`
-	std::string msg = fmtgettext("%s while shutting down: ", "ModError") +
+	String msg = fmtgettext("%s while shutting down: ", "ModError") +
 			e.what() + strgettext("\nCheck debug.txt for details.");
 	errorstream << msg << std::endl;
 
@@ -3804,7 +3800,7 @@ v3f Server::findSpawnPos()
 	return v3f(0.0f, 0.0f, 0.0f);
 }
 
-void Server::requestShutdown(const std::string &msg, bool reconnect, float delay)
+void Server::requestShutdown(const String &msg, bool reconnect, float delay)
 {
 	if (delay == 0.0f) {
 	// No delay, shutdown immediately
@@ -3932,18 +3928,18 @@ void dedicated_server_loop(Server &server, bool &kill)
  */
 
 
-bool Server::joinModChannel(const std::string &channel)
+bool Server::joinModChannel(const String &channel)
 {
 	return m_modchannel_mgr->joinChannel(channel, PEER_ID_SERVER) &&
 			m_modchannel_mgr->setChannelState(channel, MODCHANNEL_STATE_READ_WRITE);
 }
 
-bool Server::leaveModChannel(const std::string &channel)
+bool Server::leaveModChannel(const String &channel)
 {
 	return m_modchannel_mgr->leaveChannel(channel, PEER_ID_SERVER);
 }
 
-bool Server::sendModChannelMessage(const std::string &channel, const std::string &message)
+bool Server::sendModChannelMessage(const String &channel, const String &message)
 {
 	if (!m_modchannel_mgr->canWriteOnChannel(channel))
 		return false;
@@ -3952,13 +3948,13 @@ bool Server::sendModChannelMessage(const std::string &channel, const std::string
 	return true;
 }
 
-ModChannel* Server::getModChannel(const std::string &channel)
+ModChannel* Server::getModChannel(const String &channel)
 {
 	return m_modchannel_mgr->getModChannel(channel);
 }
 
-void Server::broadcastModChannelMessage(const std::string &channel,
-		const std::string &message, session_t from_peer)
+void Server::broadcastModChannelMessage(const String &channel,
+		const String &message, session_t from_peer)
 {
 	const std::vector<u16> &peers = m_modchannel_mgr->getChannelPeers(channel);
 	if (peers.empty())
@@ -3971,7 +3967,7 @@ void Server::broadcastModChannelMessage(const std::string &channel,
 		return;
 	}
 
-	std::string sender;
+	String sender;
 	if (from_peer != PEER_ID_SERVER) {
 		sender = getPlayerName(from_peer);
 	}
@@ -3992,7 +3988,7 @@ void Server::broadcastModChannelMessage(const std::string &channel,
 	}
 }
 
-Translations *Server::getTranslationLanguage(const std::string &lang_code)
+Translations *Server::getTranslationLanguage(const String &lang_code)
 {
 	if (lang_code.empty())
 		return nullptr;
@@ -4004,10 +4000,10 @@ Translations *Server::getTranslationLanguage(const std::string &lang_code)
 	// [] will create an entry
 	auto *translations = &server_translations[lang_code];
 
-	std::string suffix = "." + lang_code + ".tr";
+	String suffix = "." + lang_code + ".tr";
 	for (const auto &i : m_media) {
 		if (str_ends_with(i.first, suffix)) {
-			std::string data;
+			String data;
 			if (fs::ReadFile(i.second.path, data)) {
 				translations->loadTranslation(data);
 			}
@@ -4017,14 +4013,14 @@ Translations *Server::getTranslationLanguage(const std::string &lang_code)
 	return translations;
 }
 
-ModStorageDatabase *Server::openModStorageDatabase(const std::string &world_path)
+ModStorageDatabase *Server::openModStorageDatabase(const String &world_path)
 {
-	std::string world_mt_path = world_path + DIR_DELIM + "world.mt";
+	String world_mt_path = world_path + DIR_DELIM + "world.mt";
 	Settings world_mt;
 	if (!world_mt.readConfigFile(world_mt_path.c_str()))
 		throw BaseException("Cannot read world.mt!");
 
-	std::string backend = world_mt.exists("mod_storage_backend") ?
+	String backend = world_mt.exists("mod_storage_backend") ?
 		world_mt.get("mod_storage_backend") : "files";
 	if (backend == "files")
 		warningstream << "/!\\ You are using the old mod storage files backend. "
@@ -4035,8 +4031,8 @@ ModStorageDatabase *Server::openModStorageDatabase(const std::string &world_path
 	return openModStorageDatabase(backend, world_path, world_mt);
 }
 
-ModStorageDatabase *Server::openModStorageDatabase(const std::string &backend,
-		const std::string &world_path, const Settings &world_mt)
+ModStorageDatabase *Server::openModStorageDatabase(const String &backend,
+		const String &world_path, const Settings &world_mt)
 {
 	if (backend == "sqlite3")
 		return new ModStorageDatabaseSQLite3(world_path);
@@ -4046,15 +4042,15 @@ ModStorageDatabase *Server::openModStorageDatabase(const std::string &backend,
 
 bool Server::migrateModStorageDatabase(const GameParams &game_params, const Settings &cmd_args)
 {
-	std::string migrate_to = cmd_args.get("migrate-mod-storage");
+	String migrate_to = cmd_args.get("migrate-mod-storage");
 	Settings world_mt;
-	std::string world_mt_path = game_params.world_path + DIR_DELIM + "world.mt";
+	String world_mt_path = game_params.world_path + DIR_DELIM + "world.mt";
 	if (!world_mt.readConfigFile(world_mt_path.c_str())) {
 		errorstream << "Cannot read world.mt!" << std::endl;
 		return false;
 	}
 
-	std::string backend = world_mt.exists("mod_storage_backend") ?
+	String backend = world_mt.exists("mod_storage_backend") ?
 		world_mt.get("mod_storage_backend") : "files";
 	if (backend == migrate_to) {
 		errorstream << "Cannot migrate: new backend is same"
@@ -4073,9 +4069,9 @@ bool Server::migrateModStorageDatabase(const GameParams &game_params, const Sett
 
 		dstdb->beginSave();
 
-		std::vector<std::string> mod_list;
+		std::vector<String> mod_list;
 		srcdb->listMods(&mod_list);
-		for (const std::string &modname : mod_list) {
+		for (const String &modname : mod_list) {
 			StringMap meta;
 			srcdb->getModEntries(modname, &meta);
 			for (const auto &pair : meta) {
@@ -4104,8 +4100,8 @@ bool Server::migrateModStorageDatabase(const GameParams &game_params, const Sett
 
 	if (succeeded && backend == "files") {
 		// Back up files
-		const std::string storage_path = game_params.world_path + DIR_DELIM + "mod_storage";
-		const std::string backup_path = game_params.world_path + DIR_DELIM + "mod_storage.bak";
+		const String storage_path = game_params.world_path + DIR_DELIM + "mod_storage";
+		const String backup_path = game_params.world_path + DIR_DELIM + "mod_storage.bak";
 		if (!fs::Rename(storage_path, backup_path))
 			warningstream << "After migration, " << storage_path
 				<< " could not be renamed to " << backup_path << std::endl;

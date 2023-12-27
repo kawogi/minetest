@@ -59,12 +59,12 @@ void TestFileSys::runTests(IGameDef *gamedef)
 // adjusts a POSIX path to system-specific conventions
 // -> changes '/' to DIR_DELIM
 // -> absolute paths start with "C:\\" on windows
-std::string p(std::string path)
+String p(String path)
 {
 	for (size_t i = 0; i < path.size(); ++i) {
 		if (path[i] == '/') {
 			path.replace(i, 1, DIR_DELIM);
-			i += std::string(DIR_DELIM).size() - 1; // generally a no-op
+			i += String(DIR_DELIM).size() - 1; // generally a no-op
 		}
 	}
 
@@ -84,7 +84,7 @@ void TestFileSys::testIsDirDelimiter()
 void TestFileSys::testPathStartsWith()
 {
 	const int numpaths = 12;
-	std::string paths[numpaths] = {
+	String paths[numpaths] = {
 		"",
 		p("/"),
 		p("/home/user/minetest"),
@@ -150,7 +150,7 @@ void TestFileSys::testPathStartsWith()
 
 void TestFileSys::testRemoveLastPathComponent()
 {
-	std::string path, result, removed;
+	String path, result, removed;
 
 	UASSERT(fs::RemoveLastPathComponent("") == "");
 	path = p("/home/user/minetest/bin/..//worlds/world1");
@@ -183,7 +183,7 @@ void TestFileSys::testRemoveLastPathComponent()
 
 void TestFileSys::testRemoveLastPathComponentWithTrailingDelimiter()
 {
-	std::string path, result, removed;
+	String path, result, removed;
 
 	path = p("/home/user/minetest/bin/..//worlds/world1/");
 	result = fs::RemoveLastPathComponent(path, &removed, 0);
@@ -215,7 +215,7 @@ void TestFileSys::testRemoveLastPathComponentWithTrailingDelimiter()
 
 void TestFileSys::testRemoveRelativePathComponent()
 {
-	std::string path, result;
+	String path, result;
 
 	path = p("/home/user/minetest/bin");
 	result = fs::RemoveRelativePathComponents(path);
@@ -243,11 +243,11 @@ void TestFileSys::testRemoveRelativePathComponent()
 
 void TestFileSys::testSafeWriteToFile()
 {
-	const std::string dest_path = fs::TempPath() + DIR_DELIM + "testSafeWriteToFile.txt";
-	const std::string test_data("hello\0world", 11);
+	const String dest_path = fs::TempPath() + DIR_DELIM + "testSafeWriteToFile.txt";
+	const String test_data("hello\0world", 11);
 	fs::safeWriteToFile(dest_path, test_data);
 	UASSERT(fs::PathExists(dest_path));
-	std::string contents_actual;
+	String contents_actual;
 	UASSERT(fs::ReadFile(dest_path, contents_actual));
 	UASSERT(contents_actual == test_data);
 }

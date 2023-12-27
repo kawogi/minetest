@@ -37,9 +37,9 @@ private:
 	static bool readCraftReplacements(lua_State *L, int index,
 			CraftReplacements &replacements);
 	static bool readCraftRecipeShapeless(lua_State *L, int index,
-			std::vector<std::string> &recipe);
+			std::vector<String> &recipe);
 	static bool readCraftRecipeShaped(lua_State *L, int index,
-			int &width, std::vector<std::string> &recipe);
+			int &width, std::vector<String> &recipe);
 
 	static struct EnumString es_CraftMethod[];
 

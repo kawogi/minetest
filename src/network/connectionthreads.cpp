@@ -79,13 +79,12 @@ void *ConnectionSendThread::run()
 	u64 curtime = porting::getTimeMs();
 	u64 lasttime = curtime;
 
-	PROFILE(std::stringstream ThreadIdentifier);
+	PROFILE(Stringstream ThreadIdentifier);
 	PROFILE(ThreadIdentifier << "ConnectionSend: [" << m_connection->getDesc() << "]");
 
 	/* if stop is requested don't stop immediately but try to send all        */
 	/* packets first */
 	while (!stopRequested() || packetsQueued()) {
-		BEGIN_DEBUG_EXCEPTION_HANDLER
 		PROFILE(ScopeProfiler sp(g_profiler, ThreadIdentifier.str(), SPT_AVG));
 
 		m_iteration_packets_avaialble = m_max_data_packets_per_iteration;
@@ -122,8 +121,6 @@ void *ConnectionSendThread::run()
 
 		/* send queued packets */
 		sendPackets(dtime);
-
-		END_DEBUG_EXCEPTION_HANDLER
 	}
 
 	PROFILE(g_profiler->remove(ThreadIdentifier.str()));
@@ -182,7 +179,7 @@ void ConnectionSendThread::runTimeouts(float dtime)
 		if (!udpPeer)
 			continue;
 
-		PROFILE(std::stringstream peerIdentifier);
+		PROFILE(Stringstream peerIdentifier);
 		PROFILE(peerIdentifier << "runTimeouts[" << m_connection->getDesc()
 			<< ";" << peerId << ";RELIABLE]");
 		PROFILE(ScopeProfiler
@@ -638,7 +635,7 @@ void ConnectionSendThread::sendPackets(float dtime)
 			pendingDisconnect.push_back(peerId);
 		}
 
-		PROFILE(std::stringstream
+		PROFILE(Stringstream
 		peerIdentifier);
 		PROFILE(
 			peerIdentifier << "sendPackets[" << m_connection->getDesc() << ";" << peerId
@@ -779,7 +776,7 @@ void *ConnectionReceiveThread::run()
 	LOG(dout_con << m_connection->getDesc()
 		<< "ConnectionReceive thread started" << std::endl);
 
-	PROFILE(std::stringstream
+	PROFILE(Stringstream
 	ThreadIdentifier);
 	PROFILE(ThreadIdentifier << "ConnectionReceive: [" << m_connection->getDesc() << "]");
 
@@ -798,7 +795,6 @@ void *ConnectionReceiveThread::run()
 #endif
 
 	while (!stopRequested()) {
-		BEGIN_DEBUG_EXCEPTION_HANDLER
 		PROFILE(ScopeProfiler
 		sp(g_profiler, ThreadIdentifier.str(), SPT_AVG));
 
@@ -837,7 +833,7 @@ void *ConnectionReceiveThread::run()
 					avg_loss += peer->channels[j].getAvgLossRateKB();
 				}
 
-				std::stringstream output;
+				Stringstream output;
 				output << std::fixed << std::setprecision(1);
 				output << "OUT to Peer " << *i << " RATES (good / loss) " << std::endl;
 				output << "\tcurrent (sum): " << peer_current << "kb/s "<< peer_loss << "kb/s" << std::endl;
@@ -861,7 +857,6 @@ void *ConnectionReceiveThread::run()
 			}
 		}
 #endif
-		END_DEBUG_EXCEPTION_HANDLER
 	}
 
 	PROFILE(g_profiler->remove(ThreadIdentifier.str()));
@@ -1078,7 +1073,7 @@ SharedBuffer<u8> ConnectionReceiveThread::processPacket(Channel *channel,
 	u8 type = readU8(&(packetdata[0]));
 
 	if (MAX_UDP_PEERS <= 65535 && peer_id >= MAX_UDP_PEERS) {
-		std::string errmsg = "Invalid peer_id=" + itos(peer_id);
+		String errmsg = "Invalid peer_id=" + itos(peer_id);
 		errorstream << errmsg << std::endl;
 		throw InvalidIncomingDataException(errmsg.c_str());
 	}

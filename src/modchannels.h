@@ -37,10 +37,10 @@ enum ModChannelState : u8
 class ModChannel
 {
 public:
-	ModChannel(const std::string &name) : m_name(name) {}
+	ModChannel(const String &name) : m_name(name) {}
 	~ModChannel() = default;
 
-	const std::string &getName() const { return m_name; }
+	const String &getName() const { return m_name; }
 	bool registerConsumer(session_t peer_id);
 	bool removeConsumer(session_t peer_id);
 	const std::vector<u16> &getChannelPeers() const { return m_client_consumers; }
@@ -48,7 +48,7 @@ public:
 	void setState(ModChannelState state);
 
 private:
-	std::string m_name;
+	String m_name;
 	ModChannelState m_state = MODCHANNEL_STATE_INIT;
 	std::vector<u16> m_client_consumers;
 };
@@ -69,25 +69,25 @@ public:
 	ModChannelMgr() = default;
 	~ModChannelMgr() = default;
 
-	void registerChannel(const std::string &channel);
-	bool setChannelState(const std::string &channel, ModChannelState state);
-	bool joinChannel(const std::string &channel, session_t peer_id);
-	bool leaveChannel(const std::string &channel, session_t peer_id);
-	bool channelRegistered(const std::string &channel) const;
-	ModChannel *getModChannel(const std::string &channel);
+	void registerChannel(const String &channel);
+	bool setChannelState(const String &channel, ModChannelState state);
+	bool joinChannel(const String &channel, session_t peer_id);
+	bool leaveChannel(const String &channel, session_t peer_id);
+	bool channelRegistered(const String &channel) const;
+	ModChannel *getModChannel(const String &channel);
 	/**
 	 * This function check if a local mod can write on the channel
 	 *
 	 * @param channel
 	 * @return true if write is allowed
 	 */
-	bool canWriteOnChannel(const std::string &channel) const;
+	bool canWriteOnChannel(const String &channel) const;
 	void leaveAllChannels(session_t peer_id);
-	const std::vector<u16> &getChannelPeers(const std::string &channel) const;
+	const std::vector<u16> &getChannelPeers(const String &channel) const;
 
 private:
-	bool removeChannel(const std::string &channel);
+	bool removeChannel(const String &channel);
 
-	std::unordered_map<std::string, std::unique_ptr<ModChannel>>
+	std::unordered_map<String, std::unique_ptr<ModChannel>>
 			m_registered_channels;
 };

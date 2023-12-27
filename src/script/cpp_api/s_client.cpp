@@ -57,7 +57,7 @@ void ScriptApiClient::on_shutdown()
 	}
 }
 
-bool ScriptApiClient::on_sending_message(const std::string &message)
+bool ScriptApiClient::on_sending_message(const String &message)
 {
 	SCRIPTAPI_PRECHECKHEADER
 
@@ -75,7 +75,7 @@ bool ScriptApiClient::on_sending_message(const std::string &message)
 	return readParam<bool>(L, -1);
 }
 
-bool ScriptApiClient::on_receiving_message(const std::string &message)
+bool ScriptApiClient::on_receiving_message(const String &message)
 {
 	SCRIPTAPI_PRECHECKHEADER
 
@@ -156,7 +156,7 @@ void ScriptApiClient::environment_step(float dtime)
 	}
 }
 
-void ScriptApiClient::on_formspec_input(const std::string &formname,
+void ScriptApiClient::on_formspec_input(const String &formname,
 	const StringMap &fields)
 {
 	SCRIPTAPI_PRECHECKHEADER
@@ -171,8 +171,8 @@ void ScriptApiClient::on_formspec_input(const std::string &formname,
 	lua_newtable(L);
 	StringMap::const_iterator it;
 	for (it = fields.begin(); it != fields.end(); ++it) {
-		const std::string &name = it->first;
-		const std::string &value = it->second;
+		const String &name = it->first;
+		const String &value = it->second;
 		lua_pushstring(L, name.c_str());
 		lua_pushlstring(L, value.c_str(), value.size());
 		lua_settable(L, -3);

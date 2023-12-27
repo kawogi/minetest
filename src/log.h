@@ -63,15 +63,15 @@ public:
 	LogLevelMask removeOutput(ILogOutput *out);
 	void setLevelSilenced(LogLevel lev, bool silenced);
 
-	void registerThread(const std::string &name);
+	void registerThread(const String &name);
 	void deregisterThread();
 
-	void log(LogLevel lev, const std::string &text);
+	void log(LogLevel lev, const String &text);
 	// Logs without a prefix
-	void logRaw(LogLevel lev, const std::string &text);
+	void logRaw(LogLevel lev, const String &text);
 
-	static LogLevel stringToLevel(const std::string &name);
-	static const std::string getLevelLabel(LogLevel lev);
+	static LogLevel stringToLevel(const String &name);
+	static const String getLevelLabel(LogLevel lev);
 
 	bool hasOutput(LogLevel level) {
 		return m_has_outputs[level].load(std::memory_order_relaxed);
@@ -80,12 +80,12 @@ public:
 	static LogColor color_mode;
 
 private:
-	void logToOutputsRaw(LogLevel, const std::string &line);
-	void logToOutputs(LogLevel, const std::string &combined,
-		const std::string &time, const std::string &thread_name,
-		const std::string &payload_text);
+	void logToOutputsRaw(LogLevel, const String &line);
+	void logToOutputs(LogLevel, const String &combined,
+		const String &time, const String &thread_name,
+		const String &payload_text);
 
-	const std::string getThreadName();
+	const String getThreadName();
 
 	std::vector<ILogOutput *> m_outputs[LL_MAX];
 	std::atomic<bool> m_has_outputs[LL_MAX];
@@ -94,23 +94,23 @@ private:
 	// written to when one thread has access currently).
 	// Works on all known architectures (x86, ARM, MIPS).
 	volatile bool m_silenced_levels[LL_MAX];
-	std::map<std::thread::id, std::string> m_thread_names;
+	std::map<std::thread::id, String> m_thread_names;
 	mutable std::mutex m_mutex;
 };
 
 class ILogOutput {
 public:
-	virtual void logRaw(LogLevel, const std::string &line) = 0;
-	virtual void log(LogLevel, const std::string &combined,
-		const std::string &time, const std::string &thread_name,
-		const std::string &payload_text) = 0;
+	virtual void logRaw(LogLevel, const String &line) = 0;
+	virtual void log(LogLevel, const String &combined,
+		const String &time, const String &thread_name,
+		const String &payload_text) = 0;
 };
 
 class ICombinedLogOutput : public ILogOutput {
 public:
-	void log(LogLevel lev, const std::string &combined,
-		const std::string &time, const std::string &thread_name,
-		const std::string &payload_text)
+	void log(LogLevel lev, const String &combined,
+		const String &time, const String &thread_name,
+		const String &payload_text)
 	{
 		logRaw(lev, combined);
 	}
@@ -127,7 +127,7 @@ public:
 			is_tty = isatty(STDERR_FILENO);
 	}
 
-	void logRaw(LogLevel lev, const std::string &line);
+	void logRaw(LogLevel lev, const String &line);
 
 private:
 	std::ostream &m_stream;
@@ -136,9 +136,9 @@ private:
 
 class FileLogOutput : public ICombinedLogOutput {
 public:
-	void setFile(const std::string &filename, s64 file_size_max);
+	void setFile(const String &filename, s64 file_size_max);
 
-	void logRaw(LogLevel lev, const std::string &line)
+	void logRaw(LogLevel lev, const String &line)
 	{
 		m_stream << line << std::endl;
 	}
@@ -162,12 +162,12 @@ public:
 
 	void updateLogLevel();
 
-	void logRaw(LogLevel lev, const std::string &line);
+	void logRaw(LogLevel lev, const String &line);
 
 	void clear()
 	{
 		MutexAutoLock lock(m_buffer_mutex);
-		m_buffer = std::queue<std::string>();
+		m_buffer = std::queue<String>();
 	}
 
 	bool empty() const
@@ -176,12 +176,12 @@ public:
 		return m_buffer.empty();
 	}
 
-	std::string get()
+	String get()
 	{
 		MutexAutoLock lock(m_buffer_mutex);
 		if (m_buffer.empty())
 			return "";
-		std::string s = std::move(m_buffer.front());
+		String s = std::move(m_buffer.front());
 		m_buffer.pop();
 		return s;
 	}
@@ -191,7 +191,7 @@ private:
 	// doesn't prevent get() / clear() from being called on top of it.
 	// This mutex prevents that.
 	mutable std::mutex m_buffer_mutex;
-	std::queue<std::string> m_buffer;
+	std::queue<String> m_buffer;
 	Logger &m_logger;
 };
 
@@ -207,7 +207,7 @@ class LogTarget {
 public:
 	// Must be thread-safe. These can be called from any thread.
 	virtual bool hasOutput() = 0;
-	virtual void log(const std::string &buf) = 0;
+	virtual void log(const String &buf) = 0;
 };
 
 
@@ -305,7 +305,7 @@ public:
 		return m_target.hasOutput();
 	}
 
-	void internalFlush(const std::string &buf) {
+	void internalFlush(const String &buf) {
 		m_target.log(buf);
 	}
 

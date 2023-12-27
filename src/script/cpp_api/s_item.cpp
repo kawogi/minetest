@@ -31,7 +31,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "irrlicht_changes/printing.h"
 
 #define WRAP_LUAERROR(e, detail) \
-	LuaError(std::string(__FUNCTION__) + ": " + (e).what() + ". " detail)
+	LuaError(String(__FUNCTION__) + ": " + (e).what() + ". " detail)
 
 bool ScriptApiItem::item_OnDrop(ItemStack &item,
 		ServerActiveObject *dropper, v3f pos)

@@ -28,7 +28,7 @@ struct GameParams
 	GameParams() = default;
 
 	u16 socket_port;
-	std::string world_path;
+	String world_path;
 	SubgameSpec game_spec;
 	bool is_dedicated_server;
 };
@@ -46,9 +46,9 @@ struct GameStartData : GameParams
 
 	bool isSinglePlayer() const { return address.empty() && !local_server; }
 
-	std::string name;
-	std::string password;
-	std::string address;
+	String name;
+	String password;
+	String address;
 	bool local_server;
 
 	ELoginRegister allow_login_or_register = ELoginRegister::Any;

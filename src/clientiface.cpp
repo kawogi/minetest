@@ -48,7 +48,7 @@ const char *ClientInterface::statenames[] = {
 
 
 
-std::string ClientInterface::state2Name(ClientState state)
+String ClientInterface::state2Name(ClientState state)
 {
 	return statenames[state];
 }
@@ -79,7 +79,7 @@ LuaEntitySAO *getAttachedObject(PlayerSAO *sao, ServerEnvironment *env)
 		return nullptr;
 
 	int id;
-	std::string bone;
+	String bone;
 	v3f dummy;
 	bool force_visible;
 	sao->getAttachment(&id, &bone, &dummy, &dummy, &force_visible);
@@ -795,7 +795,7 @@ ClientState ClientInterface::getClientState(session_t peer_id)
 	return n->second->getState();
 }
 
-void ClientInterface::setPlayerName(session_t peer_id, const std::string &name)
+void ClientInterface::setPlayerName(session_t peer_id, const String &name)
 {
 	RecursiveMutexAutoLock clientslock(m_clients_mutex);
 	RemoteClientMap::iterator n = m_clients.find(peer_id);
@@ -887,7 +887,7 @@ u16 ClientInterface::getProtocolVersion(session_t peer_id)
 }
 
 void ClientInterface::setClientVersion(session_t peer_id, u8 major, u8 minor, u8 patch,
-		const std::string &full)
+		const String &full)
 {
 	RecursiveMutexAutoLock conlock(m_clients_mutex);
 

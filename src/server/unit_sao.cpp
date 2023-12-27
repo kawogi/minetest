@@ -76,14 +76,14 @@ void UnitSAO::setAnimationSpeed(float frame_speed)
 	m_animation_speed_sent = false;
 }
 
-void UnitSAO::setBonePosition(const std::string &bone, v3f position, v3f rotation)
+void UnitSAO::setBonePosition(const String &bone, v3f position, v3f rotation)
 {
 	// store these so they can be updated to clients
 	m_bone_position[bone] = core::vector2d<v3f>(position, rotation);
 	m_bone_position_sent = false;
 }
 
-void UnitSAO::getBonePosition(const std::string &bone, v3f *position, v3f *rotation)
+void UnitSAO::getBonePosition(const String &bone, v3f *position, v3f *rotation)
 {
 	auto it = m_bone_position.find(bone);
 	if (it != m_bone_position.end()) {
@@ -123,7 +123,7 @@ void UnitSAO::sendOutdatedData()
 	}
 }
 
-void UnitSAO::setAttachment(int parent_id, const std::string &bone, v3f position,
+void UnitSAO::setAttachment(int parent_id, const String &bone, v3f position,
 		v3f rotation, bool force_visible)
 {
 	auto *obj = parent_id ? m_env->getActiveObject(parent_id) : nullptr;
@@ -166,7 +166,7 @@ void UnitSAO::setAttachment(int parent_id, const std::string &bone, v3f position
 		onAttach(parent_id);
 }
 
-void UnitSAO::getAttachment(int *parent_id, std::string *bone, v3f *position,
+void UnitSAO::getAttachment(int *parent_id, String *bone, v3f *position,
 		v3f *rotation, bool *force_visible) const
 {
 	*parent_id = m_attachment_parent_id;
@@ -261,7 +261,7 @@ void UnitSAO::notifyObjectPropertiesModified()
 	m_properties_sent = false;
 }
 
-std::string UnitSAO::generateUpdateAttachmentCommand() const
+String UnitSAO::generateUpdateAttachmentCommand() const
 {
 	std::ostringstream os(std::ios::binary);
 	// command
@@ -275,8 +275,8 @@ std::string UnitSAO::generateUpdateAttachmentCommand() const
 	return os.str();
 }
 
-std::string UnitSAO::generateUpdateBonePositionCommand(
-		const std::string &bone, const v3f &position, const v3f &rotation)
+String UnitSAO::generateUpdateBonePositionCommand(
+		const String &bone, const v3f &position, const v3f &rotation)
 {
 	std::ostringstream os(std::ios::binary);
 	// command
@@ -288,7 +288,7 @@ std::string UnitSAO::generateUpdateBonePositionCommand(
 	return os.str();
 }
 
-std::string UnitSAO::generateUpdateAnimationSpeedCommand() const
+String UnitSAO::generateUpdateAnimationSpeedCommand() const
 {
 	std::ostringstream os(std::ios::binary);
 	// command
@@ -298,7 +298,7 @@ std::string UnitSAO::generateUpdateAnimationSpeedCommand() const
 	return os.str();
 }
 
-std::string UnitSAO::generateUpdateAnimationCommand() const
+String UnitSAO::generateUpdateAnimationCommand() const
 {
 	std::ostringstream os(std::ios::binary);
 	// command
@@ -312,7 +312,7 @@ std::string UnitSAO::generateUpdateAnimationCommand() const
 	return os.str();
 }
 
-std::string UnitSAO::generateUpdateArmorGroupsCommand() const
+String UnitSAO::generateUpdateArmorGroupsCommand() const
 {
 	std::ostringstream os(std::ios::binary);
 	writeU8(os, AO_CMD_UPDATE_ARMOR_GROUPS);
@@ -324,7 +324,7 @@ std::string UnitSAO::generateUpdateArmorGroupsCommand() const
 	return os.str();
 }
 
-std::string UnitSAO::generateUpdatePositionCommand(const v3f &position,
+String UnitSAO::generateUpdatePositionCommand(const v3f &position,
 		const v3f &velocity, const v3f &acceleration, const v3f &rotation,
 		bool do_interpolate, bool is_movement_end, f32 update_interval)
 {
@@ -348,7 +348,7 @@ std::string UnitSAO::generateUpdatePositionCommand(const v3f &position,
 	return os.str();
 }
 
-std::string UnitSAO::generateSetPropertiesCommand(const ObjectProperties &prop) const
+String UnitSAO::generateSetPropertiesCommand(const ObjectProperties &prop) const
 {
 	std::ostringstream os(std::ios::binary);
 	writeU8(os, AO_CMD_SET_PROPERTIES);
@@ -356,7 +356,7 @@ std::string UnitSAO::generateSetPropertiesCommand(const ObjectProperties &prop) 
 	return os.str();
 }
 
-std::string UnitSAO::generatePunchCommand(u16 result_hp) const
+String UnitSAO::generatePunchCommand(u16 result_hp) const
 {
 	std::ostringstream os(std::ios::binary);
 	// command

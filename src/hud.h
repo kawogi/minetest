@@ -97,9 +97,9 @@ enum HudCompassDir {
 struct HudElement {
 	HudElementType type;
 	v2f pos;
-	std::string name;
+	String name;
 	v2f scale;
-	std::string text;
+	String text;
 	u32 number;
 	u32 item;
 	u32 dir;
@@ -108,7 +108,7 @@ struct HudElement {
 	v3f world_pos;
 	v2s32 size;
 	s16 z_index = 0;
-	std::string text2;
+	String text2;
 	u32 style;
 };
 

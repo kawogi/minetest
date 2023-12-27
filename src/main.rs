@@ -1,3 +1,5 @@
+#![warn(clippy::pedantic)]
+
 /*
 Minetest
 Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
@@ -17,125 +19,138 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include "irrlichttypes.h" // must be included before anything irrlicht, see comment in the file
-//#include "irrlicht.h" // createDevice
-#include "irrlichttypes_extrabloated.h"
-#include "irrlicht_changes/printing.h"
-#include "chat_interface.h"
-#include "debug.h"
-#include "unittest/test.h"
-#include "server.h"
-#include "filesys.h"
-#include "version.h"
-#include "defaultsettings.h"
-#include "gettext.h"
-#include "log.h"
-#include "util/quicktune.h"
-#include "httpfetch.h"
-#include "gameparams.h"
-#include "database/database.h"
-#include "config.h"
-#include "player.h"
-#include "porting.h"
-#include "network/socket.h"
-#include "mapblock.h"
-#if USE_CURSES
-	#include "terminal_chat_console.h"
-#endif
+// #include "irrlichttypes.h" // must be included before anything irrlicht, see comment in the file
+// //#include "irrlicht.h" // createDevice
+// #include "irrlichttypes_extrabloated.h"
+// #include "irrlicht_changes/printing.h"
+// #include "chat_interface.h"
+// #include "debug.h"
+// #include "unittest/test.h"
+// #include "server.h"
+// #include "filesys.h"
+// #include "version.h"
+// #include "defaultsettings.h"
+// #include "gettext.h"
+// #include "log.h"
+// #include "util/quicktune.h"
+// #include "httpfetch.h"
+// #include "gameparams.h"
+// #include "database/database.h"
+// #include "config.h"
+// #include "player.h"
+// #include "porting.h"
+// #include "network/socket.h"
+// #include "mapblock.h"
+// #if USE_CURSES
+// 	#include "terminal_chat_console.h"
+// #endif
 
-// for version information only
-extern "C" {
-#if USE_LUAJIT
-	#include <luajit.h>
-#else
-	#include <lua.h>
-#endif
-}
+// // for version information only
+// extern "C" {
+// #if USE_LUAJIT
+// 	#include <luajit.h>
+// #else
+// 	#include <lua.h>
+// #endif
+// }
 
-#if !defined(__cpp_rtti) || !defined(__cpp_exceptions)
-#error Minetest cannot be built without exceptions or RTTI
-#endif
+// #if !defined(__cpp_rtti) || !defined(__cpp_exceptions)
+// #error Minetest cannot be built without exceptions or RTTI
+// #endif
 
-#define DEBUGFILE "debug.txt"
-#define DEFAULT_SERVER_PORT 30000
+use std::collections::{HashMap, HashSet};
 
-#define ENV_MT_LOGCOLOR "MT_LOGCOLOR"
-#define ENV_NO_COLOR "NO_COLOR"
-#define ENV_CLICOLOR "CLICOLOR"
-#define ENV_CLICOLOR_FORCE "CLICOLOR_FORCE"
+// #define DEBUGFILE "debug.txt"
+pub const DEBUGFILE: &str = "debug.txt";
+// #define DEFAULT_SERVER_PORT 30000
+pub const DEFAULT_SERVER_PORT: u16 = 30000;
 
-typedef std::map<String, ValueSpec> OptionList;
+// #define ENV_MT_LOGCOLOR "MT_LOGCOLOR"
+pub const ENV_MT_LOGCOLOR: &str = "MT_LOGCOLOR";
+// #define ENV_NO_COLOR "NO_COLOR"
+pub const ENV_NO_COLOR: &str = "NO_COLOR";
+// #define ENV_CLICOLOR "CLICOLOR"
+pub const ENV_CLICOLOR: &str = "CLICOLOR";
+// #define ENV_CLICOLOR_FORCE "CLICOLOR_FORCE"
+pub const ENV_CLICOLOR_FORCE: &str = "CLICOLOR_FORCE";
+
+// typedef std::map<String, ValueSpec> OptionList;
+pub type OptionList = HashMap<String, ValueSpec>;
 
 /**********************************************************************
  * Private functions
  **********************************************************************/
 
-static void get_env_opts(Settings &args);
-static bool get_cmdline_opts(int argc, char *argv[], Settings *cmd_args);
-static void set_allowed_options(OptionList *allowed_options);
+// static void get_env_opts(Settings &args);
+// static bool get_cmdline_opts(int argc, char *argv[], Settings *cmd_args);
+// static void set_allowed_options(OptionList *allowed_options);
 
-static void print_help(const OptionList &allowed_options);
-static void print_allowed_options(const OptionList &allowed_options);
-static void print_version();
-static void print_worldspecs(const std::vector<WorldSpec> &worldspecs,
-	std::ostream &os, bool print_name = true, bool print_path = true);
-static void print_modified_quicktune_values();
+// static void print_help(const OptionList &allowed_options);
+// static void print_allowed_options(const OptionList &allowed_options);
+// static void print_version();
+// static void print_worldspecs(const std::vector<WorldSpec> &worldspecs,
+// 	std::ostream &os, bool print_name = true, bool print_path = true);
+// static void print_modified_quicktune_values();
 
-static void list_game_ids();
-static void list_worlds(bool print_name, bool print_path);
-static bool setup_log_params(const Settings &cmd_args);
-static bool create_userdata_path();
-static bool use_debugger(int argc, char *argv[]);
-static bool init_common(const Settings &cmd_args, int argc, char *argv[]);
-static void uninit_common();
-static void startup_message();
-static bool read_config_file(const Settings &cmd_args);
-static void init_log_streams(const Settings &cmd_args);
+// static void list_game_ids();
+// static void list_worlds(bool print_name, bool print_path);
+// static bool setup_log_params(const Settings &cmd_args);
+// static bool create_userdata_path();
+// static bool use_debugger(int argc, char *argv[]);
+// static bool init_common(const Settings &cmd_args, int argc, char *argv[]);
+// static void uninit_common();
+// static void startup_message();
+// static bool read_config_file(const Settings &cmd_args);
+// static void init_log_streams(const Settings &cmd_args);
 
-static bool game_configure(GameParams *game_params, const Settings &cmd_args);
-static void game_configure_port(GameParams *game_params, const Settings &cmd_args);
+// static bool game_configure(GameParams *game_params, const Settings &cmd_args);
+// static void game_configure_port(GameParams *game_params, const Settings &cmd_args);
 
-static bool game_configure_world(GameParams *game_params, const Settings &cmd_args);
-static bool get_world_from_cmdline(GameParams *game_params, const Settings &cmd_args);
-static bool get_world_from_config(GameParams *game_params, const Settings &cmd_args);
-static bool auto_select_world(GameParams *game_params);
-static String get_clean_world_path(const String &path);
+// static bool game_configure_world(GameParams *game_params, const Settings &cmd_args);
+// static bool get_world_from_cmdline(GameParams *game_params, const Settings &cmd_args);
+// static bool get_world_from_config(GameParams *game_params, const Settings &cmd_args);
+// static bool auto_select_world(GameParams *game_params);
+// static String get_clean_world_path(const String &path);
 
-static bool game_configure_subgame(GameParams *game_params, const Settings &cmd_args);
-static bool get_game_from_cmdline(GameParams *game_params, const Settings &cmd_args);
-static bool determine_subgame(GameParams *game_params);
+// static bool game_configure_subgame(GameParams *game_params, const Settings &cmd_args);
+// static bool get_game_from_cmdline(GameParams *game_params, const Settings &cmd_args);
+// static bool determine_subgame(GameParams *game_params);
 
-static bool run_dedicated_server(const GameParams &game_params, const Settings &cmd_args);
-static bool migrate_map_database(const GameParams &game_params, const Settings &cmd_args);
-static bool recompress_map_database(const GameParams &game_params, const Settings &cmd_args);
+// static bool run_dedicated_server(const GameParams &game_params, const Settings &cmd_args);
+// static bool migrate_map_database(const GameParams &game_params, const Settings &cmd_args);
+// static bool recompress_map_database(const GameParams &game_params, const Settings &cmd_args);
 
 /**********************************************************************/
 
 
-FileLogOutput file_log_output;
+// TODO replace by proper logger
+struct FileLogOutput {
+}
 
-static OptionList allowed_options;
+static file_log_output: FileLogOutput;
+static allowed_options: OptionList;
 
-int main(int argc, char *argv[])
+fn main(args: Vec<String>) -> u32
 {
-	int retval;
+	let retval: i32;
 	debug_set_exception_handler();
 
 	g_logger.registerThread("Main");
 	g_logger.addOutputMaxLevel(&stderr_output, LL_ACTION);
 
-	Settings cmd_args;
+	let cmd_args: Settings;
 	get_env_opts(cmd_args);
-	bool cmd_args_ok = get_cmdline_opts(argc, argv, &cmd_args);
+	let cmd_args_ok: bool = get_cmdline_opts(argc, argv, &cmd_args);
 	if (!cmd_args_ok
 			|| cmd_args.getFlag("help")
 			|| cmd_args.exists("nonopt1")) {
 		porting::attachOrCreateConsole();
 		print_help(allowed_options);
-		return cmd_args_ok ? 0 : 1;
+		return if cmd_args_ok {0} else {1};
 	}
-	if (cmd_args.getFlag("console"))
+	if (cmd_args.getFlag("console")) {
 		porting::attachOrCreateConsole();
+    }
 
 	if (cmd_args.getFlag("version")) {
 		porting::attachOrCreateConsole();
@@ -143,12 +158,14 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-	if (!setup_log_params(cmd_args))
+	if (!setup_log_params(cmd_args)) {
 		return 1;
+    }
 
 	if (cmd_args.getFlag("debugger")) {
-		if (!use_debugger(argc, argv))
+		if (!use_debugger(argc, argv)) {
 			warningstream << "Continuing without debugger" << std::endl;
+        }
 	}
 
 	porting::signal_handler_init();
@@ -181,29 +198,34 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-	if (!init_common(cmd_args, argc, argv))
+	if (!init_common(cmd_args, argc, argv)) {
 		return 1;
+    }
 
-	if (g_settings->getBool("enable_console"))
+	if (g_settings.getBool("enable_console")) {
 		porting::attachOrCreateConsole();
+    }
 
-	GameStartData game_params;
+	let game_params: GameStartData;
 	porting::attachOrCreateConsole();
 	game_params.is_dedicated_server = true;
 
-	if (!game_configure(&game_params, cmd_args))
+	if (!game_configure(&game_params, cmd_args)) {
 		return 1;
+    }
 
 	sanity_check(!game_params.world_path.empty());
 
-	if (game_params.is_dedicated_server)
-		return run_dedicated_server(game_params, cmd_args) ? 0 : 1;
+	if (game_params.is_dedicated_server) {
+		return if run_dedicated_server(game_params, cmd_args) { 0} else { 1};
+    }
 
 	retval = 0;
 
 	// Update configuration file
-	if (!g_settings_path.empty())
-		g_settings->updateConfigFile(g_settings_path.c_str());
+	if (!g_settings_path.empty()) {
+		g_settings.updateConfigFile(g_settings_path.c_str());
+    }
 
 	print_modified_quicktune_values();
 
@@ -216,9 +238,9 @@ int main(int argc, char *argv[])
  *****************************************************************************/
 
 
-static void get_env_opts(Settings &args)
+fn get_env_opts(args: &mut Settings)
 {
-	const char *mt_logcolor = std::getenv(ENV_MT_LOGCOLOR);
+	let mt_logcolor: u8 = std::getenv(ENV_MT_LOGCOLOR);
 	if (mt_logcolor) {
 		args.set("color", mt_logcolor);
 	}
@@ -226,144 +248,143 @@ static void get_env_opts(Settings &args)
 	// CLICOLOR is a de-facto standard option for colors <https://bixense.com/clicolors/>
 	// CLICOLOR != 0: ANSI colors are supported (auto-detection, this is the default)
 	// CLICOLOR == 0: ANSI colors are NOT supported
-	const char *clicolor = std::getenv(ENV_CLICOLOR);
+	let clicolor: u8 = std::getenv(ENV_CLICOLOR);
 	if (clicolor && String(clicolor) == "0") {
 		args.set("color", "never");
 	}
 	// NO_COLOR only specifies that no color is allowed.
 	// Implemented according to <http://no-color.org/>
-	const char *no_color = std::getenv(ENV_NO_COLOR);
+	let no_color: u8 = std::getenv(ENV_NO_COLOR);
 	if (no_color && no_color[0]) {
 		args.set("color", "never");
 	}
 	// CLICOLOR_FORCE is another option, which should turn on colors "no matter what".
-	const char *clicolor_force = std::getenv(ENV_CLICOLOR_FORCE);
+	let clicolor_force: u8 = std::getenv(ENV_CLICOLOR_FORCE);
 	if (clicolor_force && String(clicolor_force) != "0") {
 		// should ALWAYS have colors, so we ignore tty (no "auto")
 		args.set("color", "always");
 	}
 }
 
-static bool get_cmdline_opts(int argc, char *argv[], Settings *cmd_args)
+fn get_cmdline_opts(args: Vec<String>, cmd_args: Settings) -> bool 
 {
 	set_allowed_options(&allowed_options);
 
-	return cmd_args->parseCommandLine(argc, argv, allowed_options);
+	return cmd_args.parseCommandLine(argc, argv, allowed_options);
 }
 
-static void set_allowed_options(OptionList *allowed_options)
+fn set_allowed_options(allowed_options: OptionList)
 {
-	allowed_options->clear();
+	allowed_options.clear();
 
-	allowed_options->insert(std::make_pair("help", ValueSpec(VALUETYPE_FLAG,
+	allowed_options.insert(std::make_pair("help", ValueSpec(VALUETYPE_FLAG,
 			_("Show allowed options"))));
-	allowed_options->insert(std::make_pair("version", ValueSpec(VALUETYPE_FLAG,
+	allowed_options.insert(std::make_pair("version", ValueSpec(VALUETYPE_FLAG,
 			_("Show version information"))));
-	allowed_options->insert(std::make_pair("config", ValueSpec(VALUETYPE_STRING,
+	allowed_options.insert(std::make_pair("config", ValueSpec(VALUETYPE_STRING,
 			_("Load configuration from specified file"))));
-	allowed_options->insert(std::make_pair("port", ValueSpec(VALUETYPE_STRING,
+	allowed_options.insert(std::make_pair("port", ValueSpec(VALUETYPE_STRING,
 			_("Set network port (UDP)"))));
-	allowed_options->insert(std::make_pair("run-unittests", ValueSpec(VALUETYPE_FLAG,
+	allowed_options.insert(std::make_pair("run-unittests", ValueSpec(VALUETYPE_FLAG,
 			_("Run the unit tests and exit"))));
-	allowed_options->insert(std::make_pair("test-module", ValueSpec(VALUETYPE_STRING,
+	allowed_options.insert(std::make_pair("test-module", ValueSpec(VALUETYPE_STRING,
 			_("Only run the specified test module"))));
-	allowed_options->insert(std::make_pair("map-dir", ValueSpec(VALUETYPE_STRING,
+	allowed_options.insert(std::make_pair("map-dir", ValueSpec(VALUETYPE_STRING,
 			_("Same as --world (deprecated)"))));
-	allowed_options->insert(std::make_pair("world", ValueSpec(VALUETYPE_STRING,
+	allowed_options.insert(std::make_pair("world", ValueSpec(VALUETYPE_STRING,
 			_("Set world path (implies local game if used with option --go)"))));
-	allowed_options->insert(std::make_pair("worldname", ValueSpec(VALUETYPE_STRING,
+	allowed_options.insert(std::make_pair("worldname", ValueSpec(VALUETYPE_STRING,
 			_("Set world by name (implies local game if used with option --go)"))));
-	allowed_options->insert(std::make_pair("worldlist", ValueSpec(VALUETYPE_STRING,
+	allowed_options.insert(std::make_pair("worldlist", ValueSpec(VALUETYPE_STRING,
 			_("Get list of worlds ('path' lists paths, "
 			"'name' lists names, 'both' lists both)"))));
-	allowed_options->insert(std::make_pair("quiet", ValueSpec(VALUETYPE_FLAG,
+	allowed_options.insert(std::make_pair("quiet", ValueSpec(VALUETYPE_FLAG,
 			_("Print to console errors only"))));
-	allowed_options->insert(std::make_pair("color", ValueSpec(VALUETYPE_STRING,
+	allowed_options.insert(std::make_pair("color", ValueSpec(VALUETYPE_STRING,
 			_("Coloured logs ('always', 'never' or 'auto'), defaults to 'auto'"
 			))));
-	allowed_options->insert(std::make_pair("info", ValueSpec(VALUETYPE_FLAG,
+	allowed_options.insert(std::make_pair("info", ValueSpec(VALUETYPE_FLAG,
 			_("Print more information to console"))));
-	allowed_options->insert(std::make_pair("verbose",  ValueSpec(VALUETYPE_FLAG,
+	allowed_options.insert(std::make_pair("verbose",  ValueSpec(VALUETYPE_FLAG,
 			_("Print even more information to console"))));
-	allowed_options->insert(std::make_pair("trace", ValueSpec(VALUETYPE_FLAG,
+	allowed_options.insert(std::make_pair("trace", ValueSpec(VALUETYPE_FLAG,
 			_("Print enormous amounts of information to log and console"))));
-	allowed_options->insert(std::make_pair("debugger", ValueSpec(VALUETYPE_FLAG,
+	allowed_options.insert(std::make_pair("debugger", ValueSpec(VALUETYPE_FLAG,
 			_("Try to automatically attach a debugger before starting (convenience option)"))));
-	allowed_options->insert(std::make_pair("logfile", ValueSpec(VALUETYPE_STRING,
+	allowed_options.insert(std::make_pair("logfile", ValueSpec(VALUETYPE_STRING,
 			_("Set logfile path ('' = no logging)"))));
-	allowed_options->insert(std::make_pair("gameid", ValueSpec(VALUETYPE_STRING,
+	allowed_options.insert(std::make_pair("gameid", ValueSpec(VALUETYPE_STRING,
 			_("Set gameid (\"--gameid list\" prints available ones)"))));
-	allowed_options->insert(std::make_pair("migrate", ValueSpec(VALUETYPE_STRING,
+	allowed_options.insert(std::make_pair("migrate", ValueSpec(VALUETYPE_STRING,
 			_("Migrate from current map backend to another (Only works when using minetestserver or with --server)"))));
-	allowed_options->insert(std::make_pair("migrate-players", ValueSpec(VALUETYPE_STRING,
+	allowed_options.insert(std::make_pair("migrate-players", ValueSpec(VALUETYPE_STRING,
 		_("Migrate from current players backend to another (Only works when using minetestserver or with --server)"))));
-	allowed_options->insert(std::make_pair("migrate-auth", ValueSpec(VALUETYPE_STRING,
+	allowed_options.insert(std::make_pair("migrate-auth", ValueSpec(VALUETYPE_STRING,
 		_("Migrate from current auth backend to another (Only works when using minetestserver or with --server)"))));
-	allowed_options->insert(std::make_pair("migrate-mod-storage", ValueSpec(VALUETYPE_STRING,
+	allowed_options.insert(std::make_pair("migrate-mod-storage", ValueSpec(VALUETYPE_STRING,
 		_("Migrate from current mod storage backend to another (Only works when using minetestserver or with --server)"))));
-	allowed_options->insert(std::make_pair("terminal", ValueSpec(VALUETYPE_FLAG,
+	allowed_options.insert(std::make_pair("terminal", ValueSpec(VALUETYPE_FLAG,
 			_("Feature an interactive terminal (Only works when using minetestserver or with --server)"))));
-	allowed_options->insert(std::make_pair("recompress", ValueSpec(VALUETYPE_FLAG,
+	allowed_options.insert(std::make_pair("recompress", ValueSpec(VALUETYPE_FLAG,
 			_("Recompress the blocks of the given map database."))));
 }
 
-static void print_help(const OptionList &allowed_options)
+fn print_help(allowed_options: &OptionList)
 {
-	std::cout << _("Allowed options:") << std::endl;
+	println!("Allowed options:");
 	print_allowed_options(allowed_options);
 }
 
-static void print_allowed_options(const OptionList &allowed_options)
+fn print_allowed_options(allowed_options: &OptionList)
 {
-	for (const auto &allowed_option : allowed_options) {
-		String opt = "  --" + allowed_option.first;
-		if (allowed_option.second.type != VALUETYPE_FLAG)
+	for allowed_option in allowed_options {
+        let opt: String = "  --" + allowed_option.first;
+		if (allowed_option.second.r#type != VALUETYPE_FLAG) {
 			opt += _(" <value>");
+        }
 
-		String opt_padded = padStringRight(opt, 30);
+		let opt_padded: String = padStringRight(opt, 30);
 		std::cout << opt_padded;
-		if (opt == opt_padded) // Line is too long to pad
-			std::cout << std::endl << padStringRight("", 30);
+		if (opt == opt_padded) { // Line is too long to pad
+			println!();
+            print!("{}", padStringRight("", 30));
+        }
 
-		if (allowed_option.second.help)
-			std::cout << allowed_option.second.help;
+		if (allowed_option.second.help) {
+			println!("{}", allowed_option.second.help);
+        }
 
-		std::cout << std::endl;
+		println!();
 	}
 }
 
-static void print_version()
+fn print_version()
 {
-	std::cout << PROJECT_NAME_C " " << g_version_hash
-		<< " (" << porting::getPlatformName() << ")" << std::endl;
-#if USE_LUAJIT
-	std::cout << "Using " << LUAJIT_VERSION << std::endl;
-#else
-	std::cout << "Using " << LUA_RELEASE << std::endl;
-#endif
-	std::cout << g_build_info << std::endl;
+	println!("{} {} ({})", PROJECT_NAME_C, g_version_hash, porting::getPlatformName());
+	println!("{}", g_build_info);
 }
 
-static void list_game_ids()
+fn list_game_ids()
 {
-	std::set<String> gameids = getAvailableGameIds();
-	for (const String &gameid : gameids)
-		std::cout << gameid <<std::endl;
+	let gameids: HashSet<String> = getAvailableGameIds();
+	for gameid in gameids {
+		println!("{}", gameid);
+    }
 }
 
-static void list_worlds(bool print_name, bool print_path)
+fn list_worlds(print_name: bool, print_path: bool)
 {
-	std::cout << _("Available worlds:") << std::endl;
-	std::vector<WorldSpec> worldspecs = getAvailableWorlds();
-	print_worldspecs(worldspecs, std::cout, print_name, print_path);
+	println!("Available worlds:");
+	let worldspecs: Vec<WorldSpec> = getAvailableWorlds();
+	print_worldspecs(&worldspecs, std::cout, print_name, print_path);
 }
 
-static void print_worldspecs(const std::vector<WorldSpec> &worldspecs,
-	std::ostream &os, bool print_name, bool print_path)
+fn print_worldspecs(worldspecs: &Vec<WorldSpec>,
+	os: &mut std::ostream, print_name: bool, print_path: bool)
 {
-	for (const WorldSpec &worldspec : worldspecs) {
-		String name = worldspec.name;
-		String path = worldspec.path;
+	for worldspec in worldspecs {
+		let name: String = worldspec.name;
+		let path: String = worldspec.path;
 		if (print_name && print_path) {
 			os << "\t" << name << "\t\t" << path << std::endl;
 		} else if (print_name) {
@@ -374,15 +395,16 @@ static void print_worldspecs(const std::vector<WorldSpec> &worldspecs,
 	}
 }
 
-static void print_modified_quicktune_values()
+fn print_modified_quicktune_values()
 {
-	bool header_printed = false;
-	std::vector<String> names = getQuicktuneNames();
+	let header_printed: bool = false;
+	let names: Vec<String> = getQuicktuneNames();
 
-	for (const String &name : names) {
-		QuicktuneValue val = getQuicktuneValue(name);
-		if (!val.modified)
+	for name in names {
+		let val: QuicktuneValue = getQuicktuneValue(name);
+		if (!val.modified) {
 			continue;
+        }
 		if (!header_printed) {
 			dstream << "Modified quicktune values:" << std::endl;
 			header_printed = true;
@@ -391,7 +413,7 @@ static void print_modified_quicktune_values()
 	}
 }
 
-static bool setup_log_params(const Settings &cmd_args)
+fn setup_log_params(cmd_args: &Settings) -> bool
 {
 	// Quiet mode, print errors only
 	if (cmd_args.getFlag("quiet")) {
@@ -400,7 +422,7 @@ static bool setup_log_params(const Settings &cmd_args)
 	}
 
 	// Coloured log messages (see log.h)
-	String color_mode;
+	let color_mode: String;
 	if (cmd_args.exists("color")) {
 		color_mode = cmd_args.get("color");
 	}
@@ -419,12 +441,14 @@ static bool setup_log_params(const Settings &cmd_args)
 
 	// In certain cases, output info level on stderr
 	if (cmd_args.getFlag("info") || cmd_args.getFlag("verbose") ||
-			cmd_args.getFlag("trace") || cmd_args.getFlag("speedtests"))
+			cmd_args.getFlag("trace") || cmd_args.getFlag("speedtests")) {
 		g_logger.addOutput(&stderr_output, LL_INFO);
+    }
 
 	// In certain cases, output verbose level on stderr
-	if (cmd_args.getFlag("verbose") || cmd_args.getFlag("trace"))
+	if (cmd_args.getFlag("verbose") || cmd_args.getFlag("trace")) {
 		g_logger.addOutput(&stderr_output, LL_VERBOSE);
+    }
 
 	if (cmd_args.getFlag("trace")) {
 		dstream << _("Enabling trace level debug output") << std::endl;
@@ -435,57 +459,64 @@ static bool setup_log_params(const Settings &cmd_args)
 	return true;
 }
 
-static bool create_userdata_path()
+fn create_userdata_path() -> bool
 {
-	bool success;
+	let success: bool;
 
 	// Create user data directory
 	success = fs::CreateAllDirs(porting::path_user);
 	return success;
 }
 
-namespace {
-	[[maybe_unused]] String findProgram(const char *name) {
-		char *path_c = getenv("PATH");
-		if (!path_c)
-			return "";
-		std::istringstream iss(path_c);
-		String checkpath;
+// namespace {
+	#[allow(unused)]
+    fn findProgram(name: &str) -> String {
+		let path_c: &str = getenv("PATH");
+		if (path_c.is_empty()) {
+			return "".to_owned();
+        }
+		let path_c: std::istringstream = std::istringstream::new(path_c);
+		let checkpath: String;
 		while (!iss.eof()) {
 			std::getline(iss, checkpath, PATH_DELIM[0]);
-			if (!checkpath.empty() && checkpath.back() != DIR_DELIM_CHAR)
+			if (!checkpath.empty() && checkpath.back() != DIR_DELIM_CHAR) {
 				checkpath.push_back(DIR_DELIM_CHAR);
+            }
 			checkpath.append(name);
-			if (fs::IsExecutable(checkpath))
+			if (fs::IsExecutable(checkpath)) {
 				return checkpath;
+            }
 		}
-		return "";
+		return "".to_owned();
 	}
 
-	[[maybe_unused]] const char *debuggerNames[] = {"gdb", "lldb"};
+    #[allow(unused)]
+	const debuggerNames: [&str; 2] = ["gdb", "lldb"];
 
-	template <class T>
-	void getDebuggerArgs(T &out, int i) {
+	fn getDebuggerArgs<T>(out: &T, i: int) {
 		if (i == 0) {
-			for (auto s : {"-q", "--batch", "-iex", "set confirm off",
-				"-ex", "run", "-ex", "bt", "--args"})
+			for s in ["-q", "--batch", "-iex", "set confirm off",
+				"-ex", "run", "-ex", "bt", "--args"] {
 				out.push_back(s);
+                }
 		} else if (i == 1) {
-			for (auto s : {"-Q", "-b", "-o", "run", "-k", "bt\nq", "--"})
+			for s in ["-Q", "-b", "-o", "run", "-k", "bt\nq", "--"] {
 				out.push_back(s);
+            }
 		}
 	}
-}
+// }
 
-static bool use_debugger(int argc, char *argv[])
+fn use_debugger(args: &Vec<String>) -> bool
 {
-	char exec_path[1024];
-	if (!porting::getCurrentExecPath(exec_path, sizeof(exec_path)))
+	let exec_path: [u8; 1024];
+	if (!porting::getCurrentExecPath(exec_path, sizeof(exec_path))) {
 		return false;
+    }
 
-	int debugger = -1;
-	String debugger_path;
-	for (u32 i = 0; i < ARRLEN(debuggerNames); i++) {
+	let debugger: int = -1;
+	let debugger_path: String;
+	for i in 0..ARRLEN(debuggerNames) {
 		debugger_path = findProgram(debuggerNames[i]);
 		if (!debugger_path.empty()) {
 			debugger = i;
@@ -497,34 +528,26 @@ static bool use_debugger(int argc, char *argv[])
 		return false;
 	}
 
-	// Try to be helpful
-#ifdef NDEBUG
-	if (strcmp(BUILD_TYPE, "RelWithDebInfo") != 0) {
-		warningstream << "It looks like your " PROJECT_NAME_C " executable was built without "
-			"debug symbols (BUILD_TYPE=" BUILD_TYPE "), so you won't get useful backtraces."
-			<< std::endl;
-	}
-#endif
-
-	std::vector<const char*> new_args;
+	let new_args: std::vector<&str>;
 	new_args.push_back(debugger_path.c_str());
 	getDebuggerArgs(new_args, debugger);
 	// Copy the existing arguments
 	new_args.push_back(exec_path);
-	for (int i = 1; i < argc; i++) {
-		if (!strcmp(argv[i], "--debugger"))
+	for i in 1..args.len() {
+		if (!strcmp(args[i], "--debugger")) {
 			continue;
+        }
 		new_args.push_back(argv[i]);
 	}
 	new_args.push_back(nullptr);
 
 	errno = 0;
-	execv(new_args[0], const_cast<char**>(new_args.data()));
+	execv(new_args[0], const_cast::<&[&[char]]>(new_args.data()));
 	warningstream << "execv: " << strerror(errno) << std::endl;
 	return false;
 }
 
-static bool init_common(const Settings &cmd_args, int argc, char *argv[])
+fn init_common(cmd_args: &Settings, args: &Vec<String>) -> bool
 {
 	startup_message();
 	set_default_settings();
@@ -537,8 +560,9 @@ static bool init_common(const Settings &cmd_args, int argc, char *argv[])
 	// Set cleanup callback(s) to run at process exit
 	atexit(uninit_common);
 
-	if (!read_config_file(cmd_args))
+	if (!read_config_file(cmd_args)) {
 		return false;
+    }
 
 	init_log_streams(cmd_args);
 
@@ -547,26 +571,27 @@ static bool init_common(const Settings &cmd_args, int argc, char *argv[])
 	mysrand(time(0));
 
 	// Initialize HTTP fetcher
-	httpfetch_init(g_settings->getS32("curl_parallel_limit"));
+	httpfetch_init(g_settings.getS32("curl_parallel_limit"));
 
 	init_gettext(porting::path_locale.c_str(),
-		g_settings->get("language"), argc, argv);
+		g_settings.get("language"), argc, argv);
 
 	return true;
 }
 
-static void uninit_common()
+fn uninit_common()
 {
 	httpfetch_cleanup();
 
 	sockets_cleanup();
 
 	// It'd actually be okay to leak these but we want to please valgrind...
-	for (int i = 0; i < (int)SL_TOTAL_COUNT; i++)
-		delete Settings::getLayer((SettingsLayer)i);
+	for i in 0..SL_TOTAL_COUNT {
+		// delete Settings::getLayer((SettingsLayer)i);
+    }
 }
 
-static void startup_message()
+fn startup_message()
 {
 	infostream << PROJECT_NAME_C << " " << g_version_hash
 		<< "\nwith SER_FMT_VER_HIGHEST_READ="
@@ -574,13 +599,13 @@ static void startup_message()
 		<< g_build_info << std::endl;
 }
 
-static bool read_config_file(const Settings &cmd_args)
+read_config_file(const Settings &cmd_args) -> bool
 {
 	// Path of configuration file in use
 	sanity_check(g_settings_path.empty());	// Sanity check
 
 	if (cmd_args.exists("config")) {
-		bool r = g_settings->readConfigFile(cmd_args.get("config").c_str());
+		bool r = g_settings.readConfigFile(cmd_args.get("config").c_str());
 		if (!r) {
 			errorstream << "Could not read configuration from \""
 			            << cmd_args.get("config") << "\"" << std::endl;
@@ -594,15 +619,13 @@ static bool read_config_file(const Settings &cmd_args)
 		filenames.push_back(porting::path_user +
 				DIR_DELIM + ".." + DIR_DELIM + "minetest.conf");
 
-#if RUN_IN_PLACE
 		// Try also from a lower level (to aid having the same configuration
 		// for many RUN_IN_PLACE installs)
 		filenames.push_back(porting::path_user +
 				DIR_DELIM + ".." + DIR_DELIM + ".." + DIR_DELIM + "minetest.conf");
-#endif
 
 		for (const String &filename : filenames) {
-			bool r = g_settings->readConfigFile(filename.c_str());
+			bool r = g_settings.readConfigFile(filename.c_str());
 			if (r) {
 				g_settings_path = filename;
 				break;
@@ -625,7 +648,7 @@ static void init_log_streams(const Settings &cmd_args)
 		log_filename = cmd_args.get("logfile");
 
 	g_logger.removeOutput(&file_log_output);
-	String conf_loglev = g_settings->get("debug_log_level");
+	String conf_loglev = g_settings.get("debug_log_level");
 
 	// Old integer format
 	if (std::isdigit(conf_loglev[0])) {
@@ -652,7 +675,7 @@ static void init_log_streams(const Settings &cmd_args)
 	}
 
 	file_log_output.setFile(log_filename,
-		g_settings->getU64("debug_log_size_max") * 1000000);
+		g_settings.getU64("debug_log_size_max") * 1000000);
 	g_logger.addOutputMaxLevel(&file_log_output, log_level);
 }
 
@@ -673,16 +696,16 @@ static bool game_configure(GameParams *game_params, const Settings &cmd_args)
 static void game_configure_port(GameParams *game_params, const Settings &cmd_args)
 {
 	if (cmd_args.exists("port")) {
-		game_params->socket_port = cmd_args.getU16("port");
+		game_params.socket_port = cmd_args.getU16("port");
 	} else {
-		if (game_params->is_dedicated_server)
-			game_params->socket_port = g_settings->getU16("port");
+		if (game_params.is_dedicated_server)
+			game_params.socket_port = g_settings.getU16("port");
 		else
-			game_params->socket_port = g_settings->getU16("remote_port");
+			game_params.socket_port = g_settings.getU16("remote_port");
 	}
 
-	if (game_params->socket_port == 0)
-		game_params->socket_port = DEFAULT_SERVER_PORT;
+	if (game_params.socket_port == 0)
+		game_params.socket_port = DEFAULT_SERVER_PORT;
 }
 
 static bool game_configure_world(GameParams *game_params, const Settings &cmd_args)
@@ -727,7 +750,7 @@ static bool get_world_from_cmdline(GameParams *game_params, const Settings &cmd_
 			return false;
 		}
 
-		game_params->world_path = get_clean_world_path(commanded_world);
+		game_params.world_path = get_clean_world_path(commanded_world);
 		return !commanded_world.empty();
 	}
 
@@ -738,7 +761,7 @@ static bool get_world_from_cmdline(GameParams *game_params, const Settings &cmd_
 	else if (cmd_args.exists("nonopt0")) // First nameless argument
 		commanded_world = cmd_args.get("nonopt0");
 
-	game_params->world_path = get_clean_world_path(commanded_world);
+	game_params.world_path = get_clean_world_path(commanded_world);
 	return !commanded_world.empty();
 }
 
@@ -747,10 +770,10 @@ static bool get_world_from_config(GameParams *game_params, const Settings &cmd_a
 	// World directory
 	String commanded_world;
 
-	if (g_settings->exists("map-dir"))
-		commanded_world = g_settings->get("map-dir");
+	if (g_settings.exists("map-dir"))
+		commanded_world = g_settings.get("map-dir");
 
-	game_params->world_path = get_clean_world_path(commanded_world);
+	game_params.world_path = get_clean_world_path(commanded_world);
 
 	return !commanded_world.empty();
 }
@@ -769,7 +792,7 @@ static bool auto_select_world(GameParams *game_params)
 		dstream <<_("Automatically selecting world at") << " ["
 		        << world_path << "]" << std::endl;
 	// If there are multiple worlds, list them
-	} else if (worldspecs.size() > 1 && game_params->is_dedicated_server) {
+	} else if (worldspecs.size() > 1 && game_params.is_dedicated_server) {
 		std::cerr << _("Multiple worlds are available.") << std::endl;
 		std::cerr << _("Please select one using --worldname <name>"
 				" or --world <path>") << std::endl;
@@ -785,7 +808,7 @@ static bool auto_select_world(GameParams *game_params)
 	}
 
 	assert(!world_path.empty());	// Post-condition
-	game_params->world_path = world_path;
+	game_params.world_path = world_path;
 	return true;
 }
 
@@ -829,7 +852,7 @@ static bool get_game_from_cmdline(GameParams *game_params, const Settings &cmd_a
 		}
 		dstream << _("Using game specified by --gameid on the command line")
 		        << std::endl;
-		game_params->game_spec = commanded_gamespec;
+		game_params.game_spec = commanded_gamespec;
 		return true;
 	}
 
@@ -840,17 +863,17 @@ static bool determine_subgame(GameParams *game_params)
 {
 	SubgameSpec gamespec;
 
-	assert(!game_params->world_path.empty());	// Pre-condition
+	assert(!game_params.world_path.empty());	// Pre-condition
 
 	// If world doesn't exist
-	if (!game_params->world_path.empty()
-		&& !getWorldExists(game_params->world_path)) {
+	if (!game_params.world_path.empty()
+		&& !getWorldExists(game_params.world_path)) {
 		// Try to take gamespec from command line
-		if (game_params->game_spec.isValid()) {
-			gamespec = game_params->game_spec;
+		if (game_params.game_spec.isValid()) {
+			gamespec = game_params.game_spec;
 			infostream << "Using commanded gameid [" << gamespec.id << "]" << std::endl;
 		} else {
-			if (game_params->is_dedicated_server) {
+			if (game_params.is_dedicated_server) {
 				// If this is a dedicated server and no gamespec has been specified,
 				// print a friendly error pointing to ContentDB.
 				errorstream << "To run a " PROJECT_NAME_C " server, you need to select a game using the '--gameid' argument." << std::endl
@@ -860,11 +883,11 @@ static bool determine_subgame(GameParams *game_params)
 			return false;
 		}
 	} else { // World exists
-		String world_gameid = getWorldGameId(game_params->world_path, false);
+		String world_gameid = getWorldGameId(game_params.world_path, false);
 		// If commanded to use a gameid, do so
-		if (game_params->game_spec.isValid()) {
-			gamespec = game_params->game_spec;
-			if (game_params->game_spec.id != world_gameid) {
+		if (game_params.game_spec.isValid()) {
+			gamespec = game_params.game_spec;
+			if (game_params.game_spec.id != world_gameid) {
 				warningstream << "Using commanded gameid ["
 				            << gamespec.id << "]" << " instead of world gameid ["
 				            << world_gameid << "]" << std::endl;
@@ -872,7 +895,7 @@ static bool determine_subgame(GameParams *game_params)
 		} else {
 			// If world contains an embedded game, use it;
 			// Otherwise find world from local system.
-			gamespec = findWorldSubgame(game_params->world_path);
+			gamespec = findWorldSubgame(game_params.world_path);
 			infostream << "Using world gameid [" << gamespec.id << "]" << std::endl;
 		}
 	}
@@ -883,7 +906,7 @@ static bool determine_subgame(GameParams *game_params)
 		return false;
 	}
 
-	game_params->game_spec = gamespec;
+	game_params.game_spec = gamespec;
 	return true;
 }
 
@@ -915,10 +938,10 @@ static bool run_dedicated_server(const GameParams &game_params, const Settings &
 		return recompress_map_database(game_params, cmd_args);
 
 	// Bind address
-	String bind_str = g_settings->get("bind_address");
+	String bind_str = g_settings.get("bind_address");
 	Address bind_addr(0, 0, 0, 0, game_params.socket_port);
 
-	if (g_settings->getBool("ipv6_server"))
+	if (g_settings.getBool("ipv6_server"))
 		bind_addr.setAddress(static_cast<IPv6AddressBytes*>(nullptr));
 	try {
 		bind_addr.Resolve(bind_str.c_str());
@@ -927,7 +950,7 @@ static bool run_dedicated_server(const GameParams &game_params, const Settings &
 			<< "\" failed: " << e.what()
 			<< " -- Listening on all addresses." << std::endl;
 	}
-	if (bind_addr.isIPv6() && !g_settings->getBool("enable_ipv6")) {
+	if (bind_addr.isIPv6() && !g_settings.getBool("enable_ipv6")) {
 		errorstream << "Unable to listen on "
 		            << bind_addr.serializeString()
 		            << " because IPv6 is disabled" << std::endl;
@@ -937,7 +960,7 @@ static bool run_dedicated_server(const GameParams &game_params, const Settings &
 	if (cmd_args.exists("terminal")) {
 #if USE_CURSES
 		bool name_ok = true;
-		String admin_nick = g_settings->get("name");
+		String admin_nick = g_settings.get("name");
 
 		name_ok = name_ok && !admin_nick.empty();
 		name_ok = name_ok && string_allowed(admin_nick, PLAYERNAME_ALLOWED_CHARS);
@@ -1049,28 +1072,28 @@ static bool migrate_map_database(const GameParams &game_params, const Settings &
 	bool &kill = *porting::signal_handler_killstatus();
 
 	std::vector<v3s16> blocks;
-	old_db->listAllLoadableBlocks(blocks);
-	new_db->beginSave();
+	old_db.listAllLoadableBlocks(blocks);
+	new_db.beginSave();
 	for (std::vector<v3s16>::const_iterator it = blocks.begin(); it != blocks.end(); ++it) {
 		if (kill) return false;
 
 		String data;
-		old_db->loadBlock(*it, &data);
+		old_db.loadBlock(*it, &data);
 		if (!data.empty()) {
-			new_db->saveBlock(*it, data);
+			new_db.saveBlock(*it, data);
 		} else {
 			errorstream << "Failed to load block " << *it << ", skipping it." << std::endl;
 		}
 		if (++count % 0xFF == 0 && time(NULL) - last_update_time >= 1) {
 			std::cerr << " Migrated " << count << " blocks, "
 				<< (100.0 * count / blocks.size()) << "% completed.\r";
-			new_db->endSave();
-			new_db->beginSave();
+			new_db.endSave();
+			new_db.beginSave();
 			last_update_time = time(NULL);
 		}
 	}
 	std::cerr << std::endl;
-	new_db->endSave();
+	new_db.endSave();
 	delete old_db;
 	delete new_db;
 
@@ -1104,15 +1127,15 @@ static bool recompress_map_database(const GameParams &game_params, const Setting
 
 	// This is ok because the server doesn't actually run
 	std::vector<v3s16> blocks;
-	db->listAllLoadableBlocks(blocks);
-	db->beginSave();
+	db.listAllLoadableBlocks(blocks);
+	db.beginSave();
 	std::istringstream iss(std::ios_base::binary);
 	std::ostringstream oss(std::ios_base::binary);
 	for (auto it = blocks.begin(); it != blocks.end(); ++it) {
 		if (kill) return false;
 
 		String data;
-		db->loadBlock(*it, &data);
+		db.loadBlock(*it, &data);
 		if (data.empty()) {
 			errorstream << "Failed to load block " << *it << std::endl;
 			return false;
@@ -1132,19 +1155,19 @@ static bool recompress_map_database(const GameParams &game_params, const Setting
 			mb.serialize(oss, serialize_as_ver, true, -1);
 		}
 
-		db->saveBlock(*it, oss.str());
+		db.saveBlock(*it, oss.str());
 
 		count++;
 		if (count % 0xFF == 0 && porting::getTimeS() - last_update_time >= 1) {
 			std::cerr << " Recompressed " << count << " blocks, "
 				<< (100.0f * count / blocks.size()) << "% completed.\r";
-			db->endSave();
-			db->beginSave();
+			db.endSave();
+			db.beginSave();
 			last_update_time = porting::getTimeS();
 		}
 	}
 	std::cerr << std::endl;
-	db->endSave();
+	db.endSave();
 
 	actionstream << "Done, " << count << " blocks were recompressed." << std::endl;
 	return true;

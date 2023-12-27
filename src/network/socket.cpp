@@ -87,7 +87,7 @@ bool UDPSocket::init(bool ipv6, bool noExceptions)
 			return false;
 		}
 
-		throw SocketException(std::string("Failed to create socket: error ") +
+		throw SocketException(String("Failed to create socket: error ") +
 				      SOCKET_ERR_STR(LAST_SOCKET_ERR()));
 	}
 

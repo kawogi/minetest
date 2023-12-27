@@ -28,10 +28,10 @@ void TestGettext::runTests(IGameDef *gamedef)
 
 void TestGettext::testFmtgettext()
 {
-	std::string buf = dummyname("sample text %d", 12);
-	UASSERTEQ(std::string, buf, "sample text 12");
+	String buf = dummyname("sample text %d", 12);
+	UASSERTEQ(String, buf, "sample text 12");
 
-	std::string src, expect;
+	String src, expect;
 	src    = "You are about to join this server with the name \"%s\".\n";
 	expect = "You are about to join this server with the name \"foo\".\n";
 	for (int i = 0; i < 20; i++) {
@@ -39,5 +39,5 @@ void TestGettext::testFmtgettext()
 		expect.append("loooong text");
 	}
 	buf = dummyname(src.c_str(), "foo");
-	UASSERTEQ(const std::string &, buf, expect);
+	UASSERTEQ(const String &, buf, expect);
 }

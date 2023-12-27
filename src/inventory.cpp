@@ -43,7 +43,7 @@ static content_t content_translate_from_19_to_internal(content_t c_from)
 	return c_from;
 }
 
-ItemStack::ItemStack(const std::string &name_, u16 count_,
+ItemStack::ItemStack(const String &name_, u16 count_,
 		u16 wear_, IItemDefManager *itemdef) :
 	name(itemdef->getAlias(name_)),
 	count(count_),
@@ -91,7 +91,7 @@ void ItemStack::deSerialize(std::istream &is, IItemDefManager *itemdef)
 	name = deSerializeJsonStringIfNeeded(is);
 
 	// Skip space
-	std::string tmp;
+	String tmp;
 	std::getline(is, tmp, ' ');
 	if(!tmp.empty())
 		throw SerializationError("Unexpected text after item name");
@@ -144,7 +144,7 @@ void ItemStack::deSerialize(std::istream &is, IItemDefManager *itemdef)
 	{
 		// Obsoleted on 2012-01-07
 
-		std::string all;
+		String all;
 		std::getline(is, all, '\n');
 		// First attempt to read inside ""
 		Strfnd fnd(all);
@@ -172,7 +172,7 @@ void ItemStack::deSerialize(std::istream &is, IItemDefManager *itemdef)
 	{
 		// Obsoleted on 2012-01-07
 
-		std::string all;
+		String all;
 		std::getline(is, all, '\n');
 		// First attempt to read inside ""
 		Strfnd fnd(all);
@@ -202,7 +202,7 @@ void ItemStack::deSerialize(std::istream &is, IItemDefManager *itemdef)
 				name = itemdef->getAlias(name);
 
 			// Read the count
-			std::string count_str;
+			String count_str;
 			std::getline(is, count_str, ' ');
 			if (count_str.empty()) {
 				count = 1;
@@ -212,7 +212,7 @@ void ItemStack::deSerialize(std::istream &is, IItemDefManager *itemdef)
 			count = stoi(count_str);
 
 			// Read the wear
-			std::string wear_str;
+			String wear_str;
 			std::getline(is, wear_str, ' ');
 			if(wear_str.empty())
 				break;
@@ -236,71 +236,71 @@ void ItemStack::deSerialize(std::istream &is, IItemDefManager *itemdef)
 		count = 1;
 }
 
-void ItemStack::deSerialize(const std::string &str, IItemDefManager *itemdef)
+void ItemStack::deSerialize(const String &str, IItemDefManager *itemdef)
 {
 	std::istringstream is(str, std::ios::binary);
 	deSerialize(is, itemdef);
 }
 
-std::string ItemStack::getItemString(bool include_meta) const
+String ItemStack::getItemString(bool include_meta) const
 {
 	std::ostringstream os(std::ios::binary);
 	serialize(os, include_meta);
 	return os.str();
 }
 
-std::string ItemStack::getDescription(const IItemDefManager *itemdef) const
+String ItemStack::getDescription(const IItemDefManager *itemdef) const
 {
-	std::string desc = metadata.getString("description");
+	String desc = metadata.getString("description");
 	if (desc.empty())
 		desc = getDefinition(itemdef).description;
 	return desc.empty() ? name : desc;
 }
 
-std::string ItemStack::getShortDescription(const IItemDefManager *itemdef) const
+String ItemStack::getShortDescription(const IItemDefManager *itemdef) const
 {
-	std::string desc = metadata.getString("short_description");
+	String desc = metadata.getString("short_description");
 	if (desc.empty())
 		desc = getDefinition(itemdef).short_description;
 	if (!desc.empty())
 		return desc;
 	// no short_description because of old server version or modified builtin
 	// return first line of description
-	std::stringstream sstr(getDescription(itemdef));
+	Stringstream sstr(getDescription(itemdef));
 	std::getline(sstr, desc, '\n');
 	return desc;
 }
 
-std::string ItemStack::getInventoryImage(const IItemDefManager *itemdef) const
+String ItemStack::getInventoryImage(const IItemDefManager *itemdef) const
 {
-	std::string texture = metadata.getString("inventory_image");
+	String texture = metadata.getString("inventory_image");
 	if (texture.empty())
 		texture = getDefinition(itemdef).inventory_image;
 
 	return texture;
 }
 
-std::string ItemStack::getInventoryOverlay(const IItemDefManager *itemdef) const
+String ItemStack::getInventoryOverlay(const IItemDefManager *itemdef) const
 {
-	std::string texture = metadata.getString("inventory_overlay");
+	String texture = metadata.getString("inventory_overlay");
 	if (texture.empty())
 		texture = getDefinition(itemdef).inventory_overlay;
 
 	return texture;
 }
 
-std::string ItemStack::getWieldImage(const IItemDefManager *itemdef) const
+String ItemStack::getWieldImage(const IItemDefManager *itemdef) const
 {
-	std::string texture = metadata.getString("wield_image");
+	String texture = metadata.getString("wield_image");
 	if (texture.empty())
 		texture = getDefinition(itemdef).wield_image;
 
 	return texture;
 }
 
-std::string ItemStack::getWieldOverlay(const IItemDefManager *itemdef) const
+String ItemStack::getWieldOverlay(const IItemDefManager *itemdef) const
 {
-	std::string texture = metadata.getString("wield_overlay");
+	String texture = metadata.getString("wield_overlay");
 	if (texture.empty())
 		texture = getDefinition(itemdef).wield_overlay;
 
@@ -309,7 +309,7 @@ std::string ItemStack::getWieldOverlay(const IItemDefManager *itemdef) const
 
 v3f ItemStack::getWieldScale(const IItemDefManager *itemdef) const
 {
-	std::string scale = metadata.getString("wield_scale");
+	String scale = metadata.getString("wield_scale");
 	if (scale.empty())
 		return getDefinition(itemdef).wield_scale;
 
@@ -434,7 +434,7 @@ ItemStack ItemStack::peekItem(u32 peekcount) const
 	Inventory
 */
 
-InventoryList::InventoryList(const std::string &name, u32 size, IItemDefManager *itemdef):
+InventoryList::InventoryList(const String &name, u32 size, IItemDefManager *itemdef):
 	m_name(name),
 	m_size(size),
 	m_itemdef(itemdef)
@@ -472,7 +472,7 @@ void InventoryList::setWidth(u32 newwidth)
 	setModified();
 }
 
-void InventoryList::setName(const std::string &name)
+void InventoryList::setName(const String &name)
 {
 	m_name = name;
 	setModified();
@@ -509,12 +509,12 @@ void InventoryList::deSerialize(std::istream &is)
 	m_width = 0;
 
 	while (is.good()) {
-		std::string line;
+		String line;
 		std::getline(is, line, '\n');
 
 		std::istringstream iss(line);
 
-		std::string name;
+		String name;
 		std::getline(iss, name, ' ');
 
 		if (name == "EndInventoryList" || name == "end") {
@@ -899,12 +899,12 @@ void Inventory::deSerialize(std::istream &is)
 	new_lists.reserve(m_lists.size());
 
 	while (is.good()) {
-		std::string line;
+		String line;
 		std::getline(is, line, '\n');
 
 		std::istringstream iss(line);
 
-		std::string name;
+		String name;
 		std::getline(iss, name, ' ');
 
 		if (name == "EndInventory" || name == "end") {
@@ -923,7 +923,7 @@ void Inventory::deSerialize(std::istream &is)
 		}
 
 		if (name == "List") {
-			std::string listname;
+			String listname;
 			u32 listsize;
 
 			std::getline(iss, listname, ' ');
@@ -943,7 +943,7 @@ void Inventory::deSerialize(std::istream &is)
 
 		} else if (name == "KeepList") {
 			// Incrementally sent list
-			std::string listname;
+			String listname;
 			std::getline(iss, listname, ' ');
 
 			InventoryList *list = getList(listname);
@@ -966,7 +966,7 @@ void Inventory::deSerialize(std::istream &is)
 	throw SerializationError(ss.str());
 }
 
-InventoryList * Inventory::addList(const std::string &name, u32 size)
+InventoryList * Inventory::addList(const String &name, u32 size)
 {
 	setModified();
 
@@ -983,7 +983,7 @@ InventoryList * Inventory::addList(const std::string &name, u32 size)
 	}
 
 	//don't create list with invalid name
-	if (name.find(' ') != std::string::npos)
+	if (name.find(' ') != String::npos)
 		return nullptr;
 
 	InventoryList *list = new InventoryList(name, size, m_itemdef);
@@ -992,7 +992,7 @@ InventoryList * Inventory::addList(const std::string &name, u32 size)
 	return list;
 }
 
-InventoryList * Inventory::getList(const std::string &name)
+InventoryList * Inventory::getList(const String &name)
 {
 	s32 i = getListIndex(name);
 	if(i == -1)
@@ -1000,7 +1000,7 @@ InventoryList * Inventory::getList(const std::string &name)
 	return m_lists[i];
 }
 
-bool Inventory::deleteList(const std::string &name)
+bool Inventory::deleteList(const String &name)
 {
 	s32 i = getListIndex(name);
 	if(i == -1)
@@ -1014,7 +1014,7 @@ bool Inventory::deleteList(const std::string &name)
 	return true;
 }
 
-const InventoryList *Inventory::getList(const std::string &name) const
+const InventoryList *Inventory::getList(const String &name) const
 {
 	s32 i = getListIndex(name);
 	if(i == -1)
@@ -1022,7 +1022,7 @@ const InventoryList *Inventory::getList(const std::string &name) const
 	return m_lists[i];
 }
 
-s32 Inventory::getListIndex(const std::string &name) const
+s32 Inventory::getListIndex(const String &name) const
 {
 	for(u32 i=0; i<m_lists.size(); i++)
 	{

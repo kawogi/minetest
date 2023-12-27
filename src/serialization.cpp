@@ -106,7 +106,7 @@ void compressZlib(const u8 *data, size_t data_size, std::ostream &os, int level)
 	}
 }
 
-void compressZlib(const std::string &data, std::ostream &os, int level)
+void compressZlib(const String &data, std::ostream &os, int level)
 {
 	compressZlib((u8*)data.c_str(), data.size(), os, level);
 }
@@ -247,7 +247,7 @@ void compressZstd(const u8 *data, size_t data_size, std::ostream &os, int level)
 
 }
 
-void compressZstd(const std::string &data, std::ostream &os, int level)
+void compressZstd(const String &data, std::ostream &os, int level)
 {
 	compressZstd((u8*)data.c_str(), data.size(), os, level);
 }
@@ -350,7 +350,7 @@ void compress(const SharedBuffer<u8> &data, std::ostream &os, u8 version, int le
 	compress(*data, data.getSize(), os, version, level);
 }
 
-void compress(const std::string &data, std::ostream &os, u8 version, int level)
+void compress(const String &data, std::ostream &os, u8 version, int level)
 {
 	compress((u8*)data.c_str(), data.size(), os, version, level);
 }

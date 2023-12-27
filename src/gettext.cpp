@@ -26,7 +26,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "log.h"
 
 /******************************************************************************/
-void init_gettext(const char *path, const std::string &configured_language,
+void init_gettext(const char *path, const String &configured_language,
 	int argc, char *argv[])
 {
 #if USE_GETTEXT
@@ -43,7 +43,7 @@ void init_gettext(const char *path, const std::string &configured_language,
 		setlocale(LC_ALL, "");
 	}
 
-	std::string name = lowercase(PROJECT_NAME);
+	String name = lowercase(PROJECT_NAME);
 	infostream << "Gettext: domainname=\"" << name
 		<< "\" path=\"" << path << "\"" << std::endl;
 

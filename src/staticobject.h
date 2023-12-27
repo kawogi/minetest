@@ -32,7 +32,7 @@ struct StaticObject
 {
 	u8 type = 0;
 	v3f pos;
-	std::string data;
+	String data;
 
 	StaticObject() = default;
 	StaticObject(const ServerActiveObject *s_obj, const v3f &pos_);

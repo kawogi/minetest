@@ -134,7 +134,7 @@ void Address::Resolve(const char *name)
 }
 
 // IP address -> textual representation
-std::string Address::serializeString() const
+String Address::serializeString() const
 {
 	char str[INET6_ADDRSTRLEN];
 	if (inet_ntop(m_addr_family, (void*) &m_address, str, sizeof(str)) == nullptr)

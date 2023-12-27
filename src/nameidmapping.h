@@ -25,8 +25,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <unordered_map>
 #include "irrlichttypes_bloated.h"
 
-typedef std::unordered_map<u16, std::string> IdToNameMap;
-typedef std::unordered_map<std::string, u16> NameToIdMap;
+typedef std::unordered_map<u16, String> IdToNameMap;
+typedef std::unordered_map<String, u16> NameToIdMap;
 
 class NameIdMapping
 {
@@ -40,7 +40,7 @@ public:
 		m_name_to_id.clear();
 	}
 
-	void set(u16 id, const std::string &name)
+	void set(u16 id, const String &name)
 	{
 		m_id_to_name[id] = name;
 		m_name_to_id[name] = id;
@@ -48,7 +48,7 @@ public:
 
 	void removeId(u16 id)
 	{
-		std::string name;
+		String name;
 		bool found = getName(id, name);
 		if (!found)
 			return;
@@ -56,7 +56,7 @@ public:
 		m_name_to_id.erase(name);
 	}
 
-	void eraseName(const std::string &name)
+	void eraseName(const String &name)
 	{
 		u16 id;
 		bool found = getId(name, id);
@@ -65,7 +65,7 @@ public:
 		m_id_to_name.erase(id);
 		m_name_to_id.erase(name);
 	}
-	bool getName(u16 id, std::string &result) const
+	bool getName(u16 id, String &result) const
 	{
 		IdToNameMap::const_iterator i;
 		i = m_id_to_name.find(id);
@@ -74,7 +74,7 @@ public:
 		result = i->second;
 		return true;
 	}
-	bool getId(const std::string &name, u16 &result) const
+	bool getId(const String &name, u16 &result) const
 	{
 		NameToIdMap::const_iterator i;
 		i = m_name_to_id.find(name);

@@ -204,7 +204,7 @@ int ObjectRef::l_set_hp(lua_State *L)
 
 		lua_getfield(L, -1, "type");
 		if (lua_isstring(L, -1) &&
-				!reason.setTypeFromString(readParam<std::string>(L, -1))) {
+				!reason.setTypeFromString(readParam<String>(L, -1))) {
 			errorstream << "Bad type given!" << std::endl;
 		}
 		lua_pop(L, 1);
@@ -523,7 +523,7 @@ int ObjectRef::l_set_bone_position(lua_State *L)
 	if (sao == nullptr)
 		return 0;
 
-	std::string bone = readParam<std::string>(L, 2, "");
+	String bone = readParam<String>(L, 2, "");
 	v3f position = readParam<v3f>(L, 3, v3f(0, 0, 0));
 	v3f rotation = readParam<v3f>(L, 4, v3f(0, 0, 0));
 
@@ -540,7 +540,7 @@ int ObjectRef::l_get_bone_position(lua_State *L)
 	if (sao == nullptr)
 		return 0;
 
-	std::string bone = readParam<std::string>(L, 2, "");
+	String bone = readParam<String>(L, 2, "");
 
 	v3f position = v3f(0, 0, 0);
 	v3f rotation = v3f(0, 0, 0);
@@ -565,7 +565,7 @@ int ObjectRef::l_set_attach(lua_State *L)
 		throw LuaError("ObjectRef::set_attach: attaching object to itself is not allowed.");
 
 	int parent_id;
-	std::string bone;
+	String bone;
 	v3f position;
 	v3f rotation;
 	bool force_visible;
@@ -576,7 +576,7 @@ int ObjectRef::l_set_attach(lua_State *L)
 		old_parent->removeAttachmentChild(sao->getId());
 	}
 
-	bone          = readParam<std::string>(L, 3, "");
+	bone          = readParam<String>(L, 3, "");
 	position      = readParam<v3f>(L, 4, v3f(0, 0, 0));
 	rotation      = readParam<v3f>(L, 5, v3f(0, 0, 0));
 	force_visible = readParam<bool>(L, 6, false);
@@ -596,7 +596,7 @@ int ObjectRef::l_get_attach(lua_State *L)
 		return 0;
 
 	int parent_id;
-	std::string bone;
+	String bone;
 	v3f position;
 	v3f rotation;
 	bool force_visible;
@@ -931,7 +931,7 @@ int ObjectRef::l_set_texture_mod(lua_State *L)
 	if (entitysao == nullptr)
 		return 0;
 
-	std::string mod = readParam<std::string>(L, 2);
+	String mod = readParam<String>(L, 2);
 
 	entitysao->setTextureMod(mod);
 	return 0;
@@ -946,7 +946,7 @@ int ObjectRef::l_get_texture_mod(lua_State *L)
 	if (entitysao == nullptr)
 		return 0;
 
-	std::string mod = entitysao->getTextureMod();
+	String mod = entitysao->getTextureMod();
 
 	lua_pushstring(L, mod.c_str());
 	return 1;
@@ -981,7 +981,7 @@ int ObjectRef::l_get_entity_name(lua_State *L)
 	if (entitysao == nullptr)
 		return 0;
 
-	std::string name = entitysao->getName();
+	String name = entitysao->getName();
 
 	lua_pushstring(L, name.c_str());
 	return 1;
@@ -1244,11 +1244,11 @@ int ObjectRef::l_set_attribute(lua_State *L)
 	if (playersao == nullptr)
 		return 0;
 
-	std::string attr = luaL_checkstring(L, 2);
+	String attr = luaL_checkstring(L, 2);
 	if (lua_isnil(L, 3)) {
 		playersao->getMeta().removeString(attr);
 	} else {
-		std::string value = luaL_checkstring(L, 3);
+		String value = luaL_checkstring(L, 3);
 		playersao->getMeta().setString(attr, value);
 	}
 	return 1;
@@ -1265,9 +1265,9 @@ int ObjectRef::l_get_attribute(lua_State *L)
 	if (playersao == nullptr)
 		return 0;
 
-	std::string attr = luaL_checkstring(L, 2);
+	String attr = luaL_checkstring(L, 2);
 
-	std::string value;
+	String value;
 	if (playersao->getMeta().getStringToRef(attr, value)) {
 		lua_pushstring(L, value.c_str());
 		return 1;
@@ -1299,7 +1299,7 @@ int ObjectRef::l_set_inventory_formspec(lua_State *L)
 	if (player == nullptr)
 		return 0;
 
-	std::string formspec = luaL_checkstring(L, 2);
+	String formspec = luaL_checkstring(L, 2);
 
 	player->inventory_formspec = formspec;
 	getServer(L)->reportInventoryFormspecModified(player->getName());
@@ -1315,7 +1315,7 @@ int ObjectRef::l_get_inventory_formspec(lua_State *L)
 	if (player == nullptr)
 		return 0;
 
-	std::string formspec = player->inventory_formspec;
+	String formspec = player->inventory_formspec;
 
 	lua_pushlstring(L, formspec.c_str(), formspec.size());
 	return 1;
@@ -1330,7 +1330,7 @@ int ObjectRef::l_set_formspec_prepend(lua_State *L)
 	if (player == nullptr)
 		return 0;
 
-	std::string formspec = luaL_checkstring(L, 2);
+	String formspec = luaL_checkstring(L, 2);
 
 	player->formspec_prepend = formspec;
 	getServer(L)->reportFormspecPrependModified(player->getName());
@@ -1346,7 +1346,7 @@ int ObjectRef::l_get_formspec_prepend(lua_State *L)
 	if (player == nullptr)
 		 return 0;
 
-	std::string formspec = player->formspec_prepend;
+	String formspec = player->formspec_prepend;
 
 	lua_pushlstring(L, formspec.c_str(), formspec.size());
 	return 1;
@@ -1680,7 +1680,7 @@ int ObjectRef::l_hud_set_hotbar_image(lua_State *L)
 	if (player == nullptr)
 		return 0;
 
-	std::string name = readParam<std::string>(L, 2);
+	String name = readParam<String>(L, 2);
 
 	getServer(L)->hudSetHotbarImage(player, name);
 	return 1;
@@ -1695,7 +1695,7 @@ int ObjectRef::l_hud_get_hotbar_image(lua_State *L)
 	if (player == nullptr)
 		return 0;
 
-	const std::string &name = player->getHotbarImage();
+	const String &name = player->getHotbarImage();
 
 	lua_pushlstring(L, name.c_str(), name.size());
 	return 1;
@@ -1710,7 +1710,7 @@ int ObjectRef::l_hud_set_hotbar_selected_image(lua_State *L)
 	if (player == nullptr)
 		return 0;
 
-	std::string name = readParam<std::string>(L, 2);
+	String name = readParam<String>(L, 2);
 
 	getServer(L)->hudSetHotbarSelectedImage(player, name);
 	return 1;
@@ -1725,7 +1725,7 @@ int ObjectRef::l_hud_get_hotbar_selected_image(lua_State *L)
 	if (player == nullptr)
 		return 0;
 
-	const std::string &name = player->getHotbarSelectedImage();
+	const String &name = player->getHotbarSelectedImage();
 
 	lua_pushlstring(L, name.c_str(), name.size());
 	return 1;
@@ -1768,7 +1768,7 @@ int ObjectRef::l_set_sky(lua_State *L)
 			lua_pushnil(L);
 			while (lua_next(L, -2) != 0) {
 				// Key is at index -2 and value at index -1
-				sky_params.textures.emplace_back(readParam<std::string>(L, -1));
+				sky_params.textures.emplace_back(readParam<String>(L, -1));
 				// Removes the value, but keeps the key for iteration
 				lua_pop(L, 1);
 			}
@@ -1869,7 +1869,7 @@ int ObjectRef::l_set_sky(lua_State *L)
 			lua_pushnil(L);
 			while (lua_next(L, 4) != 0) {
 				// Key at index -2, and value at index -1
-				sky_params.textures.emplace_back(readParam<std::string>(L, -1));
+				sky_params.textures.emplace_back(readParam<String>(L, -1));
 				// Remove the value, keep the key for the next iteration
 				lua_pop(L, 1);
 			}
@@ -1937,7 +1937,7 @@ int ObjectRef::l_get_sky(lua_State *L)
 
 		lua_newtable(L);
 		s16 i = 1;
-		for (const std::string &texture : skybox_params.textures) {
+		for (const String &texture : skybox_params.textures) {
 			lua_pushlstring(L, texture.c_str(), texture.size());
 			lua_rawseti(L, -2, i++);
 		}
@@ -1957,7 +1957,7 @@ int ObjectRef::l_get_sky(lua_State *L)
 	}
 	lua_newtable(L);
 	s16 i = 1;
-	for (const std::string &texture : skybox_params.textures) {
+	for (const String &texture : skybox_params.textures) {
 		lua_pushlstring(L, texture.c_str(), texture.size());
 		lua_rawseti(L, -2, i++);
 	}
@@ -2297,7 +2297,7 @@ int ObjectRef::l_set_minimap_modes(lua_State *L)
 		if (lua_istable(L, -1)) {
 			bool ok = true;
 			MinimapMode mode;
-			std::string type = getstringfield_default(L, -1, "type", "");
+			String type = getstringfield_default(L, -1, "type", "");
 			if (type == "off")
 				mode.type = MINIMAP_TYPE_OFF;
 			else if (type == "surface")

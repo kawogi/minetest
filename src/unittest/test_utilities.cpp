@@ -240,16 +240,16 @@ void TestUtilities::testPadString()
 
 void TestUtilities::testStartsWith()
 {
-	UASSERT(str_starts_with(std::string(), std::string()) == true);
-	UASSERT(str_starts_with(std::string("the sharp pickaxe"),
-		std::string()) == true);
-	UASSERT(str_starts_with(std::string("the sharp pickaxe"),
-		std::string("the")) == true);
-	UASSERT(str_starts_with(std::string("the sharp pickaxe"),
-		std::string("The")) == false);
-	UASSERT(str_starts_with(std::string("the sharp pickaxe"),
-		std::string("The"), true) == true);
-	UASSERT(str_starts_with(std::string("T"), std::string("The")) == false);
+	UASSERT(str_starts_with(String(), String()) == true);
+	UASSERT(str_starts_with(String("the sharp pickaxe"),
+		String()) == true);
+	UASSERT(str_starts_with(String("the sharp pickaxe"),
+		String("the")) == true);
+	UASSERT(str_starts_with(String("the sharp pickaxe"),
+		String("The")) == false);
+	UASSERT(str_starts_with(String("the sharp pickaxe"),
+		String("The"), true) == true);
+	UASSERT(str_starts_with(String("T"), String("The")) == false);
 }
 
 void TestUtilities::testStrEqual()
@@ -268,7 +268,7 @@ void TestUtilities::testStrToIntConversion()
 
 void TestUtilities::testStringReplace()
 {
-	std::string test_str;
+	String test_str;
 	test_str = "Hello there";
 	str_replace(test_str, "there", "world");
 	UASSERT(test_str == "Hello world");
@@ -304,12 +304,12 @@ void TestUtilities::testUTF8()
 
 	UASSERT(wide_to_utf8(L"¤") == "¤");
 
-	UASSERTEQ(std::string, wide_to_utf8(utf8_to_wide("")), "");
-	UASSERTEQ(std::string, wide_to_utf8(utf8_to_wide("the shovel dug a crumbly node!")),
+	UASSERTEQ(String, wide_to_utf8(utf8_to_wide("")), "");
+	UASSERTEQ(String, wide_to_utf8(utf8_to_wide("the shovel dug a crumbly node!")),
 		"the shovel dug a crumbly node!");
-	UASSERTEQ(std::string, wide_to_utf8(utf8_to_wide("-ä-")),
+	UASSERTEQ(String, wide_to_utf8(utf8_to_wide("-ä-")),
 		"-ä-");
-	UASSERTEQ(std::string, wide_to_utf8(utf8_to_wide("-\xF0\xA0\x80\x8B-")),
+	UASSERTEQ(String, wide_to_utf8(utf8_to_wide("-\xF0\xA0\x80\x8B-")),
 		"-\xF0\xA0\x80\x8B-");
 
 }
@@ -341,7 +341,7 @@ void TestUtilities::testWrapRows()
 			0x72, 0x2f, 0xd1, 0x82, 0xd0, 0xb5, 0xd1, 0x81, 0xd1, 0x82, 0x2f,
 			0x6d, 0x69, 0x6e, 0x65, 0x74, 0x65, 0x73, 0x74, 0x2f, 0x62, 0x69,
 			0x6e, 0x2f, 0x2e, 0x2e, 0};
-		std::string str((char *)s);
+		String str((char *)s);
 		UASSERT(utf8_to_wide(wrap_rows(str, 20)) != L"<invalid UTF-8 string>");
 	};
 	{
@@ -349,7 +349,7 @@ void TestUtilities::testWrapRows()
 			0x74, 0x65, 0x73, 0x74, 0x20, 0xd1, 0x82, 0xd0, 0xb5, 0xd1, 0x81,
 			0xd1, 0x82, 0x20, 0xd1, 0x82, 0xd0, 0xb5, 0xd1, 0x81, 0xd1, 0x82,
 			0x20, 0xd1, 0x82, 0xd0, 0xb5, 0xd1, 0x81, 0xd1, 0x82, 0};
-		std::string str((char *)s);
+		String str((char *)s);
 		UASSERT(utf8_to_wide(wrap_rows(str, 8)) != L"<invalid UTF-8 string>");
 	}
 }
@@ -361,7 +361,7 @@ void TestUtilities::testEnrichedString()
 
 	UASSERT(str.substr(1, 3).getString() == L"est");
 	str += L" BUZZ";
-	UASSERT(str.substr(9, std::string::npos).getString() == L"BUZZ");
+	UASSERT(str.substr(9, String::npos).getString() == L"BUZZ");
 	str.setDefaultColor(color); // Blue foreground
 	UASSERT(str.getColors()[5] == color);
 	// Green background, then white and yellow text
@@ -404,7 +404,7 @@ void TestUtilities::testMyround()
 
 void TestUtilities::testStringJoin()
 {
-	std::vector<std::string> input;
+	std::vector<String> input;
 	UASSERT(str_join(input, ",") == "");
 
 	input.emplace_back("one");

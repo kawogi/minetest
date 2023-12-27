@@ -78,7 +78,7 @@ Player::Player(const char *name, IItemDefManager *idef):
 
 	m_player_settings.readGlobalSettings();
 	// Register player setting callbacks
-	for (const std::string &name : m_player_settings.setting_names)
+	for (const String &name : m_player_settings.setting_names)
 		g_settings->registerChangedCallback(name,
 			&Player::settingsChangedCallback, &m_player_settings);
 }
@@ -86,7 +86,7 @@ Player::Player(const char *name, IItemDefManager *idef):
 Player::~Player()
 {
 	// m_player_settings becomes invalid, remove callbacks
-	for (const std::string &name : m_player_settings.setting_names)
+	for (const String &name : m_player_settings.setting_names)
 		g_settings->deregisterChangedCallback(name,
 			&Player::settingsChangedCallback, &m_player_settings);
 	clearHud();
@@ -184,7 +184,7 @@ void PlayerSettings::readGlobalSettings()
 	autojump = g_settings->getBool("autojump");
 }
 
-void Player::settingsChangedCallback(const std::string &name, void *data)
+void Player::settingsChangedCallback(const String &name, void *data)
 {
 	((PlayerSettings *)data)->readGlobalSettings();
 }

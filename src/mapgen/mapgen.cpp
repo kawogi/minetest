@@ -128,7 +128,7 @@ Mapgen::~Mapgen()
 }
 
 
-MapgenType Mapgen::getMapgenType(const std::string &mgname)
+MapgenType Mapgen::getMapgenType(const String &mgname)
 {
 	for (size_t i = 0; i != ARRLEN(g_reg_mapgens); i++) {
 		if (mgname == g_reg_mapgens[i].name)
@@ -970,13 +970,13 @@ bool GenerateNotifier::addEvent(GenNotifyType type, v3s16 pos, u32 id)
 
 
 void GenerateNotifier::getEvents(
-	std::map<std::string, std::vector<v3s16> > &event_map)
+	std::map<String, std::vector<v3s16> > &event_map)
 {
 	std::list<GenNotifyEvent>::iterator it;
 
 	for (it = m_notify_events.begin(); it != m_notify_events.end(); ++it) {
 		GenNotifyEvent &gn = *it;
-		std::string name = (gn.type == GENNOTIFY_DECORATION) ?
+		String name = (gn.type == GENNOTIFY_DECORATION) ?
 			"decoration#"+ itos(gn.id) :
 			flagdesc_gennotify[gn.type].name;
 
@@ -1007,7 +1007,7 @@ void MapgenParams::readParams(const Settings *settings)
 	// should always be used via MapSettingsManager
 	assert(settings != g_settings);
 
-	std::string seed_str;
+	String seed_str;
 	if (settings->getNoEx("seed", seed_str)) {
 		if (!seed_str.empty())
 			seed = read_seed(seed_str.c_str());
@@ -1015,7 +1015,7 @@ void MapgenParams::readParams(const Settings *settings)
 			myrand_bytes(&seed, sizeof(seed));
 	}
 
-	std::string mg_name;
+	String mg_name;
 	if (settings->getNoEx("mg_name", mg_name)) {
 		mgtype = Mapgen::getMapgenType(mg_name);
 		if (mgtype == MAPGEN_INVALID)

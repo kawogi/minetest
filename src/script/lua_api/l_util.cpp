@@ -59,12 +59,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 int ModApiUtil::l_log(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	std::string text;
+	String text;
 	LogLevel level = LL_NONE;
 	if (lua_isnone(L, 2)) {
 		text = luaL_checkstring(L, 1);
 	} else {
-		std::string name = luaL_checkstring(L, 1);
+		String name = luaL_checkstring(L, 1);
 		text = luaL_checkstring(L, 2);
 		if (name == "deprecated") {
 			log_deprecated(L, text, 2);
@@ -110,7 +110,7 @@ int ModApiUtil::l_parse_json(lua_State *L)
 
 		Json::CharReaderBuilder builder;
 		builder.settings_["collectComments"] = false;
-		std::string errs;
+		String errs;
 
 		if (!Json::parseFromStream(builder, stream, &root, &errs)) {
 			errorstream << "Failed to parse json data " << errs << std::endl;
@@ -156,7 +156,7 @@ int ModApiUtil::l_write_json(lua_State *L)
 		return 2;
 	}
 
-	std::string out;
+	String out;
 	if (styled) {
 		out = root.toStyledString();
 	} else {
@@ -197,7 +197,7 @@ int ModApiUtil::l_get_dig_params(lua_State *L)
 int ModApiUtil::l_get_hit_params(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	std::unordered_map<std::string, int> groups;
+	std::unordered_map<String, int> groups;
 	read_groups(L, 1, groups);
 	ToolCapabilities tp = read_tool_capabilities(L, 2);
 	float time_from_last_punch = readParam<float>(L, 3, 1000000);
@@ -211,18 +211,18 @@ int ModApiUtil::l_get_hit_params(lua_State *L)
 int ModApiUtil::l_check_password_entry(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	std::string name = luaL_checkstring(L, 1);
-	std::string entry = luaL_checkstring(L, 2);
-	std::string password = luaL_checkstring(L, 3);
+	String name = luaL_checkstring(L, 1);
+	String entry = luaL_checkstring(L, 2);
+	String password = luaL_checkstring(L, 3);
 
 	if (base64_is_valid(entry)) {
-		std::string hash = translate_password(name, password);
+		String hash = translate_password(name, password);
 		lua_pushboolean(L, hash == entry);
 		return 1;
 	}
 
-	std::string salt;
-	std::string verifier;
+	String salt;
+	String verifier;
 
 	if (!decode_srp_verifier_and_salt(entry, &verifier, &salt)) {
 		// invalid format
@@ -230,7 +230,7 @@ int ModApiUtil::l_check_password_entry(lua_State *L)
 		lua_pushboolean(L, false);
 		return 1;
 	}
-	std::string gen_verifier = generate_srp_verifier(name, password, salt);
+	String gen_verifier = generate_srp_verifier(name, password, salt);
 
 	lua_pushboolean(L, gen_verifier == verifier);
 	return 1;
@@ -240,9 +240,9 @@ int ModApiUtil::l_check_password_entry(lua_State *L)
 int ModApiUtil::l_get_password_hash(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	std::string name = luaL_checkstring(L, 1);
-	std::string raw_password = luaL_checkstring(L, 2);
-	std::string hash = translate_password(name, raw_password);
+	String name = luaL_checkstring(L, 1);
+	String raw_password = luaL_checkstring(L, 2);
+	String hash = translate_password(name, raw_password);
 	lua_pushstring(L, hash.c_str());
 	return 1;
 }
@@ -255,7 +255,7 @@ int ModApiUtil::l_is_yes(lua_State *L)
 	lua_getglobal(L, "tostring"); // function to be called
 	lua_pushvalue(L, 1); // 1st argument
 	lua_call(L, 1, 1); // execute function
-	std::string str = readParam<std::string>(L, -1); // get result
+	String str = readParam<String>(L, -1); // get result
 	lua_pop(L, 1);
 
 	bool yes = is_yes(str);
@@ -268,7 +268,7 @@ int ModApiUtil::l_get_builtin_path(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 
-	std::string path = porting::path_share + DIR_DELIM + "builtin" + DIR_DELIM;
+	String path = porting::path_share + DIR_DELIM + "builtin" + DIR_DELIM;
 	lua_pushstring(L, path.c_str());
 
 	return 1;
@@ -279,7 +279,7 @@ int ModApiUtil::l_get_user_path(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 
-	std::string path = porting::path_user;
+	String path = porting::path_user;
 	lua_pushstring(L, path.c_str());
 
 	return 1;
@@ -306,7 +306,7 @@ static LuaCompressMethod get_compress_method(lua_State *L, int index)
 	int value;
 	if (!string_to_enum(es_LuaCompressMethod, value, name)) {
 		// Pretend it's deflate if we don't know, for compatibility reasons.
-		log_deprecated(L, "Unknown compression method \"" + std::string(name)
+		log_deprecated(L, "Unknown compression method \"" + String(name)
 			+ "\", defaulting to \"deflate\". You should pass a valid value.");
 		return LUA_COMPRESS_METHOD_DEFLATE;
 	}
@@ -339,7 +339,7 @@ int ModApiUtil::l_compress(lua_State *L)
 		compressZstd(reinterpret_cast<const u8 *>(data), size, os, level);
 	}
 
-	std::string out = os.str();
+	String out = os.str();
 
 	lua_pushlstring(L, out.data(), out.size());
 	return 1;
@@ -355,7 +355,7 @@ int ModApiUtil::l_decompress(lua_State *L)
 
 	LuaCompressMethod method = get_compress_method(L, 2);
 
-	std::istringstream is(std::string(data, size), std::ios_base::binary);
+	std::istringstream is(String(data, size), std::ios_base::binary);
 	std::ostringstream os(std::ios_base::binary);
 
 	if (method == LUA_COMPRESS_METHOD_DEFLATE) {
@@ -364,7 +364,7 @@ int ModApiUtil::l_decompress(lua_State *L)
 		decompressZstd(is, os);
 	}
 
-	std::string out = os.str();
+	String out = os.str();
 
 	lua_pushlstring(L, out.data(), out.size());
 	return 1;
@@ -378,7 +378,7 @@ int ModApiUtil::l_encode_base64(lua_State *L)
 	size_t size;
 	const char *data = luaL_checklstring(L, 1, &size);
 
-	std::string out = base64_encode((const unsigned char *)(data), size);
+	String out = base64_encode((const unsigned char *)(data), size);
 
 	lua_pushlstring(L, out.data(), out.size());
 	return 1;
@@ -391,14 +391,14 @@ int ModApiUtil::l_decode_base64(lua_State *L)
 
 	size_t size;
 	const char *d = luaL_checklstring(L, 1, &size);
-	const std::string data = std::string(d, size);
+	const String data = String(d, size);
 
 	if (!base64_is_valid(data)) {
 		lua_pushnil(L);
 		return 1;
 	}
 
-	std::string out = base64_decode(data);
+	String out = base64_decode(data);
 
 	lua_pushlstring(L, out.data(), out.size());
 	return 1;
@@ -492,7 +492,7 @@ int ModApiUtil::l_safe_file_write(lua_State *L)
 
 	CHECK_SECURE_PATH(L, path, true);
 
-	bool ret = fs::safeWriteToFile(path, std::string(content, size));
+	bool ret = fs::safeWriteToFile(path, String(content, size));
 	lua_pushboolean(L, ret);
 
 	return 1;
@@ -554,7 +554,7 @@ int ModApiUtil::l_sha1(lua_State *L)
 	bool hex = !lua_isboolean(L, 2) || !readParam<bool>(L, 2);
 
 	// Compute actual checksum of data
-	std::string data_sha1;
+	String data_sha1;
 	{
 		SHA1 ctx;
 		ctx.addBytes(data, size);
@@ -564,7 +564,7 @@ int ModApiUtil::l_sha1(lua_State *L)
 	}
 
 	if (hex) {
-		std::string sha1_hex = hex_encode(data_sha1);
+		String sha1_hex = hex_encode(data_sha1);
 		lua_pushstring(L, sha1_hex.c_str());
 	} else {
 		lua_pushlstring(L, data_sha1.data(), data_sha1.size());
@@ -621,7 +621,7 @@ int ModApiUtil::l_encode_png(lua_State *L)
 	const char *data = luaL_checklstring(L, 3, NULL);
 	s32 compression = readParam<int>(L, 4);
 
-	std::string out = encodePNG((const u8*)data, width, height, compression);
+	String out = encodePNG((const u8*)data, width, height, compression);
 
 	lua_pushlstring(L, out.data(), out.size());
 	return 1;
@@ -633,7 +633,7 @@ int ModApiUtil::l_get_last_run_mod(lua_State *L)
 	NO_MAP_LOCK_REQUIRED;
 
 	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_CURRENT_MOD_NAME);
-	std::string current_mod = readParam<std::string>(L, -1, "");
+	String current_mod = readParam<String>(L, -1, "");
 	if (current_mod.empty()) {
 		lua_pop(L, 1);
 		lua_pushstring(L, getScriptApiBase(L)->getOrigin().c_str());

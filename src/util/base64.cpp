@@ -28,13 +28,13 @@ René Nyffenegger rene.nyffenegger@adp-gmbh.ch
 #include "base64.h"
 #include <iostream>
 
-static const std::string base64_chars =
+static const String base64_chars =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"abcdefghijklmnopqrstuvwxyz"
 		"0123456789+/";
 
-static const std::string base64_chars_padding_1 = "AEIMQUYcgkosw048";
-static const std::string base64_chars_padding_2 = "AQgw";
+static const String base64_chars_padding_1 = "AEIMQUYcgkosw048";
+static const String base64_chars_padding_2 = "AQgw";
 
 static inline bool is_base64(unsigned char c)
 {
@@ -44,15 +44,15 @@ static inline bool is_base64(unsigned char c)
 			|| c == '+' || c == '/';
 }
 
-bool base64_is_valid(std::string const& s)
+bool base64_is_valid(String const& s)
 {
 	size_t i = 0;
 	for (; i < s.size(); ++i)
 		if (!is_base64(s[i]))
 			break;
 	unsigned char padding = 3 - ((i + 3) % 4);
-	if ((padding == 1 && base64_chars_padding_1.find(s[i - 1]) == std::string::npos)
-			|| (padding == 2 && base64_chars_padding_2.find(s[i - 1]) == std::string::npos)
+	if ((padding == 1 && base64_chars_padding_1.find(s[i - 1]) == String::npos)
+			|| (padding == 2 && base64_chars_padding_2.find(s[i - 1]) == String::npos)
 			|| padding == 3)
 		return false;
 	int actual_padding = s.size() - i;
@@ -68,8 +68,8 @@ bool base64_is_valid(std::string const& s)
 	return padding == actual_padding;
 }
 
-std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_len) {
-	std::string ret;
+String base64_encode(unsigned char const* bytes_to_encode, unsigned int in_len) {
+	String ret;
 	int i = 0;
 	int j = 0;
 	unsigned char char_array_3[3];
@@ -112,13 +112,13 @@ std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_
 
 }
 
-std::string base64_decode(std::string const& encoded_string) {
+String base64_decode(String const& encoded_string) {
 	int in_len = encoded_string.size();
 	int i = 0;
 	int j = 0;
 	int in_ = 0;
 	unsigned char char_array_4[4], char_array_3[3];
-	std::string ret;
+	String ret;
 
 	while (in_len-- && ( encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {
 		char_array_4[i++] = encoded_string[in_]; in_++;

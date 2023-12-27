@@ -263,7 +263,7 @@ enum AlphaMode : u8 {
 
 struct TileDef
 {
-	std::string name = "";
+	String name = "";
 	bool backface_culling = true; // Takes effect only in special cases
 	bool tileable_horizontal = true;
 	bool tileable_vertical = true;
@@ -316,7 +316,7 @@ struct ContentFeatures
 
 	// --- GENERAL PROPERTIES ---
 
-	std::string name; // "" = undefined node
+	String name; // "" = undefined node
 	ItemGroupList groups; // Same as in itemdef
 	// Type of MapNode::param1
 	ContentParamType param_type;
@@ -326,7 +326,7 @@ struct ContentFeatures
 	// --- VISUAL PROPERTIES ---
 
 	enum NodeDrawType drawtype;
-	std::string mesh;
+	String mesh;
 	float visual_scale; // Misc. scale parameter
 	TileDef tiledef[6];
 	// These will be drawn over the base tiles.
@@ -335,13 +335,13 @@ struct ContentFeatures
 	AlphaMode alpha;
 	// The color of the node.
 	video::SColor color;
-	std::string palette_name;
+	String palette_name;
 	std::vector<video::SColor> *palette;
 	// Used for waving leaves/plants
 	u8 waving;
 	// for NDT_CONNECTED pairing
 	u8 connect_sides;
-	std::vector<std::string> connects_to;
+	std::vector<String> connects_to;
 	std::vector<content_t> connects_to_ids;
 	// Post effect color, drawn when the camera is inside the node.
 	video::SColor post_effect_color;
@@ -380,7 +380,7 @@ struct ContentFeatures
 	bool rightclickable;
 	u32 damage_per_second;
 	// client dig prediction
-	std::string node_dig_prediction;
+	String node_dig_prediction;
 	// how slow players move through
 	u8 move_resistance = 0;
 
@@ -391,10 +391,10 @@ struct ContentFeatures
 	// If true, movement (e.g. of players) inside this node is liquid-like.
 	bool liquid_move_physics;
 	// If the content is liquid, this is the flowing version of the liquid.
-	std::string liquid_alternative_flowing;
+	String liquid_alternative_flowing;
 	content_t liquid_alternative_flowing_id;
 	// If the content is liquid, this is the source version of the liquid.
-	std::string liquid_alternative_source;
+	String liquid_alternative_source;
 	content_t liquid_alternative_source_id;
 	// Viscosity for fluid flow, ranging from 1 to 7, with
 	// 1 giving almost instantaneous propagation and 7 being
@@ -497,7 +497,7 @@ struct ContentFeatures
 		return flags;
 	}
 
-	int getGroup(const std::string &group) const
+	int getGroup(const String &group) const
 	{
 		return itemgroup_get(groups, group);
 	}
@@ -566,7 +566,7 @@ public:
 	 * @return properties of the given node or @ref CONTENT_UNKNOWN if
 	 * not found
 	 */
-	const ContentFeatures& get(const std::string &name) const;
+	const ContentFeatures& get(const String &name) const;
 
 	/*!
 	 * Returns the content ID for the given name.
@@ -575,14 +575,14 @@ public:
 	 * remains unchanged
 	 * @return true if the ID was found, false otherwise
 	 */
-	bool getId(const std::string &name, content_t &result) const;
+	bool getId(const String &name, content_t &result) const;
 
 	/*!
 	 * Returns the content ID for the given name.
 	 * @param name a node name
 	 * @return ID of the node or @ref CONTENT_IGNORE if not found
 	 */
-	content_t getId(const std::string &name) const;
+	content_t getId(const String &name) const;
 
 	/*!
 	 * Returns the content IDs of the given node name or node group name.
@@ -592,7 +592,7 @@ public:
 	 * @return true if `name` is a valid node name or a (not necessarily
 	 * valid) group name
 	 */
-	bool getIds(const std::string &name, std::vector<content_t> &result) const;
+	bool getIds(const String &name, std::vector<content_t> &result) const;
 
 	/*!
 	 * Returns the smallest box in integer node coordinates that
@@ -637,7 +637,7 @@ public:
 	 * @return ID of the registered node or @ref CONTENT_IGNORE if
 	 * the function could not allocate an ID.
 	 */
-	content_t set(const std::string &name, const ContentFeatures &def);
+	content_t set(const String &name, const ContentFeatures &def);
 
 	/*!
 	 * Allocates a blank node ID for the given name.
@@ -645,14 +645,14 @@ public:
 	 * @return allocated ID or @ref CONTENT_IGNORE if could not allocate
 	 * an ID.
 	 */
-	content_t allocateDummy(const std::string &name);
+	content_t allocateDummy(const String &name);
 
 	/*!
 	 * Removes the given node name from the manager.
 	 * The node ID will remain in the manager, but won't be linked to any name.
 	 * @param name name to be removed
 	 */
-	void removeNode(const std::string &name);
+	void removeNode(const String &name);
 
 	/*!
 	 * Regenerates the alias list (a map from names to node IDs).
@@ -741,7 +741,7 @@ private:
 	 * @param i a content ID
 	 * @param name a node name
 	 */
-	void addNameIdMapping(content_t i, const std::string &name);
+	void addNameIdMapping(content_t i, const String &name);
 
 	/*!
 	 * Removes a content ID from all groups.
@@ -768,14 +768,14 @@ private:
 	 * includes aliases too. Updated by \ref updateAliases().
 	 * Note: Not serialized.
 	 */
-	std::unordered_map<std::string, content_t> m_name_id_mapping_with_aliases;
+	std::unordered_map<String, content_t> m_name_id_mapping_with_aliases;
 
 	/*!
 	 * A mapping from group names to a vector of content types that belong
 	 * to it. Necessary for a direct lookup in \ref getIds().
 	 * Note: Not serialized.
 	 */
-	std::unordered_map<std::string, std::vector<content_t>> m_group_to_items;
+	std::unordered_map<String, std::vector<content_t>> m_group_to_items;
 
 	/*!
 	 * The next ID that might be free to allocate.
@@ -828,7 +828,7 @@ public:
 	void cloneTo(NodeResolver *res) const;
 
 	bool getIdFromNrBacklog(content_t *result_out,
-		const std::string &node_alt, content_t c_fallback,
+		const String &node_alt, content_t c_fallback,
 		bool error_on_fallback = true);
 	bool getIdsFromNrBacklog(std::vector<content_t> *result_out,
 		bool all_required = false, content_t c_fallback = CONTENT_IGNORE);
@@ -837,7 +837,7 @@ public:
 	void reset(bool resolve_done = false);
 
 	// Vector containing all node names in the resolve "queue"
-	std::vector<std::string> m_nodenames;
+	std::vector<String> m_nodenames;
 	// Specifies the "set size" of node names which are to be processed
 	// this is used for getIdsFromNrBacklog
 	// TODO: replace or remove

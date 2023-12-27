@@ -33,7 +33,7 @@ enum ToServerConnectionState {
 };
 struct ToServerCommandHandler
 {
-	const std::string name;
+	const String name;
 	ToServerConnectionState state;
 	void (Server::*handler)(NetworkPacket* pkt);
 };

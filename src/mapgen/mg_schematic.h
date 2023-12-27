@@ -100,9 +100,9 @@ public:
 
 	virtual void resolveNodeNames();
 
-	bool loadSchematicFromFile(const std::string &filename,
+	bool loadSchematicFromFile(const String &filename,
 		const NodeDefManager *ndef, StringMap *replace_names = NULL);
-	bool saveSchematicToFile(const std::string &filename,
+	bool saveSchematicToFile(const String &filename,
 		const NodeDefManager *ndef);
 	bool getSchematicFromMap(Map *map, v3s16 p1, v3s16 p2);
 

@@ -789,7 +789,7 @@ void ServerMap::transformLiquids(std::map<v3s16, MapBlock*> &modified_blocks,
 		n0.setLight(LIGHTBANK_NIGHT, 0, f0);
 
 		// Find out whether there is a suspect for this action
-		std::string suspect;
+		String suspect;
 		if (m_gamedef->rollback())
 			suspect = m_gamedef->rollback()->getSuspect(p0, 83, 1);
 
@@ -1209,7 +1209,7 @@ bool Map::isBlockOccluded(MapBlock *block, v3s16 cam_pos_nodes, bool simple_chec
 /*
 	ServerMap
 */
-ServerMap::ServerMap(const std::string &savedir, IGameDef *gamedef,
+ServerMap::ServerMap(const String &savedir, IGameDef *gamedef,
 		EmergeManager *emerge, MetricsBackend *mb):
 	Map(gamedef),
 	settings_mgr(savedir + DIR_DELIM + "map_meta.txt"),
@@ -1225,17 +1225,17 @@ ServerMap::ServerMap(const std::string &savedir, IGameDef *gamedef,
 	*/
 
 	// Determine which database backend to use
-	std::string conf_path = savedir + DIR_DELIM + "world.mt";
+	String conf_path = savedir + DIR_DELIM + "world.mt";
 	Settings conf;
 	bool succeeded = conf.readConfigFile(conf_path.c_str());
 	if (!succeeded || !conf.exists("backend")) {
 		// fall back to sqlite3
 		conf.set("backend", "sqlite3");
 	}
-	std::string backend = conf.get("backend");
+	String backend = conf.get("backend");
 	dbase = createDatabase(backend, savedir, conf);
 	if (conf.exists("readonly_backend")) {
-		std::string readonly_dir = savedir + DIR_DELIM + "readonly";
+		String readonly_dir = savedir + DIR_DELIM + "readonly";
 		dbase_ro = createDatabase(conf.get("readonly_backend"), readonly_dir, conf);
 	}
 	if (!conf.updateConfigFile(conf_path.c_str()))
@@ -1727,14 +1727,14 @@ void ServerMap::listAllLoadedBlocks(std::vector<v3s16> &dst)
 }
 
 MapDatabase *ServerMap::createDatabase(
-	const std::string &name,
-	const std::string &savedir,
+	const String &name,
+	const String &savedir,
 	Settings &conf)
 {
 	if (name == "sqlite3")
 		return new MapDatabaseSQLite3(savedir);
 
-	throw BaseException(std::string("Database backend ") + name + " not supported.");
+	throw BaseException(String("Database backend ") + name + " not supported.");
 }
 
 void ServerMap::beginSave()
@@ -1775,7 +1775,7 @@ bool ServerMap::saveBlock(MapBlock *block, MapDatabase *db, int compression_leve
 	return ret;
 }
 
-void ServerMap::loadBlock(std::string *blob, v3s16 p3d, MapSector *sector, bool save_after_load)
+void ServerMap::loadBlock(String *blob, v3s16 p3d, MapSector *sector, bool save_after_load)
 {
 	try {
 		std::istringstream is(*blob, std::ios_base::binary);
@@ -1845,7 +1845,7 @@ MapBlock* ServerMap::loadBlock(v3s16 blockpos)
 
 	v2s16 p2d(blockpos.X, blockpos.Z);
 
-	std::string ret;
+	String ret;
 	dbase->loadBlock(blockpos, &ret);
 	if (!ret.empty()) {
 		loadBlock(&ret, blockpos, createSector(p2d), false);

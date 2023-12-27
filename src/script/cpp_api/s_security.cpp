@@ -416,7 +416,7 @@ bool ScriptApiSecurity::isSecure(lua_State *L)
 	return secure;
 }
 
-bool ScriptApiSecurity::safeLoadString(lua_State *L, const std::string &code, const char *chunk_name)
+bool ScriptApiSecurity::safeLoadString(lua_State *L, const String &code, const char *chunk_name)
 {
 	if (code.size() > 0 && code[0] == LUA_SIGNATURE[0]) {
 		lua_pushliteral(L, "Bytecode prohibited when mod security is enabled.");
@@ -468,7 +468,7 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 	}
 
 	size_t size = std::ftell(fp) - start;
-	std::string code(size, '\0');
+	String code(size, '\0');
 	ret = std::fseek(fp, start, SEEK_SET);
 	if (ret) {
 		lua_pushfstring(L, "%s: %s", path, strerror(errno));
@@ -502,9 +502,9 @@ bool ScriptApiSecurity::checkPath(lua_State *L, const char *path,
 	if (write_allowed)
 		*write_allowed = false;
 
-	std::string str;  // Transient
+	String str;  // Transient
 
-	std::string abs_path = fs::AbsolutePath(path);
+	String abs_path = fs::AbsolutePath(path);
 
 	if (!abs_path.empty()) {
 		// Don't allow accessing the settings file
@@ -515,10 +515,10 @@ bool ScriptApiSecurity::checkPath(lua_State *L, const char *path,
 	// If we couldn't find the absolute path (path doesn't exist) then
 	// try removing the last components until it works (to allow
 	// non-existent files/folders for mkdir).
-	std::string cur_path = path;
-	std::string removed;
+	String cur_path = path;
+	String removed;
 	while (abs_path.empty() && !cur_path.empty()) {
-		std::string component;
+		String component;
 		cur_path = fs::RemoveLastPathComponent(cur_path, &component);
 		if (component == "..") {
 			// Parent components can't be allowed or we could allow something like
@@ -548,7 +548,7 @@ bool ScriptApiSecurity::checkPath(lua_State *L, const char *path,
 	// Get mod name
 	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_CURRENT_MOD_NAME);
 	if (lua_isstring(L, -1)) {
-		std::string mod_name = readParam<std::string>(L, -1);
+		String mod_name = readParam<String>(L, -1);
 
 		// Builtin can access anything
 		if (mod_name == BUILTIN_MOD_NAME) {
@@ -616,7 +616,7 @@ bool ScriptApiSecurity::checkPath(lua_State *L, const char *path,
 	return false;
 }
 
-bool ScriptApiSecurity::checkWhitelisted(lua_State *L, const std::string &setting)
+bool ScriptApiSecurity::checkWhitelisted(lua_State *L, const String &setting)
 {
 	assert(str_starts_with(setting, "secure."));
 
@@ -639,9 +639,9 @@ bool ScriptApiSecurity::checkWhitelisted(lua_State *L, const std::string &settin
 	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_CURRENT_MOD_NAME);
 	if (!lua_isstring(L, -1))
 		return false;
-	std::string mod_name = readParam<std::string>(L, -1);
+	String mod_name = readParam<String>(L, -1);
 
-	std::string value = g_settings->get(setting);
+	String value = g_settings->get(setting);
 	value.erase(std::remove(value.begin(), value.end(), ' '), value.end());
 	auto mod_list = str_split(value, ',');
 
@@ -668,7 +668,7 @@ int ScriptApiSecurity::sl_g_load(lua_State *L)
 {
 	size_t len;
 	const char *buf;
-	std::string code;
+	String code;
 	const char *chunk_name = "=(load)";
 
 	luaL_checktype(L, 1, LUA_TFUNCTION);
@@ -691,7 +691,7 @@ int ScriptApiSecurity::sl_g_load(lua_State *L)
 			return 2;
 		}
 		buf = lua_tolstring(L, -1, &len);
-		code += std::string(buf, len);
+		code += String(buf, len);
 		lua_pop(L, 1); // Pop return value
 	}
 	if (!safeLoadString(L, code, chunk_name)) {
@@ -734,7 +734,7 @@ int ScriptApiSecurity::sl_g_loadstring(lua_State *L)
 
 	size_t size;
 	const char *code = lua_tolstring(L, 1, &size);
-	std::string code_s(code, size);
+	String code_s(code, size);
 
 	if (!safeLoadString(L, code_s, chunk_name)) {
 		lua_pushnil(L);

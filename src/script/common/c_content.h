@@ -177,7 +177,7 @@ void               push_simplesoundspec      (lua_State *L,
 
 bool               string_to_enum            (const EnumString *spec,
                                               int &result,
-                                              const std::string &str);
+                                              const String &str);
 
 bool               read_noiseparams          (lua_State *L, int index,
                                               NoiseParams *np);

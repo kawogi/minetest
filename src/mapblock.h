@@ -127,7 +127,7 @@ public:
 		return m_modified_reason;
 	}
 
-	std::string getModifiedReasonString();
+	String getModifiedReasonString();
 
 	inline void resetModified()
 	{
@@ -597,4 +597,4 @@ inline void getNodeBlockPosWithOffset(v3s16 p, v3s16 &block, v3s16 &offset)
 /*
 	Get a quick string to describe what a block actually contains
 */
-std::string analyze_block(MapBlock *block);
+String analyze_block(MapBlock *block);

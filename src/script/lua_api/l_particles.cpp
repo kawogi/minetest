@@ -64,7 +64,7 @@ int ModApiParticles::l_add_particle(lua_State *L)
 
 	// Get parameters
 	ParticleParameters p;
-	std::string playername;
+	String playername;
 
 	if (lua_gettop(L) > 1) // deprecated
 	{
@@ -171,7 +171,7 @@ int ModApiParticles::l_add_particlespawner(lua_State *L)
 	// Get parameters
 	ParticleSpawnerParameters p;
 	ServerActiveObject *attached = NULL;
-	std::string playername;
+	String playername;
 
 	using namespace ParticleParamTypes;
 	if (lua_gettop(L) > 1) //deprecated
@@ -309,7 +309,7 @@ int ModApiParticles::l_delete_particlespawner(lua_State *L)
 
 	// Get parameters
 	u32 id = luaL_checknumber(L, 1);
-	std::string playername;
+	String playername;
 	if (lua_gettop(L) == 2) {
 		playername = luaL_checkstring(L, 2);
 	}

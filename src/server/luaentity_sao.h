@@ -27,10 +27,10 @@ class LuaEntitySAO : public UnitSAO
 public:
 	LuaEntitySAO() = delete;
 	// Used by the environment to load SAO
-	LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &data);
+	LuaEntitySAO(ServerEnvironment *env, v3f pos, const String &data);
 	// Used by the Lua API
-	LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &name,
-			const std::string &state) :
+	LuaEntitySAO(ServerEnvironment *env, v3f pos, const String &name,
+			const String &state) :
 			UnitSAO(env, pos),
 			m_init_name(name), m_init_state(state)
 	{
@@ -41,11 +41,11 @@ public:
 	ActiveObjectType getSendType() const { return ACTIVEOBJECT_TYPE_GENERIC; }
 	virtual void addedToEnvironment(u32 dtime_s);
 	void step(float dtime, bool send_recommended);
-	std::string getClientInitializationData(u16 protocol_version);
+	String getClientInitializationData(u16 protocol_version);
 
 	bool isStaticAllowed() const { return m_prop.static_save; }
 	bool shouldUnload() const { return true; }
-	void getStaticData(std::string *result) const;
+	void getStaticData(String *result) const;
 
 	u32 punch(v3f dir, const ToolCapabilities *toolcap = nullptr,
 			ServerActiveObject *puncher = nullptr,
@@ -58,7 +58,7 @@ public:
 	void moveTo(v3f pos, bool continuous);
 	float getMinimumSavedMovement();
 
-	std::string getDescription();
+	String getDescription();
 
 	void setHP(s32 hp, const PlayerHPChangeReason &reason);
 	u16 getHP() const;
@@ -70,11 +70,11 @@ public:
 	void setAcceleration(v3f acceleration);
 	v3f getAcceleration();
 
-	void setTextureMod(const std::string &mod);
-	std::string getTextureMod() const;
+	void setTextureMod(const String &mod);
+	String getTextureMod() const;
 	void setSprite(v2s16 p, int num_frames, float framelength,
 			bool select_horiz_by_yawpitch);
-	std::string getName();
+	String getName();
 	bool getCollisionBox(aabb3f *toset) const;
 	bool getSelectionBox(aabb3f *toset) const;
 	bool collideWithObjects() const;
@@ -85,14 +85,14 @@ protected:
 	virtual void onMarkedForRemoval() { dispatchScriptDeactivate(true); }
 
 private:
-	std::string getPropertyPacket();
+	String getPropertyPacket();
 	void sendPosition(bool do_interpolate, bool is_movement_end);
-	std::string generateSetTextureModCommand() const;
-	static std::string generateSetSpriteCommand(v2s16 p, u16 num_frames,
+	String generateSetTextureModCommand() const;
+	static String generateSetSpriteCommand(v2s16 p, u16 num_frames,
 			f32 framelength, bool select_horiz_by_yawpitch);
 
-	std::string m_init_name;
-	std::string m_init_state;
+	String m_init_name;
+	String m_init_state;
 	bool m_registered = false;
 
 	v3f m_velocity;
@@ -103,5 +103,5 @@ private:
 	v3f m_last_sent_rotation;
 	float m_last_sent_position_timer = 0.0f;
 	float m_last_sent_move_precision = 0.0f;
-	std::string m_current_texture_modifier = "";
+	String m_current_texture_modifier = "";
 };

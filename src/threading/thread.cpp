@@ -50,7 +50,7 @@ DEALINGS IN THE SOFTWARE.
 #endif
 
 
-Thread::Thread(const std::string &name) :
+Thread::Thread(const String &name) :
 	m_name(name),
 	m_request_stop(false),
 	m_running(false)
@@ -174,7 +174,7 @@ void Thread::threadProc(Thread *thr)
 }
 
 
-void Thread::setName(const std::string &name)
+void Thread::setName(const String &name)
 {
 #if defined(__linux__)
 

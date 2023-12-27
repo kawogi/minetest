@@ -70,15 +70,15 @@ public:
 	void setAnimationSpeed(float frame_speed);
 
 	// Bone position
-	void setBonePosition(const std::string &bone, v3f position, v3f rotation);
-	void getBonePosition(const std::string &bone, v3f *position, v3f *rotation);
+	void setBonePosition(const String &bone, v3f position, v3f rotation);
+	void getBonePosition(const String &bone, v3f *position, v3f *rotation);
 
 	// Attachments
 	ServerActiveObject *getParent() const;
 	inline bool isAttached() const { return getParent(); }
-	void setAttachment(int parent_id, const std::string &bone, v3f position,
+	void setAttachment(int parent_id, const String &bone, v3f position,
 			v3f rotation, bool force_visible);
-	void getAttachment(int *parent_id, std::string *bone, v3f *position,
+	void getAttachment(int *parent_id, String *bone, v3f *position,
 			v3f *rotation, bool *force_visible) const;
 	void clearChildAttachments();
 	void clearParentAttachment();
@@ -92,15 +92,15 @@ public:
 	void sendOutdatedData();
 
 	// Update packets
-	std::string generateUpdateAttachmentCommand() const;
-	std::string generateUpdateAnimationSpeedCommand() const;
-	std::string generateUpdateAnimationCommand() const;
-	std::string generateUpdateArmorGroupsCommand() const;
-	static std::string generateUpdatePositionCommand(const v3f &position,
+	String generateUpdateAttachmentCommand() const;
+	String generateUpdateAnimationSpeedCommand() const;
+	String generateUpdateAnimationCommand() const;
+	String generateUpdateArmorGroupsCommand() const;
+	static String generateUpdatePositionCommand(const v3f &position,
 			const v3f &velocity, const v3f &acceleration, const v3f &rotation,
 			bool do_interpolate, bool is_movement_end, f32 update_interval);
-	std::string generateSetPropertiesCommand(const ObjectProperties &prop) const;
-	static std::string generateUpdateBonePositionCommand(const std::string &bone,
+	String generateSetPropertiesCommand(const ObjectProperties &prop) const;
+	static String generateUpdateBonePositionCommand(const String &bone,
 			const v3f &position, const v3f &rotation);
 	void sendPunchCommand();
 
@@ -117,7 +117,7 @@ protected:
 	ObjectProperties m_prop;
 
 	// Stores position and rotation for each bone name
-	std::unordered_map<std::string, core::vector2d<v3f>> m_bone_position;
+	std::unordered_map<String, core::vector2d<v3f>> m_bone_position;
 
 	int m_attachment_parent_id = 0;
 
@@ -125,7 +125,7 @@ private:
 	void onAttach(int parent_id);
 	void onDetach(int parent_id);
 
-	std::string generatePunchCommand(u16 result_hp) const;
+	String generatePunchCommand(u16 result_hp) const;
 
 	// Armor groups
 	bool m_armor_groups_sent = false;
@@ -143,7 +143,7 @@ private:
 
 	// Attachments
 	std::unordered_set<int> m_attachment_child_ids;
-	std::string m_attachment_bone = "";
+	String m_attachment_bone = "";
 	v3f m_attachment_position;
 	v3f m_attachment_rotation;
 	bool m_attachment_sent = false;

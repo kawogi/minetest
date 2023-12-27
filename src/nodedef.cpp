@@ -272,9 +272,9 @@ void TextureSettings::readSettings()
 	enable_mesh_cache              = g_settings->getBool("enable_mesh_cache");
 	enable_minimap                 = g_settings->getBool("enable_minimap");
 	node_texture_size              = std::max<u16>(g_settings->getU16("texture_min_size"), 1);
-	std::string leaves_style_str   = g_settings->get("leaves_style");
-	std::string world_aligned_mode_str = g_settings->get("world_aligned_mode");
-	std::string autoscale_mode_str = g_settings->get("autoscale_mode");
+	String leaves_style_str   = g_settings->get("leaves_style");
+	String world_aligned_mode_str = g_settings->get("world_aligned_mode");
+	String autoscale_mode_str = g_settings->get("autoscale_mode");
 
 	// Mesh cache is not supported in combination with smooth lighting
 	if (smooth_lighting)
@@ -528,7 +528,7 @@ void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
 	groups.clear();
 	u32 groups_size = readU16(is);
 	for (u32 i = 0; i < groups_size; i++) {
-		std::string name = deSerializeString16(is);
+		String name = deSerializeString16(is);
 		int value = readS16(is);
 		groups[name] = value;
 	}
@@ -732,9 +732,9 @@ void NodeDefManager::clear()
 }
 
 
-bool NodeDefManager::getId(const std::string &name, content_t &result) const
+bool NodeDefManager::getId(const String &name, content_t &result) const
 {
-	std::unordered_map<std::string, content_t>::const_iterator
+	std::unordered_map<String, content_t>::const_iterator
 		i = m_name_id_mapping_with_aliases.find(name);
 	if(i == m_name_id_mapping_with_aliases.end())
 		return false;
@@ -743,7 +743,7 @@ bool NodeDefManager::getId(const std::string &name, content_t &result) const
 }
 
 
-content_t NodeDefManager::getId(const std::string &name) const
+content_t NodeDefManager::getId(const String &name) const
 {
 	content_t id = CONTENT_IGNORE;
 	getId(name, id);
@@ -751,7 +751,7 @@ content_t NodeDefManager::getId(const std::string &name) const
 }
 
 
-bool NodeDefManager::getIds(const std::string &name,
+bool NodeDefManager::getIds(const String &name,
 		std::vector<content_t> &result) const
 {
 	//TimeTaker t("getIds", NULL, PRECISION_MICRO);
@@ -762,9 +762,9 @@ bool NodeDefManager::getIds(const std::string &name,
 			result.push_back(id);
 		return exists;
 	}
-	std::string group = name.substr(6);
+	String group = name.substr(6);
 
-	std::unordered_map<std::string, std::vector<content_t>>::const_iterator
+	std::unordered_map<String, std::vector<content_t>>::const_iterator
 		i = m_group_to_items.find(group);
 	if (i == m_group_to_items.end())
 		return true;
@@ -776,7 +776,7 @@ bool NodeDefManager::getIds(const std::string &name,
 }
 
 
-const ContentFeatures& NodeDefManager::get(const std::string &name) const
+const ContentFeatures& NodeDefManager::get(const String &name) const
 {
 	content_t id = CONTENT_UNKNOWN;
 	getId(name, id);
@@ -954,7 +954,7 @@ void NodeDefManager::eraseIdFromGroups(content_t id)
 
 
 // IWritableNodeDefManager
-content_t NodeDefManager::set(const std::string &name, const ContentFeatures &def)
+content_t NodeDefManager::set(const String &name, const ContentFeatures &def)
 {
 	// Pre-conditions
 	assert(!name.empty());
@@ -989,7 +989,7 @@ content_t NodeDefManager::set(const std::string &name, const ContentFeatures &de
 
 	// Add this content to the list of all groups it belongs to
 	for (const auto &group : def.groups) {
-		const std::string &group_name = group.first;
+		const String &group_name = group.first;
 		m_group_to_items[group_name].push_back(id);
 	}
 
@@ -997,7 +997,7 @@ content_t NodeDefManager::set(const std::string &name, const ContentFeatures &de
 }
 
 
-content_t NodeDefManager::allocateDummy(const std::string &name)
+content_t NodeDefManager::allocateDummy(const String &name)
 {
 	assert(!name.empty());	// Pre-condition
 	ContentFeatures f;
@@ -1006,7 +1006,7 @@ content_t NodeDefManager::allocateDummy(const std::string &name)
 }
 
 
-void NodeDefManager::removeNode(const std::string &name)
+void NodeDefManager::removeNode(const String &name)
 {
 	// Pre-condition
 	assert(!name.empty());
@@ -1024,11 +1024,11 @@ void NodeDefManager::removeNode(const std::string &name)
 
 void NodeDefManager::updateAliases(IItemDefManager *idef)
 {
-	std::set<std::string> all;
+	std::set<String> all;
 	idef->getAll(all);
 	m_name_id_mapping_with_aliases.clear();
-	for (const std::string &name : all) {
-		const std::string &convert_to = idef->getAlias(name);
+	for (const String &name : all) {
+		const String &convert_to = idef->getAlias(name);
 		content_t id;
 		if (m_name_id_mapping.getId(convert_to, id)) {
 			m_name_id_mapping_with_aliases.insert(
@@ -1145,7 +1145,7 @@ void NodeDefManager::deSerialize(std::istream &is, u16 protocol_version)
 		u16 i = readU16(is2);
 
 		// Read it from the string wrapper
-		std::string wrapper = deSerializeString16(is2);
+		String wrapper = deSerializeString16(is2);
 		std::istringstream wrapper_is(wrapper, std::ios::binary);
 		f.deSerialize(wrapper_is, protocol_version);
 
@@ -1188,7 +1188,7 @@ void NodeDefManager::deSerialize(std::istream &is, u16 protocol_version)
 }
 
 
-void NodeDefManager::addNameIdMapping(content_t i, const std::string &name)
+void NodeDefManager::addNameIdMapping(content_t i, const String &name)
 {
 	m_name_id_mapping.set(i, name);
 	m_name_id_mapping_with_aliases.emplace(name, i);
@@ -1263,7 +1263,7 @@ void NodeDefManager::resolveCrossrefs()
 		if (f.drawtype != NDT_NODEBOX || f.node_box.type != NODEBOX_CONNECTED)
 			continue;
 
-		for (const std::string &name : f.connects_to) {
+		for (const String &name : f.connects_to) {
 			getIds(name, f.connects_to_ids);
 		}
 		removeDupes(f.connects_to_ids);
@@ -1390,7 +1390,7 @@ void NodeResolver::nodeResolveInternal()
 
 
 bool NodeResolver::getIdFromNrBacklog(content_t *result_out,
-	const std::string &node_alt, content_t c_fallback, bool error_on_fallback)
+	const String &node_alt, content_t c_fallback, bool error_on_fallback)
 {
 	if (m_nodenames_idx == m_nodenames.size()) {
 		*result_out = c_fallback;
@@ -1399,7 +1399,7 @@ bool NodeResolver::getIdFromNrBacklog(content_t *result_out,
 	}
 
 	content_t c;
-	std::string name = m_nodenames[m_nodenames_idx++];
+	String name = m_nodenames[m_nodenames_idx++];
 
 	bool success = m_ndef->getId(name, c);
 	if (!success && !node_alt.empty()) {
@@ -1438,7 +1438,7 @@ bool NodeResolver::getIdsFromNrBacklog(std::vector<content_t> *result_out,
 		}
 
 		content_t c;
-		std::string &name = m_nodenames[m_nodenames_idx++];
+		String &name = m_nodenames[m_nodenames_idx++];
 
 		if (name.substr(0,6) != "group:") {
 			if (m_ndef->getId(name, c)) {

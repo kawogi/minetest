@@ -66,7 +66,7 @@ void TestCompression::testRLECompression()
 	std::ostringstream os(std::ios_base::binary);
 	compress(fromdata, os, 0);
 
-	std::string str_out = os.str();
+	String str_out = os.str();
 
 	infostream << "str_out.size()="<<str_out.size()<<std::endl;
 	infostream << "TestCompress: 1,5,5,1 -> ";
@@ -91,7 +91,7 @@ void TestCompression::testRLECompression()
 	std::ostringstream os2(std::ios_base::binary);
 
 	decompress(is, os2, 0);
-	std::string str_out2 = os2.str();
+	String str_out2 = os2.str();
 
 	infostream << "decompress: ";
 	for (char i : str_out2)
@@ -115,7 +115,7 @@ void TestCompression::testZlibCompression()
 	std::ostringstream os(std::ios_base::binary);
 	compressZlib(*fromdata, fromdata.getSize(), os);
 
-	std::string str_out = os.str();
+	String str_out = os.str();
 
 	infostream << "str_out.size()=" << str_out.size() <<std::endl;
 	infostream << "TestCompress: 1,5,5,1 -> ";
@@ -127,7 +127,7 @@ void TestCompression::testZlibCompression()
 	std::ostringstream os2(std::ios_base::binary);
 
 	decompressZlib(is, os2);
-	std::string str_out2 = os2.str();
+	String str_out2 = os2.str();
 
 	infostream << "decompress: ";
 	for (char i : str_out2)
@@ -149,7 +149,7 @@ void TestCompression::testZlibLargeData()
 	infostream << "Test: Input size of large compressZlib is "
 		<< size << std::endl;
 
-	std::string data_in;
+	String data_in;
 	data_in.resize(size);
 	PseudoRandom pseudorandom(9420);
 	for (u32 i = 0; i < size; i++)
@@ -166,7 +166,7 @@ void TestCompression::testZlibLargeData()
 	infostream << "Test: Output size of large decompressZlib is "
 		<< os_decompressed.str().size() << std::endl;
 
-	std::string str_decompressed = os_decompressed.str();
+	String str_decompressed = os_decompressed.str();
 	UASSERTEQ(size_t, str_decompressed.size(), data_in.size());
 
 	for (u32 i = 0; i < size && i < str_decompressed.size(); i++) {
@@ -185,7 +185,7 @@ void TestCompression::testZstdLargeData()
 	infostream << "Test: Input size of large compressZstd is "
 		<< size << std::endl;
 
-	std::string data_in;
+	String data_in;
 	data_in.resize(size);
 	PseudoRandom pseudorandom(9420);
 	for (u32 i = 0; i < size; i++)
@@ -202,7 +202,7 @@ void TestCompression::testZstdLargeData()
 	infostream << "Test: Output size of large decompressZstd is "
 		<< os_decompressed.str().size() << std::endl;
 
-	std::string str_decompressed = os_decompressed.str();
+	String str_decompressed = os_decompressed.str();
 	UASSERTEQ(size_t, str_decompressed.size(), data_in.size());
 
 	for (u32 i = 0; i < size && i < str_decompressed.size(); i++) {
@@ -245,7 +245,7 @@ void TestCompression::_testZlibLimit(u32 size, u32 limit)
 	u32 expected = size < limit ? size : limit;
 
 	// create recognizable data
-	std::string data_in;
+	String data_in;
 	data_in.resize(size);
 	for (u32 i = 0; i < size; i++)
 		data_in[i] = (u8)(i % 256);
@@ -261,7 +261,7 @@ void TestCompression::_testZlibLimit(u32 size, u32 limit)
 	infostream << "Test: Output size of decompressZlib with limit is "
 		<< os_decompressed.str().size() << std::endl;
 
-	std::string str_decompressed = os_decompressed.str();
+	String str_decompressed = os_decompressed.str();
 	UASSERTEQ(size_t, str_decompressed.size(), expected);
 
 	for (u32 i = 0; i < size && i < str_decompressed.size(); i++) {

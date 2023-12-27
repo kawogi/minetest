@@ -31,14 +31,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 class TestFailedException { // don’t derive from std::exception to avoid accidental catch
 public:
-	TestFailedException(std::string in_message, const char *in_file, int in_line)
+	TestFailedException(String in_message, const char *in_file, int in_line)
 		: message(std::move(in_message))
 		, file(fs::GetFilenameFromPath(in_file))
 		, line(in_line)
 	{}
 
-	const std::string message;
-	const std::string file;
+	const String message;
+	const String file;
 	const int line;
 };
 
@@ -91,8 +91,8 @@ class IGameDef;
 class TestBase {
 public:
 	bool testModule(IGameDef *gamedef);
-	std::string getTestTempDirectory();
-	std::string getTestTempFile();
+	String getTestTempDirectory();
+	String getTestTempFile();
 
 	virtual void runTests(IGameDef *gamedef) = 0;
 	virtual const char *getName() = 0;
@@ -103,7 +103,7 @@ public:
 	void runTest(const char *name, std::function<void()> &&test);
 
 private:
-	std::string m_test_dir;
+	String m_test_dir;
 };
 
 class TestManager {
@@ -129,4 +129,4 @@ extern content_t t_CONTENT_LAVA;
 extern content_t t_CONTENT_BRICK;
 
 bool run_tests();
-bool run_tests(const std::string &module_name);
+bool run_tests(const String &module_name);

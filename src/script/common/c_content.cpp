@@ -150,7 +150,7 @@ void push_item_definition(lua_State *L, const ItemDefinition &i)
 
 void push_item_definition_full(lua_State *L, const ItemDefinition &i)
 {
-	std::string type(es_ItemType[(int)i.type].str);
+	String type(es_ItemType[(int)i.type].str);
 
 	lua_newtable(L);
 	lua_pushstring(L, i.name.c_str());
@@ -435,7 +435,7 @@ void push_object_properties(lua_State *L, ObjectProperties *prop)
 
 	lua_createtable(L, prop->textures.size(), 0);
 	u16 i = 1;
-	for (const std::string &texture : prop->textures) {
+	for (const String &texture : prop->textures) {
 		lua_pushlstring(L, texture.c_str(), texture.size());
 		lua_rawseti(L, -2, i++);
 	}
@@ -556,7 +556,7 @@ TileDef read_tiledef(lua_State *L, int index, u8 drawtype, bool special)
 			L, index, "tileable_horizontal", default_tiling);
 		tiledef.tileable_vertical = getboolfield_default(
 			L, index, "tileable_vertical", default_tiling);
-		std::string align_style;
+		String align_style;
 		if (getstringfield(L, index, "align_style", align_style)) {
 			if (align_style == "user")
 				tiledef.align_style = ALIGN_STYLE_USER_DEFINED;
@@ -713,7 +713,7 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 	} else if (check_field_or_nil(L, -1, LUA_TSTRING, "use_texture_alpha")) {
 		int result = f.alpha;
 		string_to_enum(ScriptApiNode::es_TextureAlphaMode, result,
-				std::string(lua_tostring(L, -1)));
+				String(lua_tostring(L, -1)));
 		f.alpha = static_cast<enum AlphaMode>(result);
 	}
 	lua_pop(L, 1);
@@ -824,7 +824,7 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 		lua_pushnil(L);
 		while (lua_next(L, table) != 0) {
 			// Value at -1
-			std::string side(lua_tostring(L, -1));
+			String side(lua_tostring(L, -1));
 			// Note faces are flipped to make checking easier
 			if (side == "top")
 				f.connect_sides |= 2;
@@ -902,10 +902,10 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 
 void push_content_features(lua_State *L, const ContentFeatures &c)
 {
-	std::string paramtype(ScriptApiNode::es_ContentParamType[(int)c.param_type].str);
-	std::string paramtype2(ScriptApiNode::es_ContentParamType2[(int)c.param_type_2].str);
-	std::string drawtype(ScriptApiNode::es_DrawType[(int)c.drawtype].str);
-	std::string liquid_type(ScriptApiNode::es_LiquidType[(int)c.liquid_type].str);
+	String paramtype(ScriptApiNode::es_ContentParamType[(int)c.param_type].str);
+	String paramtype2(ScriptApiNode::es_ContentParamType2[(int)c.param_type_2].str);
+	String drawtype(ScriptApiNode::es_DrawType[(int)c.drawtype].str);
+	String liquid_type(ScriptApiNode::es_LiquidType[(int)c.liquid_type].str);
 
 	/* Missing "tiles" because I don't see a usecase (at least not yet). */
 
@@ -951,7 +951,7 @@ void push_content_features(lua_State *L, const ContentFeatures &c)
 
 	lua_createtable(L, c.connects_to.size(), 0);
 	u16 i = 1;
-	for (const std::string &it : c.connects_to) {
+	for (const String &it : c.connects_to) {
 		lua_pushlstring(L, it.c_str(), it.size());
 		lua_rawseti(L, -2, i++);
 	}
@@ -1254,7 +1254,7 @@ void pushnode(lua_State *L, const MapNode &n)
 
 /******************************************************************************/
 void warn_if_field_exists(lua_State *L, int table,
-		const char *name, const std::string &message)
+		const char *name, const String &message)
 {
 	lua_getfield(L, table, name);
 	if (!lua_isnil(L, -1)) {
@@ -1277,7 +1277,7 @@ int getenumfield(lua_State *L, int table,
 
 /******************************************************************************/
 bool string_to_enum(const EnumString *spec, int &result,
-		const std::string &str)
+		const String &str)
 {
 	const EnumString *esp = spec;
 	while(esp->str){
@@ -1308,7 +1308,7 @@ ItemStack read_item(lua_State* L, int index, IItemDefManager *idef)
 
 	if (lua_isstring(L, index)) {
 		// Convert from itemstring
-		std::string itemstring = lua_tostring(L, index);
+		String itemstring = lua_tostring(L, index);
 		try
 		{
 			ItemStack item;
@@ -1325,14 +1325,14 @@ ItemStack read_item(lua_State* L, int index, IItemDefManager *idef)
 	else if(lua_istable(L, index))
 	{
 		// Convert from table
-		std::string name = getstringfield_default(L, index, "name", "");
+		String name = getstringfield_default(L, index, "name", "");
 		int count = getintfield_default(L, index, "count", 1);
 		int wear = getintfield_default(L, index, "wear", 0);
 
 		ItemStack istack(name, count, wear, idef);
 
 		// BACKWARDS COMPATIBLITY
-		std::string value = getstringfield_default(L, index, "metadata", "");
+		String value = getstringfield_default(L, index, "metadata", "");
 		istack.metadata.setString("", value);
 
 		// Get meta
@@ -1342,10 +1342,10 @@ ItemStack read_item(lua_State* L, int index, IItemDefManager *idef)
 			lua_pushnil(L);
 			while (lua_next(L, fieldstable) != 0) {
 				// key at index -2 and value at index -1
-				std::string key = lua_tostring(L, -2);
+				String key = lua_tostring(L, -2);
 				size_t value_len;
 				const char *value_cs = lua_tolstring(L, -1, &value_len);
-				std::string value(value_cs, value_len);
+				String value(value_cs, value_len);
 				istack.metadata.setString(key, value);
 				lua_pop(L, 1); // removes value, keeps key for next iteration
 			}
@@ -1371,7 +1371,7 @@ void push_tool_capabilities(lua_State *L,
 		for (const auto &gc_it : toolcap.groupcaps) {
 			// Create groupcap table
 			lua_newtable(L);
-			const std::string &name = gc_it.first;
+			const String &name = gc_it.first;
 			const ToolGroupCap &groupcap = gc_it.second;
 			// Create subtable "times"
 			lua_newtable(L);
@@ -1413,7 +1413,7 @@ void push_inventory_lists(lua_State *L, const Inventory &inv)
 	const auto &lists = inv.getLists();
 	lua_createtable(L, 0, lists.size());
 	for(const InventoryList *list : lists) {
-		const std::string &name = list->getName();
+		const String &name = list->getName();
 		lua_pushlstring(L, name.c_str(), name.size());
 		push_inventory_list(L, *list);
 		lua_rawset(L, -3);
@@ -1500,7 +1500,7 @@ ToolCapabilities read_tool_capabilities(
 		lua_pushnil(L);
 		while(lua_next(L, table_groupcaps) != 0){
 			// key at index -2 and value at index -1
-			std::string groupname = luaL_checkstring(L, -2);
+			String groupname = luaL_checkstring(L, -2);
 			if(lua_istable(L, -1)){
 				int table_groupcap = lua_gettop(L);
 				// This will be created
@@ -1549,7 +1549,7 @@ ToolCapabilities read_tool_capabilities(
 		lua_pushnil(L);
 		while(lua_next(L, table_damage_groups) != 0){
 			// key at index -2 and value at index -1
-			std::string groupname = luaL_checkstring(L, -2);
+			String groupname = luaL_checkstring(L, -2);
 			u16 value = luaL_checkinteger(L, -1);
 			toolcap.damageGroups[groupname] = value;
 			// removes value, keeps key for next iteration
@@ -1595,7 +1595,7 @@ bool read_flags(lua_State *L, int index, FlagDesc *flagdesc,
 	u32 *flags, u32 *flagmask)
 {
 	if (lua_isstring(L, index)) {
-		std::string flagstr = lua_tostring(L, index);
+		String flagstr = lua_tostring(L, index);
 		*flags = readFlagString(flagstr, flagdesc, flagmask);
 	} else if (lua_istable(L, index)) {
 		*flags = read_flags_table(L, index, flagdesc, flagmask);
@@ -1633,7 +1633,7 @@ u32 read_flags_table(lua_State *L, int table, FlagDesc *flagdesc, u32 *flagmask)
 
 void push_flags_string(lua_State *L, FlagDesc *flagdesc, u32 flags, u32 flagmask)
 {
-	std::string flagstring = writeFlagString(flags, flagdesc, flagmask);
+	String flagstring = writeFlagString(flags, flagdesc, flagmask);
 	lua_pushlstring(L, flagstring.c_str(), flagstring.size());
 }
 
@@ -1655,7 +1655,7 @@ void read_groups(lua_State *L, int index, ItemGroupList &result)
 		index -= 1;
 	while (lua_next(L, index) != 0) {
 		// key at index -2 and value at index -1
-		std::string name = luaL_checkstring(L, -2);
+		String name = luaL_checkstring(L, -2);
 		int rating = luaL_checkinteger(L, -1);
 		// zero rating indicates not in the group
 		if (rating != 0)
@@ -1827,7 +1827,7 @@ static bool push_json_value_helper(lua_State *L, const Json::Value &value,
 				const char *str = it.memberName();
 				lua_pushstring(L, str ? str : "");
 #else
-				std::string str = it.name();
+				String str = it.name();
 				lua_pushstring(L, str.c_str());
 #endif
 				push_json_value_helper(L, *it, nullindex);
@@ -1868,7 +1868,7 @@ void read_json_value(lua_State *L, Json::Value &root, int index, u8 recursion)
 	} else if (type == LUA_TSTRING) {
 		size_t len;
 		const char *str = lua_tolstring(L, index, &len);
-		root = std::string(str, len);
+		root = String(str, len);
 	} else if (type == LUA_TTABLE) {
 		lua_pushnil(L);
 		while (lua_next(L, index)) {
@@ -2068,7 +2068,7 @@ void push_hud_element(lua_State *L, HudElement *elem)
 
 bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void **value)
 {
-	std::string statstr = lua_tostring(L, 3);
+	String statstr = lua_tostring(L, 3);
 	{
 		int statint;
 		if (!string_to_enum(es_HudElementStat, statint, statstr)) {

@@ -32,14 +32,14 @@ struct ChatInterface;
 class TermLogOutput : public ILogOutput {
 public:
 
-	void logRaw(LogLevel lev, const std::string &line)
+	void logRaw(LogLevel lev, const String &line)
 	{
 		queue.push_back(std::make_pair(lev, line));
 	}
 
-	virtual void log(LogLevel lev, const std::string &combined,
-		const std::string &time, const std::string &thread_name,
-		const std::string &payload_text)
+	virtual void log(LogLevel lev, const String &combined,
+		const String &time, const String &thread_name,
+		const String &payload_text)
 	{
 		std::ostringstream os(std::ios_base::binary);
 		os << time << ": [" << thread_name << "] " << payload_text;
@@ -47,7 +47,7 @@ public:
 		queue.push_back(std::make_pair(lev, os.str()));
 	}
 
-	MutexedQueue<std::pair<LogLevel, std::string> > queue;
+	MutexedQueue<std::pair<LogLevel, String> > queue;
 };
 
 class TerminalChatConsole : public Thread {
@@ -60,7 +60,7 @@ public:
 	void setup(
 		ChatInterface *iface,
 		bool *kill_requested,
-		const std::string &nick)
+		const String &nick)
 	{
 		m_nick = nick;
 		m_kill_requested = kill_requested;
@@ -99,12 +99,12 @@ private:
 	};
 
 	int m_log_level = LL_ACTION;
-	std::string m_nick;
+	String m_nick;
 
 	u8 m_utf8_bytes_to_wait = 0;
-	std::string m_pending_utf8_bytes;
+	String m_pending_utf8_bytes;
 
-	std::set<std::string> m_nicks;
+	std::set<String> m_nicks;
 
 	int m_cols;
 	int m_rows;

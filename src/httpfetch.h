@@ -53,7 +53,7 @@ enum HttpMethod : u8
 
 struct HTTPFetchRequest
 {
-	std::string url = "";
+	String url = "";
 
 	// Identifies the caller (for asynchronous requests)
 	// Ignored by httpfetch_sync
@@ -81,13 +81,13 @@ struct HTTPFetchRequest
 	StringMap fields;
 
 	// Raw data of the request overrides fields
-	std::string raw_data;
+	String raw_data;
 
 	// If not empty, should contain entries such as "Accept: text/html"
-	std::vector<std::string> extra_headers;
+	std::vector<String> extra_headers;
 
 	// useragent to use
-	std::string useragent;
+	String useragent;
 
 	HTTPFetchRequest();
 };
@@ -97,7 +97,7 @@ struct HTTPFetchResult
 	bool succeeded = false;
 	bool timeout = false;
 	long response_code = 0;
-	std::string data = "";
+	String data = "";
 	// The caller and request_id from the corresponding HTTPFetchRequest.
 	u64 caller = HTTPFETCH_DISCARD;
 	u64 request_id = 0;

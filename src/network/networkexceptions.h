@@ -84,17 +84,17 @@ public:
 class SocketException : public BaseException
 {
 public:
-	SocketException(const std::string &s) : BaseException(s) {}
+	SocketException(const String &s) : BaseException(s) {}
 };
 
 class ResolveError : public BaseException
 {
 public:
-	ResolveError(const std::string &s) : BaseException(s) {}
+	ResolveError(const String &s) : BaseException(s) {}
 };
 
 class SendFailedException : public BaseException
 {
 public:
-	SendFailedException(const std::string &s) : BaseException(s) {}
+	SendFailedException(const String &s) : BaseException(s) {}
 };

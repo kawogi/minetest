@@ -162,7 +162,7 @@ EmergeManager::EmergeManager(Server *server, MetricsBackend *mb)
 	static_assert(ARRLEN(emergeActionStrs) == ARRLEN(m_completed_emerge_counter),
 		"enum size mismatches");
 	for (u32 i = 0; i < ARRLEN(m_completed_emerge_counter); i++) {
-		std::string help_str("Number of completed emerges with status ");
+		String help_str("Number of completed emerges with status ");
 		help_str.append(emergeActionStrs[i]);
 		m_completed_emerge_counter[i] = mb->addCounter(
 			"minetest_emerge_completed", help_str,
@@ -676,8 +676,6 @@ MapBlock *EmergeThread::finishGen(v3s16 pos, BlockMakeData *bmdata,
 
 void *EmergeThread::run()
 {
-	BEGIN_DEBUG_EXCEPTION_HANDLER
-
 	v3s16 pos;
 	std::map<v3s16, MapBlock *> modified_blocks;
 
@@ -753,7 +751,5 @@ void *EmergeThread::run()
 	}
 
 	cancelPendingItems();
-
-	END_DEBUG_EXCEPTION_HANDLER
 	return NULL;
 }

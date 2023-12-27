@@ -83,7 +83,7 @@ struct CraftInput
 	// Returns true if all items are empty.
 	bool empty() const;
 
-	std::string dump() const;
+	String dump() const;
 };
 
 /*
@@ -92,16 +92,16 @@ struct CraftInput
 struct CraftOutput
 {
 	// Used for normal crafting and cooking, itemstring
-	std::string item = "";
+	String item = "";
 	// Used for cooking (cook time) and fuel (burn time), seconds
 	float time = 0.0f;
 
 	CraftOutput() = default;
 
-	CraftOutput(const std::string &item_, float time_):
+	CraftOutput(const String &item_, float time_):
 		item(item_), time(time_)
 	{}
-	std::string dump() const;
+	String dump() const;
 };
 
 /*
@@ -117,13 +117,13 @@ struct CraftOutput
 struct CraftReplacements
 {
 	// List of replacements
-	std::vector<std::pair<std::string, std::string> > pairs;
+	std::vector<std::pair<String, String> > pairs;
 
 	CraftReplacements() = default;
-	CraftReplacements(const std::vector<std::pair<std::string, std::string> > &pairs_):
+	CraftReplacements(const std::vector<std::pair<String, String> > &pairs_):
 		pairs(pairs_)
 	{}
-	std::string dump() const;
+	String dump() const;
 };
 
 /*
@@ -153,7 +153,7 @@ public:
 	virtual ~CraftDefinition() = default;
 
 	// Returns type of crafting definition
-	virtual std::string getName() const=0;
+	virtual String getName() const=0;
 
 	// Checks whether the recipe is applicable
 	virtual bool check(const CraftInput &input, IGameDef *gamedef) const=0;
@@ -179,7 +179,7 @@ public:
 	// to be called after all mods are loaded, so that we catch all aliases
 	virtual void initHash(IGameDef *gamedef) = 0;
 
-	virtual std::string dump() const=0;
+	virtual String dump() const=0;
 
 protected:
 	CraftHashType hash_type;
@@ -197,14 +197,14 @@ class CraftDefinitionShaped: public CraftDefinition
 public:
 	CraftDefinitionShaped() = delete;
 	CraftDefinitionShaped(
-		const std::string &output_,
+		const String &output_,
 		unsigned int width_,
-		const std::vector<std::string> &recipe_,
+		const std::vector<String> &recipe_,
 		const CraftReplacements &replacements_);
 
 	virtual ~CraftDefinitionShaped() = default;
 
-	virtual std::string getName() const;
+	virtual String getName() const;
 	virtual bool check(const CraftInput &input, IGameDef *gamedef) const;
 	virtual CraftOutput getOutput(const CraftInput &input, IGameDef *gamedef) const;
 	virtual CraftInput getInput(const CraftOutput &output, IGameDef *gamedef) const;
@@ -215,17 +215,17 @@ public:
 
 	virtual void initHash(IGameDef *gamedef);
 
-	virtual std::string dump() const;
+	virtual String dump() const;
 
 private:
 	// Output itemstring
-	std::string output = "";
+	String output = "";
 	// Width of recipe
 	unsigned int width = 1;
 	// Recipe matrix (itemstrings)
-	std::vector<std::string> recipe;
+	std::vector<String> recipe;
 	// Recipe matrix (item names)
-	std::vector<std::string> recipe_names;
+	std::vector<String> recipe_names;
 	// bool indicating if initHash has been called already
 	bool hash_inited = false;
 	// Replacement items for decrementInput()
@@ -242,13 +242,13 @@ class CraftDefinitionShapeless: public CraftDefinition
 public:
 	CraftDefinitionShapeless() = delete;
 	CraftDefinitionShapeless(
-		const std::string &output_,
-		const std::vector<std::string> &recipe_,
+		const String &output_,
+		const std::vector<String> &recipe_,
 		const CraftReplacements &replacements_);
 
 	virtual ~CraftDefinitionShapeless() = default;
 
-	virtual std::string getName() const;
+	virtual String getName() const;
 	virtual bool check(const CraftInput &input, IGameDef *gamedef) const;
 	virtual CraftOutput getOutput(const CraftInput &input, IGameDef *gamedef) const;
 	virtual CraftInput getInput(const CraftOutput &output, IGameDef *gamedef) const;
@@ -259,15 +259,15 @@ public:
 
 	virtual void initHash(IGameDef *gamedef);
 
-	virtual std::string dump() const;
+	virtual String dump() const;
 
 private:
 	// Output itemstring
-	std::string output;
+	String output;
 	// Recipe list (itemstrings)
-	std::vector<std::string> recipe;
+	std::vector<String> recipe;
 	// Recipe list (item names), sorted
-	std::vector<std::string> recipe_names;
+	std::vector<String> recipe_names;
 	// bool indicating if initHash has been called already
 	bool hash_inited = false;
 	// Replacement items for decrementInput()
@@ -288,7 +288,7 @@ public:
 
 	virtual ~CraftDefinitionToolRepair() = default;
 
-	virtual std::string getName() const;
+	virtual String getName() const;
 	virtual bool check(const CraftInput &input, IGameDef *gamedef) const;
 	virtual CraftOutput getOutput(const CraftInput &input, IGameDef *gamedef) const;
 	virtual CraftInput getInput(const CraftOutput &output, IGameDef *gamedef) const;
@@ -302,7 +302,7 @@ public:
 		hash_type = CRAFT_HASH_TYPE_COUNT;
 	}
 
-	virtual std::string dump() const;
+	virtual String dump() const;
 
 private:
 	// This is a constant that is added to the wear of the result.
@@ -322,14 +322,14 @@ class CraftDefinitionCooking: public CraftDefinition
 public:
 	CraftDefinitionCooking() = delete;
 	CraftDefinitionCooking(
-		const std::string &output_,
-		const std::string &recipe_,
+		const String &output_,
+		const String &recipe_,
 		float cooktime_,
 		const CraftReplacements &replacements_);
 
 	virtual ~CraftDefinitionCooking() = default;
 
-	virtual std::string getName() const;
+	virtual String getName() const;
 	virtual bool check(const CraftInput &input, IGameDef *gamedef) const;
 	virtual CraftOutput getOutput(const CraftInput &input, IGameDef *gamedef) const;
 	virtual CraftInput getInput(const CraftOutput &output, IGameDef *gamedef) const;
@@ -340,15 +340,15 @@ public:
 
 	virtual void initHash(IGameDef *gamedef);
 
-	virtual std::string dump() const;
+	virtual String dump() const;
 
 private:
 	// Output itemstring
-	std::string output;
+	String output;
 	// Recipe itemstring
-	std::string recipe;
+	String recipe;
 	// Recipe item name
-	std::string recipe_name;
+	String recipe_name;
 	// bool indicating if initHash has been called already
 	bool hash_inited = false;
 	// Time in seconds
@@ -366,13 +366,13 @@ class CraftDefinitionFuel: public CraftDefinition
 public:
 	CraftDefinitionFuel() = delete;
 	CraftDefinitionFuel(
-		const std::string &recipe_,
+		const String &recipe_,
 		float burntime_,
 		const CraftReplacements &replacements_);
 
 	virtual ~CraftDefinitionFuel() = default;
 
-	virtual std::string getName() const;
+	virtual String getName() const;
 	virtual bool check(const CraftInput &input, IGameDef *gamedef) const;
 	virtual CraftOutput getOutput(const CraftInput &input, IGameDef *gamedef) const;
 	virtual CraftInput getInput(const CraftOutput &output, IGameDef *gamedef) const;
@@ -383,13 +383,13 @@ public:
 
 	virtual void initHash(IGameDef *gamedef);
 
-	virtual std::string dump() const;
+	virtual String dump() const;
 
 private:
 	// Recipe itemstring
-	std::string recipe;
+	String recipe;
 	// Recipe item name
-	std::string recipe_name;
+	String recipe_name;
 	// bool indicating if initHash has been called already
 	bool hash_inited = false;
 	// Time in seconds
@@ -427,7 +427,7 @@ public:
 			IGameDef *gamedef, unsigned limit=0) const=0;
 
 	// Print crafting recipes for debugging
-	virtual std::string dump() const=0;
+	virtual String dump() const=0;
 };
 
 class IWritableCraftDefManager : public ICraftDefManager
@@ -447,7 +447,7 @@ public:
 	virtual bool clearCraftsByInput(const CraftInput &input, IGameDef *gamedef) = 0;
 
 	// Print crafting recipes for debugging
-	virtual std::string dump() const=0;
+	virtual String dump() const=0;
 
 	// Add a crafting definition.
 	// After calling this, the pointer belongs to the manager.

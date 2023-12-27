@@ -83,8 +83,8 @@ public:
 	DISABLE_CLASS_COPY(ScriptApiBase);
 
 	// These throw a ModError on failure
-	void loadMod(const std::string &script_path, const std::string &mod_name);
-	void loadScript(const std::string &script_path);
+	void loadMod(const String &script_path, const String &mod_name);
+	void loadScript(const String &script_path);
 
 	void runCallbacksRaw(int nargs,
 		RunCallbacksMode mode, const char *fxn);
@@ -100,7 +100,7 @@ public:
 
 	// IMPORTANT: these cannot be used for any security-related uses, they exist
 	// only to enrich error messages
-	const std::string &getOrigin() { return m_last_run_mod; }
+	const String &getOrigin() { return m_last_run_mod; }
 	void setOriginDirect(const char *origin);
 	void setOriginFromTableRaw(int index, const char *fxn);
 
@@ -148,7 +148,7 @@ protected:
 	void pushPlayerHPChangeReason(lua_State *L, const PlayerHPChangeReason& reason);
 
 	std::recursive_mutex m_luastackmutex;
-	std::string     m_last_run_mod;
+	String     m_last_run_mod;
 	bool            m_secure = false;
 #ifdef SCRIPTAPI_LOCK_DEBUG
 	int             m_lock_recursion_count{};

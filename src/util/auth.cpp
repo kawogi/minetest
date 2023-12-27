@@ -31,17 +31,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 // their password. (Exception : if the password field is
 // blank, we send a blank password - this is for backwards
 // compatibility with password-less players).
-std::string translate_password(const std::string &name,
-	const std::string &password)
+String translate_password(const String &name,
+	const String &password)
 {
 	if (password.length() == 0)
 		return "";
 
-	std::string slt = name + password;
+	String slt = name + password;
 	SHA1 sha1;
 	sha1.addBytes(slt.c_str(), slt.length());
 	unsigned char *digest = sha1.getDigest();
-	std::string pwd = base64_encode(digest, 20);
+	String pwd = base64_encode(digest, 20);
 	free(digest);
 	return pwd;
 }
@@ -50,11 +50,11 @@ std::string translate_password(const std::string &name,
 // given pointers. Contains the preparations, call parameters
 // and error checking common to all srp verifier generation code.
 // See docs of srp_create_salted_verification_key for more info.
-static inline void gen_srp_v(const std::string &name,
-	const std::string &password, char **salt, size_t *salt_len,
+static inline void gen_srp_v(const String &name,
+	const String &password, char **salt, size_t *salt_len,
 	char **bytes_v, size_t *len_v)
 {
-	std::string n_name = lowercase(name);
+	String n_name = lowercase(name);
 	SRP_Result res = srp_create_salted_verification_key(SRP_SHA256, SRP_NG_2048,
 		n_name.c_str(), (const unsigned char *)password.c_str(),
 		password.size(), (unsigned char **)salt, salt_len,
@@ -63,8 +63,8 @@ static inline void gen_srp_v(const std::string &name,
 }
 
 /// Creates a verification key with given salt and password.
-std::string generate_srp_verifier(const std::string &name,
-	const std::string &password, const std::string &salt)
+String generate_srp_verifier(const String &name,
+	const String &password, const String &salt)
 {
 	size_t salt_len = salt.size();
 	// The API promises us that the salt doesn't
@@ -74,41 +74,41 @@ std::string generate_srp_verifier(const std::string &name,
 	char *bytes_v = nullptr;
 	size_t verifier_len = 0;
 	gen_srp_v(name, password, &salt_ptr, &salt_len, &bytes_v, &verifier_len);
-	std::string verifier = std::string(bytes_v, verifier_len);
+	String verifier = String(bytes_v, verifier_len);
 	free(bytes_v);
 	return verifier;
 }
 
 /// Creates a verification key and salt with given password.
-void generate_srp_verifier_and_salt(const std::string &name,
-	const std::string &password, std::string *verifier,
-	std::string *salt)
+void generate_srp_verifier_and_salt(const String &name,
+	const String &password, String *verifier,
+	String *salt)
 {
 	char *bytes_v = nullptr;
 	size_t verifier_len;
 	char *salt_ptr = nullptr;
 	size_t salt_len;
 	gen_srp_v(name, password, &salt_ptr, &salt_len, &bytes_v, &verifier_len);
-	*verifier = std::string(bytes_v, verifier_len);
-	*salt = std::string(salt_ptr, salt_len);
+	*verifier = String(bytes_v, verifier_len);
+	*salt = String(salt_ptr, salt_len);
 	free(bytes_v);
 	free(salt_ptr);
 }
 
 /// Gets an SRP verifier, generating a salt,
 /// and encodes it as DB-ready string.
-std::string get_encoded_srp_verifier(const std::string &name,
-	const std::string &password)
+String get_encoded_srp_verifier(const String &name,
+	const String &password)
 {
-	std::string verifier;
-	std::string salt;
+	String verifier;
+	String salt;
 	generate_srp_verifier_and_salt(name, password, &verifier, &salt);
 	return encode_srp_verifier(verifier, salt);
 }
 
 /// Converts the passed SRP verifier into a DB-ready format.
-std::string encode_srp_verifier(const std::string &verifier,
-	const std::string &salt)
+String encode_srp_verifier(const String &verifier,
+	const String &salt)
 {
 	std::ostringstream ret_str;
 	ret_str << "#1#"
@@ -119,10 +119,10 @@ std::string encode_srp_verifier(const std::string &verifier,
 
 /// Reads the DB-formatted SRP verifier and gets the verifier
 /// and salt components.
-bool decode_srp_verifier_and_salt(const std::string &encoded,
-	std::string *verifier, std::string *salt)
+bool decode_srp_verifier_and_salt(const String &encoded,
+	String *verifier, String *salt)
 {
-	std::vector<std::string> components = str_split(encoded, '#');
+	std::vector<String> components = str_split(encoded, '#');
 
 	if ((components.size() != 4)
 			|| (components[1] != "1") // 1 means srp

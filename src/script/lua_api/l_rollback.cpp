@@ -83,7 +83,7 @@ int ModApiRollback::l_rollback_revert_actions_by(lua_State *L)
 {
 	MAP_LOCK_REQUIRED;
 
-	std::string actor = luaL_checkstring(L, 1);
+	String actor = luaL_checkstring(L, 1);
 	int seconds = luaL_checknumber(L, 2);
 	Server *server = getServer(L);
 	IRollbackManager *rollback = server->getRollbackManager();
@@ -95,13 +95,13 @@ int ModApiRollback::l_rollback_revert_actions_by(lua_State *L)
 		return 2;
 	}
 	std::list<RollbackAction> actions = rollback->getRevertActions(actor, seconds);
-	std::list<std::string> log;
+	std::list<String> log;
 	bool success = server->rollbackRevertActions(actions, &log);
 	// Push boolean result
 	lua_pushboolean(L, success);
 	lua_createtable(L, log.size(), 0);
 	unsigned long i = 0;
-	for(std::list<std::string>::const_iterator iter = log.begin();
+	for(std::list<String>::const_iterator iter = log.begin();
 			iter != log.end(); ++i, ++iter) {
 		lua_pushnumber(L, i);
 		lua_pushstring(L, iter->c_str());

@@ -40,10 +40,10 @@ public:
 	 * Creates a ServerModManager which targets worldpath
 	 * @param worldpath
 	 */
-	ServerModManager(const std::string &worldpath);
+	ServerModManager(const String &worldpath);
 	void loadMods(ServerScripting *script);
-	const ModSpec *getModSpec(const std::string &modname) const;
-	void getModNames(std::vector<std::string> &modlist) const;
+	const ModSpec *getModSpec(const String &modname) const;
+	void getModNames(std::vector<String> &modlist) const;
 
 	inline const std::vector<ModSpec> &getMods() const {
 		return configuration.getMods();
@@ -57,7 +57,7 @@ public:
 		return configuration.isConsistent();
 	}
 
-	inline std::string getUnsatisfiedModsError() const {
+	inline String getUnsatisfiedModsError() const {
 		return configuration.getUnsatisfiedModsError();
 	}
 
@@ -69,5 +69,5 @@ public:
 	 *
 	 * @param paths result vector
 	 */
-	void getModsMediaPaths(std::vector<std::string> &paths) const;
+	void getModsMediaPaths(std::vector<String> &paths) const;
 };

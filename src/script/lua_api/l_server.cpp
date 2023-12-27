@@ -71,7 +71,7 @@ int ModApiServer::l_get_server_max_lag(lua_State *L)
 int ModApiServer::l_print(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	std::string text;
+	String text;
 	text = luaL_checkstring(L, 1);
 	getServer(L)->printToConsoleOnly(text);
 	return 0;
@@ -90,7 +90,7 @@ int ModApiServer::l_chat_send_all(lua_State *L)
 	} catch (PacketError &e) {
 		warningstream << "Exception caught: " << e.what() << std::endl
 			<< script_get_backtrace(L) << std::endl;
-		server->notifyPlayers(utf8_to_wide(std::string("Internal error: ") + e.what()));
+		server->notifyPlayers(utf8_to_wide(String("Internal error: ") + e.what()));
 	}
 
 	return 0;
@@ -111,7 +111,7 @@ int ModApiServer::l_chat_send_player(lua_State *L)
 	} catch (PacketError &e) {
 		warningstream << "Exception caught: " << e.what() << std::endl
 			<< script_get_backtrace(L) << std::endl;
-		server->notifyPlayer(name, utf8_to_wide(std::string("Internal error: ") + e.what()));
+		server->notifyPlayer(name, utf8_to_wide(String("Internal error: ") + e.what()));
 	}
 	return 0;
 }
@@ -126,8 +126,8 @@ int ModApiServer::l_get_player_privs(lua_State *L)
 	// Do it
 	lua_newtable(L);
 	int table = lua_gettop(L);
-	std::set<std::string> privs_s = server->getPlayerEffectivePrivs(name);
-	for (const std::string &privs_ : privs_s) {
+	std::set<String> privs_s = server->getPlayerEffectivePrivs(name);
+	for (const String &privs_ : privs_s) {
 		lua_pushboolean(L, true);
 		lua_setfield(L, table, privs_.c_str());
 	}
@@ -334,9 +334,9 @@ int ModApiServer::l_disconnect_player(lua_State *L)
 		throw LuaError("Can't kick player before server has started up");
 
 	const char *name = luaL_checkstring(L, 1);
-	std::string message;
+	String message;
 	if (lua_isstring(L, 2))
-		message.append(readParam<std::string>(L, 2));
+		message.append(readParam<String>(L, 2));
 	else
 		message.append("Disconnected.");
 
@@ -356,7 +356,7 @@ int ModApiServer::l_disconnect_player(lua_State *L)
 int ModApiServer::l_remove_player(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	std::string name = luaL_checkstring(L, 1);
+	String name = luaL_checkstring(L, 1);
 	ServerEnvironment *s_env = dynamic_cast<ServerEnvironment *>(getEnv(L));
 	if (!s_env)
 		throw LuaError("Can't remove player before server has started up");
@@ -399,7 +399,7 @@ int ModApiServer::l_get_current_modname(lua_State *L)
 int ModApiServer::l_get_modpath(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	std::string modname = luaL_checkstring(L, 1);
+	String modname = luaL_checkstring(L, 1);
 	const ModSpec *mod = getGameDef(L)->getModSpec(modname);
 	if (!mod)
 		lua_pushnil(L);
@@ -415,7 +415,7 @@ int ModApiServer::l_get_modnames(lua_State *L)
 	NO_MAP_LOCK_REQUIRED;
 
 	// Get a list of mods
-	std::vector<std::string> modlist;
+	std::vector<String> modlist;
 	for (auto &it : getGameDef(L)->getMods())
 		modlist.emplace_back(it.name);
 
@@ -500,8 +500,8 @@ int ModApiServer::l_dynamic_add_media(lua_State *L)
 		throw LuaError("Dynamic media cannot be added before server has started up");
 	Server *server = getServer(L);
 
-	std::string filepath;
-	std::string to_player;
+	String filepath;
+	String to_player;
 	bool ephemeral = false;
 
 	if (lua_istable(L, 1)) {
@@ -509,7 +509,7 @@ int ModApiServer::l_dynamic_add_media(lua_State *L)
 		getstringfield(L, 1, "to_player", to_player);
 		getboolfield(L, 1, "ephemeral", ephemeral);
 	} else {
-		filepath = readParam<std::string>(L, 1);
+		filepath = readParam<String>(L, 1);
 	}
 	if (filepath.empty())
 		luaL_typerror(L, 1, "non-empty string");
@@ -540,9 +540,9 @@ int ModApiServer::l_is_singleplayer(lua_State *L)
 int ModApiServer::l_notify_authentication_modified(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	std::string name;
+	String name;
 	if(lua_isstring(L, 1))
-		name = readParam<std::string>(L, 1);
+		name = readParam<String>(L, 1);
 	getServer(L)->reportPrivsModified(name);
 	return 0;
 }
@@ -563,10 +563,10 @@ int ModApiServer::l_do_async_callback(lua_State *L)
 
 	PackedValue *param = script_pack(L, 2);
 
-	std::string mod_origin = readParam<std::string>(L, 3);
+	String mod_origin = readParam<String>(L, 3);
 
 	u32 jobId = script->queueAsync(
-		std::string(serialized_func_raw, func_length),
+		String(serialized_func_raw, func_length),
 		param, mod_origin);
 
 	lua_settop(L, 0);
@@ -579,14 +579,14 @@ int ModApiServer::l_register_async_dofile(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 
-	std::string path = readParam<std::string>(L, 1);
+	String path = readParam<String>(L, 1);
 	CHECK_SECURE_PATH(L, path.c_str(), false);
 
 	// Find currently running mod name (only at init time)
 	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_CURRENT_MOD_NAME);
 	if (!lua_isstring(L, -1))
 		return 0;
-	std::string modname = readParam<std::string>(L, -1);
+	String modname = readParam<String>(L, -1);
 
 	getServer(L)->m_async_init_files.emplace_back(modname, path);
 	lua_pushboolean(L, true);

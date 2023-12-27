@@ -36,8 +36,8 @@ extern "C" {
 #include <lua.h>
 }
 
-std::string        getstringfield_default(lua_State *L, int table,
-                             const char *fieldname, const std::string &default_);
+String        getstringfield_default(lua_State *L, int table,
+                             const char *fieldname, const String &default_);
 bool               getboolfield_default(lua_State *L, int table,
                              const char *fieldname, bool default_);
 float              getfloatfield_default(lua_State *L, int table,
@@ -66,19 +66,19 @@ v3s16              getv3s16field_default(lua_State *L, int table,
                              const char *fieldname, v3s16 default_);
 
 bool               getstringfield(lua_State *L, int table,
-                             const char *fieldname, std::string &result);
+                             const char *fieldname, String &result);
 size_t             getstringlistfield(lua_State *L, int table,
                              const char *fieldname,
-                             std::vector<std::string> *result);
+                             std::vector<String> *result);
 void               read_groups(lua_State *L, int index,
-                             std::unordered_map<std::string, int> &result);
+                             std::unordered_map<String, int> &result);
 bool               getboolfield(lua_State *L, int table,
                              const char *fieldname, bool &result);
 bool               getfloatfield(lua_State *L, int table,
                              const char *fieldname, float &result);
 
 void               setstringfield(lua_State *L, int table,
-                             const char *fieldname, const std::string &value);
+                             const char *fieldname, const String &value);
 void               setintfield(lua_State *L, int table,
                              const char *fieldname, int value);
 void               setfloatfield(lua_State *L, int table,
@@ -104,7 +104,7 @@ aabb3f              read_aabb3f         (lua_State *L, int index, f32 scale);
 v3s16               read_v3s16          (lua_State *L, int index);
 std::vector<aabb3f> read_aabb3f_vector  (lua_State *L, int index, f32 scale);
 size_t              read_stringlist     (lua_State *L, int index,
-                                         std::vector<std::string> *result);
+                                         std::vector<String> *result);
 
 void                push_v2s16          (lua_State *L, v2s16 p);
 void                push_v2s32          (lua_State *L, v2s32 p);
@@ -118,7 +118,7 @@ void                push_v2f            (lua_State *L, v2f p);
 
 void                warn_if_field_exists(lua_State *L, int table,
                                          const char *fieldname,
-                                         const std::string &message);
+                                         const String &message);
 
 size_t write_array_slice_float(lua_State *L, int table_index, float *data,
 	v3u16 data_size, v3u16 slice_offset, v3u16 slice_size);

@@ -135,9 +135,9 @@ void MapBlock::step(float dtime, const std::function<bool(v3s16, MapNode, f32)> 
 	}
 }
 
-std::string MapBlock::getModifiedReasonString()
+String MapBlock::getModifiedReasonString()
 {
-	std::string reason;
+	String reason;
 
 	const u32 ubound = MYMIN(sizeof(m_modified_reason) * CHAR_BIT,
 		ARRLEN(modified_reason_strings));
@@ -265,7 +265,7 @@ static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
 			mapping[global_id] = id;
 
 			const ContentFeatures &f = nodedef->get(global_id);
-			const std::string &name = f.name;
+			const String &name = f.name;
 			if (name.empty())
 				unknown_contents.insert(global_id);
 			else
@@ -293,7 +293,7 @@ static void correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 	// nodedef contains information to convert our names to globally
 	// correct ids.
 	std::unordered_set<content_t> unnamed_contents;
-	std::unordered_set<std::string> unallocatable_contents;
+	std::unordered_set<String> unallocatable_contents;
 
 	bool previous_exists = false;
 	content_t previous_local_id = CONTENT_IGNORE;
@@ -310,7 +310,7 @@ static void correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 			continue;
 		}
 
-		std::string name;
+		String name;
 		if (!nimap->getName(local_id, name)) {
 			unnamed_contents.insert(local_id);
 			previous_exists = false;
@@ -339,7 +339,7 @@ static void correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 				<< "Block contains id " << c
 				<< " with no name mapping" << std::endl;
 	}
-	for (const std::string &node_name: unallocatable_contents) {
+	for (const String &node_name: unallocatable_contents) {
 		errorstream << "correctBlockNodeIds(): IGNORING ERROR: "
 				<< "Could not allocate global id for node name \""
 				<< node_name << "\"" << std::endl;
@@ -473,7 +473,7 @@ void MapBlock::deSerialize(std::istream &in_compressed, u8 version, bool disk)
 	}
 
 	// Decompress the whole block (version >= 29)
-	std::stringstream in_raw(std::ios_base::binary | std::ios_base::in | std::ios_base::out);
+	Stringstream in_raw(std::ios_base::binary | std::ios_base::in | std::ios_base::out);
 	if (version >= 29)
 		decompress(in_compressed, in_raw, version);
 	std::istream &is = version >= 29 ? in_raw : in_compressed;
@@ -651,12 +651,12 @@ void MapBlock::deSerialize_pre22(std::istream &is, u8 version, bool disk)
 		char tmp;
 		is.read(&tmp, 1);
 		if (is.gcount() != 1)
-			throw SerializationError(std::string(FUNCTION_NAME)
+			throw SerializationError(String(FUNCTION_NAME)
 				+ ": not enough input data");
 		is_underground = tmp;
 		is.read((char *)*databuf_nodelist, nodecount * ser_length);
 		if ((u32)is.gcount() != nodecount * ser_length)
-			throw SerializationError(std::string(FUNCTION_NAME)
+			throw SerializationError(String(FUNCTION_NAME)
 				+ ": not enough input data");
 	} else if (version <= 10) {
 		u8 t8;
@@ -667,9 +667,9 @@ void MapBlock::deSerialize_pre22(std::istream &is, u8 version, bool disk)
 			// Uncompress and set material data
 			std::ostringstream os(std::ios_base::binary);
 			decompress(is, os, version);
-			std::string s = os.str();
+			String s = os.str();
 			if (s.size() != nodecount)
-				throw SerializationError(std::string(FUNCTION_NAME)
+				throw SerializationError(String(FUNCTION_NAME)
 					+ ": not enough input data");
 			for (u32 i = 0; i < s.size(); i++) {
 				databuf_nodelist[i*ser_length] = s[i];
@@ -679,9 +679,9 @@ void MapBlock::deSerialize_pre22(std::istream &is, u8 version, bool disk)
 			// Uncompress and set param data
 			std::ostringstream os(std::ios_base::binary);
 			decompress(is, os, version);
-			std::string s = os.str();
+			String s = os.str();
 			if (s.size() != nodecount)
-				throw SerializationError(std::string(FUNCTION_NAME)
+				throw SerializationError(String(FUNCTION_NAME)
 					+ ": not enough input data");
 			for (u32 i = 0; i < s.size(); i++) {
 				databuf_nodelist[i*ser_length + 1] = s[i];
@@ -692,9 +692,9 @@ void MapBlock::deSerialize_pre22(std::istream &is, u8 version, bool disk)
 			// Uncompress and set param2 data
 			std::ostringstream os(std::ios_base::binary);
 			decompress(is, os, version);
-			std::string s = os.str();
+			String s = os.str();
 			if (s.size() != nodecount)
-				throw SerializationError(std::string(FUNCTION_NAME)
+				throw SerializationError(String(FUNCTION_NAME)
 					+ ": not enough input data");
 			for (u32 i = 0; i < s.size(); i++) {
 				databuf_nodelist[i*ser_length + 2] = s[i];
@@ -711,9 +711,9 @@ void MapBlock::deSerialize_pre22(std::istream &is, u8 version, bool disk)
 		// Uncompress data
 		std::ostringstream os(std::ios_base::binary);
 		decompress(is, os, version);
-		std::string s = os.str();
+		String s = os.str();
 		if (s.size() != nodecount * 3)
-			throw SerializationError(std::string(FUNCTION_NAME)
+			throw SerializationError(String(FUNCTION_NAME)
 				+ ": decompress resulted in size other than nodecount*3");
 
 		// deserialize nodes from buffer
@@ -730,13 +730,13 @@ void MapBlock::deSerialize_pre22(std::istream &is, u8 version, bool disk)
 			// Ignore errors
 			try {
 				if (version <= 15) {
-					std::string data = deSerializeString16(is);
+					String data = deSerializeString16(is);
 					std::istringstream iss(data, std::ios_base::binary);
 					content_nodemeta_deserialize_legacy(iss,
 						&m_node_metadata, &m_node_timers,
 						m_gamedef->idef());
 				} else {
-					//std::string data = deSerializeString32(is);
+					//String data = deSerializeString32(is);
 					std::ostringstream oss(std::ios_base::binary);
 					decompressZlib(is, oss);
 					std::istringstream iss(oss.str(), std::ios_base::binary);
@@ -838,7 +838,7 @@ void MapBlock::deSerialize_pre22(std::istream &is, u8 version, bool disk)
 /*
 	Get a quick string to describe what a block actually contains
 */
-std::string analyze_block(MapBlock *block)
+String analyze_block(MapBlock *block)
 {
 	if (block == NULL)
 		return "NULL";

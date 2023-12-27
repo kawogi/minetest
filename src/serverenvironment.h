@@ -58,10 +58,10 @@ public:
 	virtual ~ActiveBlockModifier() = default;
 
 	// Set of contents to trigger on
-	virtual const std::vector<std::string> &getTriggerContents() const = 0;
+	virtual const std::vector<String> &getTriggerContents() const = 0;
 	// Set of required neighbors (trigger doesn't happen if none are found)
 	// Empty = do not check neighbors
-	virtual const std::vector<std::string> &getRequiredNeighbors() const = 0;
+	virtual const std::vector<String> &getRequiredNeighbors() const = 0;
 	// Trigger interval in seconds
 	virtual float getTriggerInterval() = 0;
 	// Random chance of (1 / return value), 0 is disallowed
@@ -89,8 +89,8 @@ struct ABMWithState
 struct LoadingBlockModifierDef
 {
 	// Set of contents to trigger on
-	std::set<std::string> trigger_contents;
-	std::string name;
+	std::set<String> trigger_contents;
+	String name;
 	bool run_at_every_load = false;
 
 	virtual ~LoadingBlockModifierDef() = default;
@@ -123,11 +123,11 @@ public:
 	// Don't call this after loadIntroductionTimes() ran.
 	void addLBMDef(LoadingBlockModifierDef *lbm_def);
 
-	void loadIntroductionTimes(const std::string &times,
+	void loadIntroductionTimes(const String &times,
 		IGameDef *gamedef, u32 now);
 
 	// Don't call this before loadIntroductionTimes() ran.
-	std::string createIntroductionTimesString();
+	String createIntroductionTimesString();
 
 	// Don't call this before loadIntroductionTimes() ran.
 	void applyLBMs(ServerEnvironment *env, MapBlock *block,
@@ -144,7 +144,7 @@ private:
 	// For m_query_mode == false:
 	// The key of the map is the LBM def's name.
 	// TODO make this std::unordered_map
-	std::map<std::string, LoadingBlockModifierDef *> m_lbm_defs;
+	std::map<String, LoadingBlockModifierDef *> m_lbm_defs;
 
 	// For m_query_mode == true:
 	// The key of the map is the LBM def's first introduction time.
@@ -219,7 +219,7 @@ class ServerEnvironment final : public Environment
 {
 public:
 	ServerEnvironment(ServerMap *map, ServerScripting *script_iface,
-		Server *server, const std::string &path_world, MetricsBackend *mb);
+		Server *server, const String &path_world, MetricsBackend *mb);
 	~ServerEnvironment();
 
 	void init();
@@ -239,7 +239,7 @@ public:
 	{ return m_recommended_send_interval; }
 
 	void kickAllPlayers(AccessDeniedCode reason,
-		const std::string &str_reason, bool reconnect);
+		const String &str_reason, bool reconnect);
 	// Save players
 	void saveLoadedPlayers(bool force = false);
 	void savePlayer(RemotePlayer *player);
@@ -247,7 +247,7 @@ public:
 		bool is_singleplayer);
 	void addPlayer(RemotePlayer *player);
 	void removePlayer(RemotePlayer *player);
-	bool removePlayerFromDatabase(const std::string &name);
+	bool removePlayerFromDatabase(const String &name);
 
 	/*
 		Save and load time of day and game timer
@@ -403,10 +403,10 @@ private:
 	 */
 	void loadDefaultMeta();
 
-	static PlayerDatabase *openPlayerDatabase(const std::string &name,
-			const std::string &savedir, const Settings &conf);
-	static AuthDatabase *openAuthDatabase(const std::string &name,
-			const std::string &savedir, const Settings &conf);
+	static PlayerDatabase *openPlayerDatabase(const String &name,
+			const String &savedir, const Settings &conf);
+	static AuthDatabase *openAuthDatabase(const String &name,
+			const String &savedir, const Settings &conf);
 	/*
 		Internal ActiveObject interface
 		-------------------------------------------
@@ -469,7 +469,7 @@ private:
 	// on_mapblocks_changed map event receiver
 	OnMapblocksChangedReceiver m_on_mapblocks_changed_receiver;
 	// World path
-	const std::string m_path_world;
+	const String m_path_world;
 	// Outgoing network message buffer for active objects
 	std::queue<ActiveObjectMessage> m_active_object_messages;
 	// Some timers
@@ -521,5 +521,5 @@ private:
 	MetricGaugePtr m_active_object_gauge;
 
 	std::unique_ptr<ServerActiveObject> createSAO(ActiveObjectType type, v3f pos,
-			const std::string &data);
+			const String &data);
 };

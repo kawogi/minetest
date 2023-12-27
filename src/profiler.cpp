@@ -23,7 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 static Profiler main_profiler;
 Profiler *g_profiler = &main_profiler;
 ScopeProfiler::ScopeProfiler(
-		Profiler *profiler, const std::string &name, ScopeProfilerType type) :
+		Profiler *profiler, const String &name, ScopeProfilerType type) :
 		m_profiler(profiler),
 		m_name(name), m_type(type)
 {
@@ -63,12 +63,12 @@ Profiler::Profiler()
 	m_start_time = porting::getTimeMs();
 }
 
-void Profiler::add(const std::string &name, float value)
+void Profiler::add(const String &name, float value)
 {
 	MutexAutoLock lock(m_mutex);
 	{
 		/* No average shall have been used; mark add/max used as -2 */
-		std::map<std::string, int>::iterator n = m_avgcounts.find(name);
+		std::map<String, int>::iterator n = m_avgcounts.find(name);
 		if (n == m_avgcounts.end()) {
 			m_avgcounts[name] = -2;
 		} else {
@@ -78,7 +78,7 @@ void Profiler::add(const std::string &name, float value)
 		}
 	}
 	{
-		std::map<std::string, float>::iterator n = m_data.find(name);
+		std::map<String, float>::iterator n = m_data.find(name);
 		if (n == m_data.end())
 			m_data[name] = value;
 		else
@@ -86,7 +86,7 @@ void Profiler::add(const std::string &name, float value)
 	}
 }
 
-void Profiler::max(const std::string &name, float value)
+void Profiler::max(const String &name, float value)
 {
 	MutexAutoLock lock(m_mutex);
 	{
@@ -109,7 +109,7 @@ void Profiler::max(const std::string &name, float value)
 	}
 }
 
-void Profiler::avg(const std::string &name, float value)
+void Profiler::avg(const String &name, float value)
 {
 	MutexAutoLock lock(m_mutex);
 	int &count = m_avgcounts[name];
@@ -129,7 +129,7 @@ void Profiler::clear()
 	m_start_time = porting::getTimeMs();
 }
 
-float Profiler::getValue(const std::string &name) const
+float Profiler::getValue(const String &name) const
 {
 	auto numerator = m_data.find(name);
 	if (numerator == m_data.end())
@@ -144,7 +144,7 @@ float Profiler::getValue(const std::string &name) const
 	return numerator->second;
 }
 
-int Profiler::getAvgCount(const std::string &name) const
+int Profiler::getAvgCount(const String &name) const
 {
 	auto n = m_avgcounts.find(name);
 

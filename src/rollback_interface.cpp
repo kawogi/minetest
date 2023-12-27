@@ -50,7 +50,7 @@ RollbackNode::RollbackNode(Map *map, v3s16 p, IGameDef *gamedef)
 }
 
 
-std::string RollbackAction::toString() const
+String RollbackAction::toString() const
 {
 	std::ostringstream os(std::ios::binary);
 	switch (type) {
@@ -135,7 +135,7 @@ bool RollbackAction::applyRevert(Map *map, InventoryManager *imgr, IGameDef *gam
 			map->emergeBlock(getContainerPos(p, MAP_BLOCKSIZE), false);
 			// Check current node
 			MapNode current_node = map->getNode(p);
-			std::string current_name = ndef->get(current_node).name;
+			String current_name = ndef->get(current_node).name;
 			// If current node not the new node, it's bad
 			if (current_name != n_new.name) {
 				return false;

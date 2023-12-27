@@ -100,13 +100,13 @@ void signal_handler_init(void)
 */
 
 // Default to RUN_IN_PLACE style relative paths
-std::string path_share = "..";
-std::string path_user = "..";
-std::string path_locale = path_share + DIR_DELIM + "locale";
-std::string path_cache = path_user + DIR_DELIM + "cache";
+String path_share = "..";
+String path_user = "..";
+String path_locale = path_share + DIR_DELIM + "locale";
+String path_cache = path_user + DIR_DELIM + "cache";
 
 
-std::string getDataPath(const char *subpath)
+String getDataPath(const char *subpath)
 {
 	return path_share + DIR_DELIM + subpath;
 }
@@ -123,7 +123,7 @@ void pathRemoveFile(char *path, char delim)
 	path[i] = 0;
 }
 
-bool detectMSVCBuildDir(const std::string &path)
+bool detectMSVCBuildDir(const String &path)
 {
 	const char *ends[] = {
 		"bin\\Release",
@@ -136,11 +136,11 @@ bool detectMSVCBuildDir(const std::string &path)
 	return (!removeStringEnd(path, ends).empty());
 }
 
-std::string get_sysinfo()
+String get_sysinfo()
 {
 	struct utsname osinfo;
 	uname(&osinfo);
-	return std::string(osinfo.sysname) + "/"
+	return String(osinfo.sysname) + "/"
 		+ osinfo.release + " " + osinfo.machine;
 }
 
@@ -273,12 +273,12 @@ bool setSystemPaths()
 	}
 
 	pathRemoveFile(buf, '/');
-	std::string bindir(buf);
+	String bindir(buf);
 
 	// Find share directory from these.
 	// It is identified by containing the subdirectory "builtin".
-	std::list<std::string> trylist;
-	std::string static_sharedir = STATIC_SHAREDIR;
+	std::list<String> trylist;
+	String static_sharedir = STATIC_SHAREDIR;
 	if (!static_sharedir.empty() && static_sharedir != ".")
 		trylist.push_back(static_sharedir);
 
@@ -286,9 +286,9 @@ bool setSystemPaths()
 		DIR_DELIM + PROJECT_NAME);
 	trylist.push_back(bindir + DIR_DELIM "..");
 
-	for (std::list<std::string>::const_iterator
+	for (std::list<String>::const_iterator
 			i = trylist.begin(); i != trylist.end(); ++i) {
-		const std::string &trypath = *i;
+		const String &trypath = *i;
 		if (!fs::PathExists(trypath) ||
 			!fs::PathExists(trypath + DIR_DELIM + "builtin")) {
 			warningstream << "system-wide share not found at \""
@@ -308,9 +308,9 @@ bool setSystemPaths()
 
 	const char *const minetest_user_path = getenv("MINETEST_USER_PATH");
 	if (minetest_user_path && minetest_user_path[0] != '\0') {
-		path_user = std::string(minetest_user_path);
+		path_user = String(minetest_user_path);
 	} else {
-		path_user = std::string(getHomeOrFail()) + DIR_DELIM "."
+		path_user = String(getHomeOrFail()) + DIR_DELIM "."
 			+ PROJECT_NAME;
 	}
 
@@ -324,9 +324,9 @@ bool setSystemPaths()
 	path_share = STATIC_SHAREDIR;
 	const char *const minetest_user_path = getenv("MINETEST_USER_PATH");
 	if (minetest_user_path && minetest_user_path[0] != '\0') {
-		path_user = std::string(minetest_user_path);
+		path_user = String(minetest_user_path);
 	} else {
-		path_user  = std::string(getHomeOrFail()) + DIR_DELIM "."
+		path_user  = String(getHomeOrFail()) + DIR_DELIM "."
 			+ lowercase(PROJECT_NAME);
 	}
 	return true;
@@ -337,7 +337,7 @@ bool setSystemPaths()
 
 void migrateCachePath()
 {
-	const std::string local_cache_path = path_user + DIR_DELIM + "cache";
+	const String local_cache_path = path_user + DIR_DELIM + "cache";
 
 	// Delete tmp folder if it exists (it only ever contained
 	// a temporary ogg file, which is no longer used).
@@ -368,7 +368,7 @@ void initializePaths()
 
 	if (success) {
 		pathRemoveFile(buf, DIR_DELIM_CHAR);
-		std::string execpath(buf);
+		String execpath(buf);
 
 		path_share = execpath + DIR_DELIM "..";
 		path_user  = execpath + DIR_DELIM "..";
@@ -393,7 +393,7 @@ void initializePaths()
 		if (cwdlen >= 4 && !strcmp(buf + cwdlen - 4, DIR_DELIM "bin"))
 			pathRemoveFile(buf, DIR_DELIM_CHAR);
 
-		std::string execpath(buf);
+		String execpath(buf);
 
 		path_share = execpath;
 		path_user  = execpath;
@@ -411,10 +411,10 @@ void initializePaths()
 	const char *cache_dir = getenv("XDG_CACHE_HOME");
 	const char *home_dir = getenv("HOME");
 	if (cache_dir && cache_dir[0] != '\0') {
-		path_cache = std::string(cache_dir) + DIR_DELIM + PROJECT_NAME;
+		path_cache = String(cache_dir) + DIR_DELIM + PROJECT_NAME;
 	} else if (home_dir) {
 		// Then try $HOME/.cache/PROJECT_NAME
-		path_cache = std::string(home_dir) + DIR_DELIM + ".cache"
+		path_cache = String(home_dir) + DIR_DELIM + ".cache"
 			+ DIR_DELIM + PROJECT_NAME;
 	} else {
 		// If neither works, use $PATH_USER/cache
@@ -515,9 +515,9 @@ int mt_snprintf(char *buf, const size_t buf_size, const char *fmt, ...)
 	return c;
 }
 
-static bool open_uri(const std::string &uri)
+static bool open_uri(const String &uri)
 {
-	if (uri.find_first_of("\r\n") != std::string::npos) {
+	if (uri.find_first_of("\r\n") != String::npos) {
 		errorstream << "Unable to open URI as it is invalid, contains new line: " << uri << std::endl;
 		return false;
 	}
@@ -526,7 +526,7 @@ static bool open_uri(const std::string &uri)
 	return posix_spawnp(NULL, "xdg-open", NULL, NULL, (char**)argv, environ) == 0;
 }
 
-bool open_url(const std::string &url)
+bool open_url(const String &url)
 {
 	if (url.substr(0, 7) != "http://" && url.substr(0, 8) != "https://") {
 		errorstream << "Unable to open browser as URL is missing schema: " << url << std::endl;
@@ -536,7 +536,7 @@ bool open_url(const std::string &url)
 	return open_uri(url);
 }
 
-bool open_directory(const std::string &path)
+bool open_directory(const String &path)
 {
 	if (!fs::IsDir(path)) {
 		errorstream << "Unable to open directory as it does not exist: " << path << std::endl;

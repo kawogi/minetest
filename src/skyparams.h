@@ -36,13 +36,13 @@ struct SkyboxParams
 	static constexpr float INVALID_SKYBOX_TILT = -1024.f;
 
 	video::SColor bgcolor;
-	std::string type;
-	std::vector<std::string> textures;
+	String type;
+	std::vector<String> textures;
 	bool clouds;
 	SkyColor sky_color;
 	video::SColor fog_sun_tint;
 	video::SColor fog_moon_tint;
-	std::string fog_tint_type;
+	String fog_tint_type;
 	float body_orbit_tilt { INVALID_SKYBOX_TILT };
 	s16 fog_distance { -1 };
 	float fog_start { -1.0f };
@@ -51,9 +51,9 @@ struct SkyboxParams
 struct SunParams
 {
 	bool visible;
-	std::string texture;
-	std::string tonemap;
-	std::string sunrise;
+	String texture;
+	String tonemap;
+	String sunrise;
 	bool sunrise_visible;
 	f32 scale;
 };
@@ -61,8 +61,8 @@ struct SunParams
 struct MoonParams
 {
 	bool visible;
-	std::string texture;
-	std::string tonemap;
+	String texture;
+	String tonemap;
 	f32 scale;
 };
 

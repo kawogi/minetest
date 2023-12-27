@@ -128,9 +128,9 @@ bool ScriptApiPlayer::on_respawnplayer(ServerActiveObject *player)
 }
 
 bool ScriptApiPlayer::on_prejoinplayer(
-	const std::string &name,
-	const std::string &ip,
-	std::string *reason)
+	const String &name,
+	const String &ip,
+	String *reason)
 {
 	SCRIPTAPI_PRECHECKHEADER
 
@@ -141,13 +141,13 @@ bool ScriptApiPlayer::on_prejoinplayer(
 	lua_pushstring(L, ip.c_str());
 	runCallbacks(2, RUN_CALLBACKS_MODE_OR);
 	if (lua_isstring(L, -1)) {
-		reason->assign(readParam<std::string>(L, -1));
+		reason->assign(readParam<String>(L, -1));
 		return true;
 	}
 	return false;
 }
 
-bool ScriptApiPlayer::can_bypass_userlimit(const std::string &name, const std::string &ip)
+bool ScriptApiPlayer::can_bypass_userlimit(const String &name, const String &ip)
 {
 	SCRIPTAPI_PRECHECKHEADER
 
@@ -191,7 +191,7 @@ void ScriptApiPlayer::on_leaveplayer(ServerActiveObject *player,
 }
 
 void ScriptApiPlayer::on_cheat(ServerActiveObject *player,
-		const std::string &cheat_type)
+		const String &cheat_type)
 {
 	SCRIPTAPI_PRECHECKHEADER
 
@@ -207,7 +207,7 @@ void ScriptApiPlayer::on_cheat(ServerActiveObject *player,
 }
 
 void ScriptApiPlayer::on_playerReceiveFields(ServerActiveObject *player,
-		const std::string &formname,
+		const String &formname,
 		const StringMap &fields)
 {
 	SCRIPTAPI_PRECHECKHEADER
@@ -224,8 +224,8 @@ void ScriptApiPlayer::on_playerReceiveFields(ServerActiveObject *player,
 	lua_newtable(L);
 	StringMap::const_iterator it;
 	for (it = fields.begin(); it != fields.end(); ++it) {
-		const std::string &name = it->first;
-		const std::string &value = it->second;
+		const String &name = it->first;
+		const String &value = it->second;
 		lua_pushstring(L, name.c_str());
 		lua_pushlstring(L, value.c_str(), value.size());
 		lua_settable(L, -3);
@@ -233,7 +233,7 @@ void ScriptApiPlayer::on_playerReceiveFields(ServerActiveObject *player,
 	runCallbacks(3, RUN_CALLBACKS_MODE_OR_SC);
 }
 
-void ScriptApiPlayer::on_authplayer(const std::string &name, const std::string &ip, bool is_success)
+void ScriptApiPlayer::on_authplayer(const String &name, const String &ip, bool is_success)
 {
 	SCRIPTAPI_PRECHECKHEADER
 
@@ -276,7 +276,7 @@ void ScriptApiPlayer::pushMoveArguments(
 
 void ScriptApiPlayer::pushPutTakeArguments(
 		const char *method, const InventoryLocation &loc,
-		const std::string &listname, int index, const ItemStack &stack,
+		const String &listname, int index, const ItemStack &stack,
 		ServerActiveObject *player)
 {
 	lua_State *L = getStack();

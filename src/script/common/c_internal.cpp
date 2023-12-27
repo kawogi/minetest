@@ -25,12 +25,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "settings.h"
 #include <algorithm> // std::find
 
-std::string script_get_backtrace(lua_State *L)
+String script_get_backtrace(lua_State *L)
 {
 	lua_getglobal(L, "debug");
 	lua_getfield(L, -1, "traceback");
 	lua_call(L, 0, 1);
-	std::string result = luaL_checkstring(L, -1);
+	String result = luaL_checkstring(L, -1);
 	lua_pop(L, 2);
 	return result;
 }
@@ -42,7 +42,7 @@ int script_exception_wrapper(lua_State *L, lua_CFunction f)
 	} catch (const char *s) {  // Catch and convert exceptions.
 		lua_pushstring(L, s);
 	} catch (std::exception &e) {
-		std::string e_descr = debug_describe_exc(e);
+		String e_descr = debug_describe_exc(e);
 		lua_pushlstring(L, e_descr.c_str(), e_descr.size());
 	}
 	return lua_error(L);  // Rethrow as a Lua error.
@@ -111,7 +111,7 @@ void script_error(lua_State *L, int pcall_result, const char *mod, const char *f
 	porting::mt_snprintf(buf, sizeof(buf), "%s error from mod '%s' in callback %s(): ",
 		err_type, mod, fxn);
 
-	std::string err_msg(buf);
+	String err_msg(buf);
 	err_msg += err_descr;
 
 	if (pcall_result == LUA_ERRMEM) {
@@ -122,20 +122,20 @@ void script_error(lua_State *L, int pcall_result, const char *mod, const char *f
 	throw LuaError(err_msg);
 }
 
-static void script_log_add_source(lua_State *L, std::string &message, int stack_depth)
+static void script_log_add_source(lua_State *L, String &message, int stack_depth)
 {
 	lua_Debug ar;
 
 	if (lua_getstack(L, stack_depth, &ar)) {
 		FATAL_ERROR_IF(!lua_getinfo(L, "Sl", &ar), "lua_getinfo() failed");
-		message.append(" (at " + std::string(ar.short_src) + ":"
+		message.append(" (at " + String(ar.short_src) + ":"
 			+ std::to_string(ar.currentline) + ")");
 	} else {
 		message.append(" (at ?:?)");
 	}
 }
 
-bool script_log_unique(lua_State *L, std::string message, std::ostream &log_to,
+bool script_log_unique(lua_State *L, String message, std::ostream &log_to,
 	int stack_depth)
 {
 	thread_local std::vector<u64> logged_messages;
@@ -160,7 +160,7 @@ DeprecatedHandlingMode get_deprecated_handling_mode()
 
 	// Only read settings on first call
 	if (!configured) {
-		std::string value = g_settings->get("deprecated_lua_api_handling");
+		String value = g_settings->get("deprecated_lua_api_handling");
 		if (value == "log") {
 			ret = DeprecatedHandlingMode::Log;
 		} else if (value == "error") {
@@ -172,7 +172,7 @@ DeprecatedHandlingMode get_deprecated_handling_mode()
 	return ret;
 }
 
-void log_deprecated(lua_State *L, std::string message, int stack_depth)
+void log_deprecated(lua_State *L, String message, int stack_depth)
 {
 	DeprecatedHandlingMode mode = get_deprecated_handling_mode();
 	if (mode == DeprecatedHandlingMode::Ignore)

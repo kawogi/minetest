@@ -33,7 +33,7 @@ void fastWriteJson(const Json::Value &value, std::ostream &to)
 	writer->write(value, &to);
 }
 
-std::string fastWriteJson(const Json::Value &value)
+String fastWriteJson(const Json::Value &value)
 {
 	std::ostringstream oss;
 	fastWriteJson(value, oss);

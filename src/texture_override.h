@@ -53,8 +53,8 @@ enum class OverrideTarget : override_t
 
 struct TextureOverride
 {
-	std::string id;
-	std::string texture;
+	String id;
+	String texture;
 	override_t target = 0;
 	u8 world_scale = 0;
 
@@ -70,7 +70,7 @@ struct TextureOverride
 class TextureOverrideSource
 {
 public:
-	TextureOverrideSource(std::string filepath);
+	TextureOverrideSource(String filepath);
 
 	//! Get all overrides that apply to item definitions
 	std::vector<TextureOverride> getItemTextureOverrides();

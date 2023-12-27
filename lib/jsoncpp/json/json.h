@@ -697,7 +697,7 @@ public:
   using ArrayIndex = Json::ArrayIndex;
 
   // Required for boost integration, e. g. BOOST_TEST
-  using value_type = std::string;
+  using value_type = String;
 
 #if JSON_USE_NULLREF
   // Binary compatibility kludges, do not use.
@@ -1512,7 +1512,7 @@ public:
    * \return \c true if the document was successfully parsed, \c false if an
    * error occurred.
    */
-  bool parse(const std::string& document, Value& root,
+  bool parse(const String& document, Value& root,
              bool collectComments = true);
 
   /** \brief Read a Value from a <a HREF="http://www.json.org">JSON</a>

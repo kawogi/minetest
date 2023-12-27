@@ -24,24 +24,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 class QuicktuneShortcutter
 {
 private:
-	std::vector<std::string> m_names;
+	std::vector<String> m_names;
 	u32 m_selected_i;
-	std::string m_message;
+	String m_message;
 public:
 	bool hasMessage() const
 	{
 		return !m_message.empty();
 	}
 
-	std::string getMessage()
+	String getMessage()
 	{
-		std::string s = m_message;
+		String s = m_message;
 		m_message.clear();
 		if (!s.empty())
-			return std::string("[quicktune] ") + s;
+			return String("[quicktune] ") + s;
 		return "";
 	}
-	std::string getSelectedName()
+	String getSelectedName()
 	{
 		if(m_selected_i < m_names.size())
 			return m_names[m_selected_i];
@@ -54,7 +54,7 @@ public:
 			m_selected_i++;
 		else
 			m_selected_i = 0;
-		m_message = std::string("Selected \"")+getSelectedName()+"\"";
+		m_message = String("Selected \"")+getSelectedName()+"\"";
 	}
 	void prev()
 	{
@@ -63,13 +63,13 @@ public:
 			m_selected_i--;
 		else
 			m_selected_i = m_names.size()-1;
-		m_message = std::string("Selected \"")+getSelectedName()+"\"";
+		m_message = String("Selected \"")+getSelectedName()+"\"";
 	}
 	void inc()
 	{
 		QuicktuneValue val = getQuicktuneValue(getSelectedName());
 		val.relativeAdd(0.05);
-		m_message = std::string("\"")+getSelectedName()
+		m_message = String("\"")+getSelectedName()
 				+"\" = "+val.getString();
 		setQuicktuneValue(getSelectedName(), val);
 	}
@@ -77,7 +77,7 @@ public:
 	{
 		QuicktuneValue val = getQuicktuneValue(getSelectedName());
 		val.relativeAdd(-0.05);
-		m_message = std::string("\"")+getSelectedName()
+		m_message = String("\"")+getSelectedName()
 				+"\" = "+val.getString();
 		setQuicktuneValue(getSelectedName(), val);
 	}

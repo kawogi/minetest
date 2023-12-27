@@ -24,7 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #define CHECK_SECURE_PATH_INTERNAL(L, path, write_required, ptr) \
 	if (!ScriptApiSecurity::checkPath(L, path, write_required, ptr)) { \
-		throw LuaError(std::string("Mod security: Blocked attempted ") + \
+		throw LuaError(String("Mod security: Blocked attempted ") + \
 				(write_required ? "write to " : "read from ") + path); \
 	}
 #define CHECK_SECURE_PATH(L, path, write_required) \
@@ -46,7 +46,7 @@ public:
 	// Checks if the Lua state has been secured
 	static bool isSecure(lua_State *L);
 	// Loads a string as Lua code safely (doesn't allow bytecode).
-	static bool safeLoadString(lua_State *L, const std::string &code, const char *chunk_name);
+	static bool safeLoadString(lua_State *L, const String &code, const char *chunk_name);
 	// Loads a file as Lua code safely (doesn't allow bytecode).
 	static bool safeLoadFile(lua_State *L, const char *path, const char *display_name = NULL);
 	// Checks if mods are allowed to read (and optionally write) to the path
@@ -54,7 +54,7 @@ public:
 			bool *write_allowed=NULL);
 	// Check if mod is whitelisted in the given setting
 	// This additionally checks that the mod's main file scope is executing.
-	static bool checkWhitelisted(lua_State *L, const std::string &setting);
+	static bool checkWhitelisted(lua_State *L, const String &setting);
 
 private:
 	int getThread(lua_State *L);

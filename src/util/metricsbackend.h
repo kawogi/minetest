@@ -57,13 +57,13 @@ public:
 
 	virtual ~MetricsBackend() {}
 
-	typedef std::initializer_list<std::pair<const std::string, std::string>> Labels;
+	typedef std::initializer_list<std::pair<const String, String>> Labels;
 
 	virtual MetricCounterPtr addCounter(
-			const std::string &name, const std::string &help_str,
+			const String &name, const String &help_str,
 			Labels labels = {});
 	virtual MetricGaugePtr addGauge(
-			const std::string &name, const std::string &help_str,
+			const String &name, const String &help_str,
 			Labels labels = {});
 };
 

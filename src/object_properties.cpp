@@ -32,7 +32,7 @@ ObjectProperties::ObjectProperties()
 	colors.emplace_back(255,255,255,255);
 }
 
-std::string ObjectProperties::dump()
+String ObjectProperties::dump()
 {
 	std::ostringstream os(std::ios::binary);
 	os << "hp_max=" << hp_max;
@@ -44,7 +44,7 @@ std::string ObjectProperties::dump()
 	os << ", mesh=" << mesh;
 	os << ", visual_size=" << visual_size;
 	os << ", textures=[";
-	for (const std::string &texture : textures) {
+	for (const String &texture : textures) {
 		os << "\"" << texture << "\" ";
 	}
 	os << "]";
@@ -131,7 +131,7 @@ void ObjectProperties::serialize(std::ostream &os) const
 	os << serializeString16(visual);
 	writeV3F32(os, visual_size);
 	writeU16(os, textures.size());
-	for (const std::string &texture : textures) {
+	for (const String &texture : textures) {
 		os << serializeString16(texture);
 	}
 	writeV2S16(os, spritediv);

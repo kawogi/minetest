@@ -38,13 +38,13 @@ public:
 
 	bool initialized() const { return m_initialized; }
 protected:
-	Database_SQLite3(const std::string &savedir, const std::string &dbname);
+	Database_SQLite3(const String &savedir, const String &dbname);
 
 	// Open and initialize the database if needed
 	void verifyDatabase();
 
 	// Convertors
-	inline void str_to_sqlite(sqlite3_stmt *s, int iCol, const std::string &str) const
+	inline void str_to_sqlite(sqlite3_stmt *s, int iCol, const String &str) const
 	{
 		sqlite3_vrfy(sqlite3_bind_text(s, iCol, str.c_str(), str.size(), NULL));
 	}
@@ -69,10 +69,10 @@ protected:
 		sqlite3_vrfy(sqlite3_bind_double(s, iCol, val));
 	}
 
-	inline std::string sqlite_to_string(sqlite3_stmt *s, int iCol)
+	inline String sqlite_to_string(sqlite3_stmt *s, int iCol)
 	{
 		const char* text = reinterpret_cast<const char*>(sqlite3_column_text(s, iCol));
-		return std::string(text ? text : "");
+		return String(text ? text : "");
 	}
 
 	inline s32 sqlite_to_int(sqlite3_stmt *s, int iCol)
@@ -107,13 +107,13 @@ protected:
 	}
 
 	// Query verifiers helpers
-	inline void sqlite3_vrfy(int s, const std::string &m = "", int r = SQLITE_OK) const
+	inline void sqlite3_vrfy(int s, const String &m = "", int r = SQLITE_OK) const
 	{
 		if (s != r)
 			throw DatabaseException(m + ": " + sqlite3_errmsg(m_database));
 	}
 
-	inline void sqlite3_vrfy(const int s, const int r, const std::string &m = "") const
+	inline void sqlite3_vrfy(const int s, const int r, const String &m = "") const
 	{
 		sqlite3_vrfy(s, m, r);
 	}
@@ -129,8 +129,8 @@ private:
 
 	bool m_initialized = false;
 
-	std::string m_savedir = "";
-	std::string m_dbname = "";
+	String m_savedir = "";
+	String m_dbname = "";
 
 	sqlite3_stmt *m_stmt_begin = nullptr;
 	sqlite3_stmt *m_stmt_end = nullptr;
@@ -143,11 +143,11 @@ private:
 class MapDatabaseSQLite3 : private Database_SQLite3, public MapDatabase
 {
 public:
-	MapDatabaseSQLite3(const std::string &savedir);
+	MapDatabaseSQLite3(const String &savedir);
 	virtual ~MapDatabaseSQLite3();
 
-	bool saveBlock(const v3s16 &pos, const std::string &data);
-	void loadBlock(const v3s16 &pos, std::string *block);
+	bool saveBlock(const v3s16 &pos, const String &data);
+	void loadBlock(const v3s16 &pos, String *block);
 	bool deleteBlock(const v3s16 &pos);
 	void listAllLoadableBlocks(std::vector<v3s16> &dst);
 
@@ -170,20 +170,20 @@ private:
 class PlayerDatabaseSQLite3 : private Database_SQLite3, public PlayerDatabase
 {
 public:
-	PlayerDatabaseSQLite3(const std::string &savedir);
+	PlayerDatabaseSQLite3(const String &savedir);
 	virtual ~PlayerDatabaseSQLite3();
 
 	void savePlayer(RemotePlayer *player);
 	bool loadPlayer(RemotePlayer *player, PlayerSAO *sao);
-	bool removePlayer(const std::string &name);
-	void listPlayers(std::vector<std::string> &res);
+	bool removePlayer(const String &name);
+	void listPlayers(std::vector<String> &res);
 
 protected:
 	virtual void createDatabase();
 	virtual void initStatements();
 
 private:
-	bool playerDataExists(const std::string &name);
+	bool playerDataExists(const String &name);
 
 	// Players
 	sqlite3_stmt *m_stmt_player_load = nullptr;
@@ -205,14 +205,14 @@ private:
 class AuthDatabaseSQLite3 : private Database_SQLite3, public AuthDatabase
 {
 public:
-	AuthDatabaseSQLite3(const std::string &savedir);
+	AuthDatabaseSQLite3(const String &savedir);
 	virtual ~AuthDatabaseSQLite3();
 
-	virtual bool getAuth(const std::string &name, AuthEntry &res);
+	virtual bool getAuth(const String &name, AuthEntry &res);
 	virtual bool saveAuth(const AuthEntry &authEntry);
 	virtual bool createAuth(AuthEntry &authEntry);
-	virtual bool deleteAuth(const std::string &name);
-	virtual void listNames(std::vector<std::string> &res);
+	virtual bool deleteAuth(const String &name);
+	virtual void listNames(std::vector<String> &res);
 	virtual void reload();
 
 protected:
@@ -236,19 +236,19 @@ private:
 class ModStorageDatabaseSQLite3 : private Database_SQLite3, public ModStorageDatabase
 {
 public:
-	ModStorageDatabaseSQLite3(const std::string &savedir);
+	ModStorageDatabaseSQLite3(const String &savedir);
 	virtual ~ModStorageDatabaseSQLite3();
 
-	virtual void getModEntries(const std::string &modname, StringMap *storage);
-	virtual void getModKeys(const std::string &modname, std::vector<std::string> *storage);
-	virtual bool getModEntry(const std::string &modname,
-		const std::string &key, std::string *value);
-	virtual bool hasModEntry(const std::string &modname, const std::string &key);
-	virtual bool setModEntry(const std::string &modname,
-		const std::string &key, const std::string &value);
-	virtual bool removeModEntry(const std::string &modname, const std::string &key);
-	virtual bool removeModEntries(const std::string &modname);
-	virtual void listMods(std::vector<std::string> *res);
+	virtual void getModEntries(const String &modname, StringMap *storage);
+	virtual void getModKeys(const String &modname, std::vector<String> *storage);
+	virtual bool getModEntry(const String &modname,
+		const String &key, String *value);
+	virtual bool hasModEntry(const String &modname, const String &key);
+	virtual bool setModEntry(const String &modname,
+		const String &key, const String &value);
+	virtual bool removeModEntry(const String &modname, const String &key);
+	virtual bool removeModEntries(const String &modname);
+	virtual void listMods(std::vector<String> *res);
 
 	virtual void beginSave() { Database_SQLite3::beginSave(); }
 	virtual void endSave() { Database_SQLite3::endSave(); }

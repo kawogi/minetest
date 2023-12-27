@@ -35,7 +35,7 @@ public:
 	 * process events received from formspec
 	 * @param text events in textual form
 	 */
-	void handleMainMenuEvent(std::string text);
+	void handleMainMenuEvent(String text);
 
 	/**
 	 * process field data received from formspec

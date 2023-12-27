@@ -22,9 +22,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <string>
 #include <unordered_map>
 
-typedef std::unordered_map<std::string, int> ItemGroupList;
+typedef std::unordered_map<String, int> ItemGroupList;
 
-static inline int itemgroup_get(const ItemGroupList &groups, const std::string &name)
+static inline int itemgroup_get(const ItemGroupList &groups, const String &name)
 {
 	ItemGroupList::const_iterator i = groups.find(name);
 	if (i == groups.end())
