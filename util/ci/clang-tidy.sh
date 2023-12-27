@@ -2,7 +2,6 @@
 
 cmake -B build -DCMAKE_BUILD_TYPE=Debug \
 	-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-	-DRUN_IN_PLACE=TRUE \
 	-DENABLE_{GETTEXT,SOUND}=FALSE \
 cmake --build build --target GenerateVersion
 

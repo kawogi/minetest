@@ -357,7 +357,6 @@ void migrateCachePath()
 
 void initializePaths()
 {
-#if RUN_IN_PLACE
 	char buf[BUFSIZ];
 
 	infostream << "Using relative paths (RUN_IN_PLACE)" << std::endl;
@@ -399,30 +398,6 @@ void initializePaths()
 		path_user  = execpath;
 	}
 	path_cache = path_user + DIR_DELIM + "cache";
-#else
-	infostream << "Using system-wide paths (NOT RUN_IN_PLACE)" << std::endl;
-
-	if (!setSystemPaths())
-		errorstream << "Failed to get one or more system-wide path" << std::endl;
-
-
-	// Initialize path_cache
-	// First try $XDG_CACHE_HOME/PROJECT_NAME
-	const char *cache_dir = getenv("XDG_CACHE_HOME");
-	const char *home_dir = getenv("HOME");
-	if (cache_dir && cache_dir[0] != '\0') {
-		path_cache = std::string(cache_dir) + DIR_DELIM + PROJECT_NAME;
-	} else if (home_dir) {
-		// Then try $HOME/.cache/PROJECT_NAME
-		path_cache = std::string(home_dir) + DIR_DELIM + ".cache"
-			+ DIR_DELIM + PROJECT_NAME;
-	} else {
-		// If neither works, use $PATH_USER/cache
-		path_cache = path_user + DIR_DELIM + "cache";
-	}
-	// Migrate cache folder to new location if possible
-	migrateCachePath();
-#endif // RUN_IN_PLACE
 
 	infostream << "Detected share path: " << path_share << std::endl;
 	infostream << "Detected user path: " << path_user << std::endl;
@@ -460,22 +435,6 @@ void initializePaths()
 //// OS-specific Secure Random
 ////
 
-#ifdef WIN32
-
-bool secure_rand_fill_buf(void *buf, size_t len)
-{
-	HCRYPTPROV wctx;
-
-	if (!CryptAcquireContext(&wctx, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
-		return false;
-
-	CryptGenRandom(wctx, len, (BYTE *)buf);
-	CryptReleaseContext(wctx, 0);
-	return true;
-}
-
-#else
-
 bool secure_rand_fill_buf(void *buf, size_t len)
 {
 	// N.B.  This function checks *only* for /dev/urandom, because on most
@@ -492,8 +451,6 @@ bool secure_rand_fill_buf(void *buf, size_t len)
 	fclose(fp);
 	return success;
 }
-
-#endif
 
 void attachOrCreateConsole()
 {

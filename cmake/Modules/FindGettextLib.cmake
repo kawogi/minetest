@@ -34,7 +34,7 @@ if(GETTEXTLIB_FOUND)
 	set(GETTEXT_PO_PATH ${CMAKE_SOURCE_DIR}/po)
 	# If the executable is expected to be ran from <source dir>/bin/, also
 	# generate the locale in <source dir>/locale/.
-	if(RUN_IN_PLACE AND NOT CMAKE_CROSSCOMPILING)
+	if(NOT CMAKE_CROSSCOMPILING)
 		set(GETTEXT_MO_BUILD_PATH ${CMAKE_SOURCE_DIR}/locale/<locale>/LC_MESSAGES)
 	else()
 		set(GETTEXT_MO_BUILD_PATH ${CMAKE_BINARY_DIR}/locale/<locale>/LC_MESSAGES)

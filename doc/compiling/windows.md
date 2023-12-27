@@ -58,7 +58,7 @@ Use `--triplet` to specify the target triplet, e.g. `x64-windows` or `x86-window
 Run the following script in PowerShell:
 
 ```powershell
-cmake . -G"Visual Studio 15 2017 Win64" -DCMAKE_TOOLCHAIN_FILE=D:/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_GETTEXT=OFF -DENABLE_CURSES=OFF
+cmake . -G"Visual Studio 15 2017 Win64" -DCMAKE_TOOLCHAIN_FILE=D:/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_GETTEXT=OFF
 cmake --build . --config Release
 ```
 Make sure that the right compiler is selected and the path to the vcpkg toolchain is correct.
@@ -71,8 +71,6 @@ Requirements:
 * [WiX Toolset](https://wixtoolset.org/)
 
 In the Visual Studio 2017 Installer select **Optional Features -> WiX Toolset**.
-
-Build the binaries as described above, but make sure you unselect `RUN_IN_PLACE`.
 
 Open the generated project file with Visual Studio. Right-click **Package** and choose **Generate**.
 It may take some minutes to generate the installer.

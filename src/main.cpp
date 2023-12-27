@@ -39,9 +39,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "porting.h"
 #include "network/socket.h"
 #include "mapblock.h"
-#if USE_CURSES
-	#include "terminal_chat_console.h"
-#endif
 
 // for version information only
 extern "C" {
@@ -51,10 +48,6 @@ extern "C" {
 	#include <lua.h>
 #endif
 }
-
-#if !defined(__cpp_rtti) || !defined(__cpp_exceptions)
-#error Minetest cannot be built without exceptions or RTTI
-#endif
 
 #define DEBUGFILE "debug.txt"
 #define DEFAULT_SERVER_PORT 30000
@@ -351,11 +344,6 @@ static void print_version()
 {
 	std::cout << PROJECT_NAME_C " " << g_version_hash
 		<< " (" << porting::getPlatformName() << ")" << std::endl;
-#if USE_LUAJIT
-	std::cout << "Using " << LUAJIT_VERSION << std::endl;
-#else
-	std::cout << "Using " << LUA_RELEASE << std::endl;
-#endif
 	std::cout << g_build_info << std::endl;
 }
 
@@ -512,15 +500,6 @@ static bool use_debugger(int argc, char *argv[])
 		return false;
 	}
 
-	// Try to be helpful
-#ifdef NDEBUG
-	if (strcmp(BUILD_TYPE, "RelWithDebInfo") != 0) {
-		warningstream << "It looks like your " PROJECT_NAME_C " executable was built without "
-			"debug symbols (BUILD_TYPE=" BUILD_TYPE "), so you won't get useful backtraces."
-			<< std::endl;
-	}
-#endif
-
 	std::vector<const char*> new_args;
 	new_args.push_back(debugger_path.c_str());
 	getDebuggerArgs(new_args, debugger);
@@ -609,12 +588,10 @@ static bool read_config_file(const Settings &cmd_args)
 		filenames.push_back(porting::path_user +
 				DIR_DELIM + ".." + DIR_DELIM + "minetest.conf");
 
-#if RUN_IN_PLACE
 		// Try also from a lower level (to aid having the same configuration
 		// for many RUN_IN_PLACE installs)
 		filenames.push_back(porting::path_user +
 				DIR_DELIM + ".." + DIR_DELIM + ".." + DIR_DELIM + "minetest.conf");
-#endif
 
 		for (const std::string &filename : filenames) {
 			bool r = g_settings->readConfigFile(filename.c_str());
@@ -950,65 +927,6 @@ static bool run_dedicated_server(const GameParams &game_params, const Settings &
 	}
 
 	if (cmd_args.exists("terminal")) {
-#if USE_CURSES
-		bool name_ok = true;
-		std::string admin_nick = g_settings->get("name");
-
-		name_ok = name_ok && !admin_nick.empty();
-		name_ok = name_ok && string_allowed(admin_nick, PLAYERNAME_ALLOWED_CHARS);
-
-		if (!name_ok) {
-			if (admin_nick.empty()) {
-				errorstream << "No name given for admin. "
-					<< "Please check your minetest.conf that it "
-					<< "contains a 'name = ' to your main admin account."
-					<< std::endl;
-			} else {
-				errorstream << "Name for admin '"
-					<< admin_nick << "' is not valid. "
-					<< "Please check that it only contains allowed characters. "
-					<< "Valid characters are: " << PLAYERNAME_ALLOWED_CHARS_USER_EXPL
-					<< std::endl;
-			}
-			return false;
-		}
-		ChatInterface iface;
-		bool &kill = *porting::signal_handler_killstatus();
-
-		try {
-			// Create server
-			Server server(game_params.world_path, game_params.game_spec,
-					false, bind_addr, true, &iface);
-
-			g_term_console.setup(&iface, &kill, admin_nick);
-
-			g_term_console.start();
-
-			server.start();
-			// Run server
-			dedicated_server_loop(server, kill);
-		} catch (const ModError &e) {
-			g_term_console.stopAndWaitforThread();
-			errorstream << "ModError: " << e.what() << std::endl;
-			return false;
-		} catch (const ServerError &e) {
-			g_term_console.stopAndWaitforThread();
-			errorstream << "ServerError: " << e.what() << std::endl;
-			return false;
-		}
-
-		// Tell the console to stop, and wait for it to finish,
-		// only then leave context and free iface
-		g_term_console.stop();
-		g_term_console.wait();
-
-		g_term_console.clearKillStatus();
-	} else {
-#else
-		errorstream << "Cmd arg --terminal passed, but "
-			<< "compiled without ncurses. Ignoring." << std::endl;
-	} {
-#endif
 		try {
 			// Create server
 			Server server(game_params.world_path, game_params.game_spec, false,

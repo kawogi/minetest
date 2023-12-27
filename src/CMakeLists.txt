@@ -60,10 +60,6 @@ set(USE_GETTEXT FALSE)
 if(ENABLE_GETTEXT)
 	find_package(GettextLib)
 	if(GETTEXTLIB_FOUND)
-		if(WIN32)
-			message(STATUS "GetText library: ${GETTEXT_LIBRARY}")
-			message(STATUS "GetText DLL(s): ${GETTEXT_DLL}")
-		endif()
 		set(USE_GETTEXT TRUE)
 		message(STATUS "GetText enabled; locales found: ${GETTEXT_AVAILABLE_LOCALES}")
 	endif(GETTEXTLIB_FOUND)
@@ -75,20 +71,6 @@ endif()
 
 option(ENABLE_SOUND "Enable sound" TRUE)
 set(USE_SOUND FALSE)
-
-option(ENABLE_CURSES "Enable ncurses console" TRUE)
-set(USE_CURSES FALSE)
-
-if(ENABLE_CURSES)
-	find_package(Ncursesw)
-	if(CURSES_FOUND)
-		set(USE_CURSES TRUE)
-		message(STATUS "ncurses console enabled.")
-		include_directories(${CURSES_INCLUDE_DIRS})
-	else()
-		message(STATUS "ncurses not found!")
-	endif()
-endif(ENABLE_CURSES)
 
 find_package(SQLite3 REQUIRED)
 
@@ -149,54 +131,21 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 set(PLATFORM_LIBS Threads::Threads)
 
-if(WIN32)
-	# Windows
-	if(MSVC) # MSVC Specifics
-		set(PLATFORM_LIBS dbghelp.lib ${PLATFORM_LIBS})
-		# Surpress some useless warnings
-		add_definitions ( /D "_CRT_SECURE_NO_DEPRECATE" /W1 )
-		# Get M_PI to work
-		add_definitions(/D "_USE_MATH_DEFINES")
-		# Don't define min/max macros in minwindef.h
-		add_definitions(/D "NOMINMAX")
-	endif()
-	set(PLATFORM_LIBS ws2_32.lib version.lib shlwapi.lib winmm.lib ${PLATFORM_LIBS})
+# Unix probably
+set(PLATFORM_LIBS ${PLATFORM_LIBS} ${CMAKE_DL_LIBS})
+check_library_exists(rt clock_gettime "" HAVE_LIBRT)
+if (HAVE_LIBRT)
+	set(PLATFORM_LIBS -lrt ${PLATFORM_LIBS})
+endif(HAVE_LIBRT)
 
-	set(EXTRA_DLL "" CACHE FILEPATH "Optional paths to additional DLLs that should be packaged")
+find_library(ICONV_LIBRARY iconv)
+mark_as_advanced(ICONV_LIBRARY)
+if (ICONV_LIBRARY)
+	set(PLATFORM_LIBS ${PLATFORM_LIBS} ${ICONV_LIBRARY})
+endif()
 
-	# DLLs are automatically copied to the output directory by vcpkg when VCPKG_APPLOCAL_DEPS=ON
-	if(NOT VCPKG_APPLOCAL_DEPS)
-		set(ZLIB_DLL "" CACHE FILEPATH "Path to Zlib DLL for installation (optional)")
-		set(ZSTD_DLL "" CACHE FILEPATH "Path to Zstd DLL for installation (optional)")
-		if(ENABLE_SOUND)
-			set(OPENAL_DLL "" CACHE FILEPATH "Path to OpenAL32.dll for installation (optional)")
-			set(OGG_DLL "" CACHE FILEPATH "Path to libogg.dll for installation (optional)")
-			set(VORBIS_DLL "" CACHE FILEPATH "Path to Vorbis DLLs for installation (optional)")
-		endif()
-		if(USE_GETTEXT)
-			set(GETTEXT_DLL "" CACHE FILEPATH "Path to Intl/Iconv DLLs for installation (optional)")
-		endif()
-		if(USE_LUAJIT)
-			set(LUA_DLL "" CACHE FILEPATH "Path to luajit-5.1.dll for installation (optional)")
-		endif()
-	endif()
-else()
-	# Unix probably
-	set(PLATFORM_LIBS ${PLATFORM_LIBS} ${CMAKE_DL_LIBS})
-	check_library_exists(rt clock_gettime "" HAVE_LIBRT)
-	if (HAVE_LIBRT)
-		set(PLATFORM_LIBS -lrt ${PLATFORM_LIBS})
-	endif(HAVE_LIBRT)
-
-	find_library(ICONV_LIBRARY iconv)
-	mark_as_advanced(ICONV_LIBRARY)
-	if (ICONV_LIBRARY)
-		set(PLATFORM_LIBS ${PLATFORM_LIBS} ${ICONV_LIBRARY})
-	endif()
-
-	if (HAIKU)
-		set(PLATFORM_LIBS ${PLATFORM_LIBS} network)
-	endif()
+if (HAIKU)
+	set(PLATFORM_LIBS ${PLATFORM_LIBS} network)
 endif()
 
 check_include_files(endian.h HAVE_ENDIAN_H)
@@ -288,7 +237,6 @@ set(common_SRCS
 	serverlist.cpp
 	settings.cpp
 	staticobject.cpp
-	terminal_chat_console.cpp
 	texture_override.cpp
 	tileanimation.cpp
 	tool.cpp
@@ -306,14 +254,6 @@ set(common_SRCS
 if(BUILD_UNITTESTS)
 	set(common_SRCS ${common_SRCS} ${UNITTEST_SRCS})
 endif()
-
-# This gives us the icon and file version information
-if(WIN32)
-	set(WINRESOURCE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../misc/winresource.rc")
-	set(MINETEST_EXE_MANIFEST_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../misc/minetest.exe.manifest")
-	set(extra_windows_SRCS ${WINRESOURCE_FILE} ${MINETEST_EXE_MANIFEST_FILE})
-endif()
-
 
 # Client sources
 set(client_SRCS
@@ -404,9 +344,6 @@ endif()
 
 if (USE_GETTEXT)
 	target_link_libraries(${PROJECT_NAME}server ${GETTEXT_LIBRARY})
-endif()
-if (USE_CURSES)
-	target_link_libraries(${PROJECT_NAME}server ${CURSES_LIBRARIES})
 endif()
 if (USE_PROMETHEUS)
 	target_link_libraries(${PROJECT_NAME}server ${PROMETHEUS_LIBRARIES})
@@ -524,48 +461,6 @@ if(USE_GPROF)
 endif()
 
 # Installation
-
-if(WIN32)
-	if(EXTRA_DLL)
-		install(FILES ${EXTRA_DLL} DESTINATION ${BINDIR})
-	endif()
-	if(VCPKG_APPLOCAL_DEPS)
-		# Collect the dll's from the output path
-		install(DIRECTORY ${EXECUTABLE_OUTPUT_PATH}/Release/
-				DESTINATION ${BINDIR}
-				CONFIGURATIONS Release
-				FILES_MATCHING PATTERN "*.dll")
-		install(DIRECTORY ${EXECUTABLE_OUTPUT_PATH}/Debug/
-				DESTINATION ${BINDIR}
-				CONFIGURATIONS Debug
-				FILES_MATCHING PATTERN "*.dll")
-		install(DIRECTORY ${EXECUTABLE_OUTPUT_PATH}/RelWithDebInfo/
-				DESTINATION ${BINDIR}
-				CONFIGURATIONS RelWithDebInfo
-				FILES_MATCHING PATTERN "*.dll")
-		install(DIRECTORY ${EXECUTABLE_OUTPUT_PATH}/MinSizeRel/
-				DESTINATION ${BINDIR}
-				CONFIGURATIONS MinSizeRel
-				FILES_MATCHING PATTERN "*.dll")
-	else()
-		# Use the old-style way to install dll's
-		if(CURL_DLL)
-			install(FILES ${CURL_DLL} DESTINATION ${BINDIR})
-		endif()
-		if(ZLIB_DLL)
-			install(FILES ${ZLIB_DLL} DESTINATION ${BINDIR})
-		endif()
-		if(ZSTD_DLL)
-			install(FILES ${ZSTD_DLL} DESTINATION ${BINDIR})
-		endif()
-		if(SQLITE3_DLL)
-			install(FILES ${SQLITE3_DLL} DESTINATION ${BINDIR})
-		endif()
-		if(LUA_DLL)
-			install(FILES ${LUA_DLL} DESTINATION ${BINDIR})
-		endif()
-	endif()
-endif()
 
 install(TARGETS ${PROJECT_NAME}server DESTINATION ${BINDIR})
 

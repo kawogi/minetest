@@ -50,20 +50,8 @@ void TestServerModManager::runTests(IGameDef *gamedef)
 {
 	const char *saved_env_mt_subgame_path = getenv("MINETEST_SUBGAME_PATH");
 	const char *saved_env_mt_mod_path = getenv("MINETEST_MOD_PATH");
-#ifdef WIN32
-	{
-		std::string subgame_path("MINETEST_SUBGAME_PATH=");
-		subgame_path.append(TEST_SUBGAME_PATH);
-		_putenv(subgame_path.c_str());
-
-		std::string mod_path("MINETEST_MOD_PATH=");
-		mod_path.append(TEST_MOD_PATH);
-		_putenv(mod_path.c_str());
-	}
-#else
 	setenv("MINETEST_SUBGAME_PATH", TEST_SUBGAME_PATH, 1);
 	setenv("MINETEST_MOD_PATH", TEST_MOD_PATH, 1);
-#endif
 
 	TEST(testCreation);
 	TEST(testIsConsistent);
@@ -76,19 +64,6 @@ void TestServerModManager::runTests(IGameDef *gamedef)
 	TEST(testGetModMediaPathsWrongDir);
 	TEST(testGetModMediaPaths);
 
-#ifdef WIN32
-	{
-		std::string subgame_path("MINETEST_SUBGAME_PATH=");
-		if (saved_env_mt_subgame_path)
-			subgame_path.append(saved_env_mt_subgame_path);
-		_putenv(subgame_path.c_str());
-
-		std::string mod_path("MINETEST_MOD_PATH=");
-		if (saved_env_mt_mod_path)
-			mod_path.append(saved_env_mt_mod_path);
-		_putenv(mod_path.c_str());
-	}
-#else
 	if (saved_env_mt_subgame_path)
 		setenv("MINETEST_SUBGAME_PATH", saved_env_mt_subgame_path, 1);
 	else
@@ -97,7 +72,6 @@ void TestServerModManager::runTests(IGameDef *gamedef)
 		setenv("MINETEST_MOD_PATH", saved_env_mt_mod_path, 1);
 	else
 		unsetenv("MINETEST_MOD_PATH");
-#endif
 }
 
 void TestServerModManager::testCreation()

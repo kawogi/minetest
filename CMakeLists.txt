@@ -41,17 +41,9 @@ endif()
 set(BUILD_UNITTESTS TRUE CACHE BOOL "Build unittests")
 set(BUILD_DOCUMENTATION TRUE CACHE BOOL "Build documentation")
 
-set(DEFAULT_RUN_IN_PLACE FALSE)
-if(WIN32)
-	set(DEFAULT_RUN_IN_PLACE TRUE)
-endif()
-set(RUN_IN_PLACE ${DEFAULT_RUN_IN_PLACE} CACHE BOOL
-	"Run directly in source directory structure")
-
 message(STATUS "*** Will build version ${VERSION_STRING} ***")
 message(STATUS "BUILD_UNITTESTS: " ${BUILD_UNITTESTS})
 message(STATUS "BUILD_DOCUMENTATION: " ${BUILD_DOCUMENTATION})
-message(STATUS "RUN_IN_PLACE: " ${RUN_IN_PLACE})
 
 set(WARN_ALL TRUE CACHE BOOL "Enable -Wall for Release build")
 
@@ -116,35 +108,16 @@ endif()
 
 # Installation
 
-if(WIN32)
+if(UNIX) # Linux, BSD etc
 	set(SHAREDIR ".")
 	set(BINDIR "bin")
 	set(DOCDIR "doc")
 	set(EXAMPLE_CONF_DIR ".")
+	set(MANDIR "unix/man")
+	set(XDG_APPS_DIR "unix/applications")
+	set(APPDATADIR "unix/metainfo")
+	set(ICONDIR "unix/icons")
 	set(LOCALEDIR "locale")
-elseif(UNIX) # Linux, BSD etc
-	if(RUN_IN_PLACE)
-		set(SHAREDIR ".")
-		set(BINDIR "bin")
-		set(DOCDIR "doc")
-		set(EXAMPLE_CONF_DIR ".")
-		set(MANDIR "unix/man")
-		set(XDG_APPS_DIR "unix/applications")
-		set(APPDATADIR "unix/metainfo")
-		set(ICONDIR "unix/icons")
-		set(LOCALEDIR "locale")
-	else()
-		include(GNUInstallDirs)
-		set(SHAREDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}")
-		set(BINDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
-		set(DOCDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DOCDIR}")
-		set(MANDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_MANDIR}")
-		set(EXAMPLE_CONF_DIR ${DOCDIR})
-		set(XDG_APPS_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/applications")
-		set(APPDATADIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/metainfo")
-		set(ICONDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/icons")
-		set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LOCALEDIR}")
-	endif()
 endif()
 
 set(CUSTOM_SHAREDIR "" CACHE STRING "Directory to install data files into")
@@ -162,9 +135,6 @@ endif()
 set(CUSTOM_DOCDIR "" CACHE STRING "Directory to install documentation into")
 if(NOT CUSTOM_DOCDIR STREQUAL "")
 	set(DOCDIR "${CUSTOM_DOCDIR}")
-	if(NOT RUN_IN_PLACE)
-		set(EXAMPLE_CONF_DIR ${DOCDIR})
-	endif()
 	message(STATUS "Using DOCDIR=${DOCDIR}")
 endif()
 
@@ -200,10 +170,8 @@ endif()
 
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/builtin" DESTINATION "${SHAREDIR}")
-if(RUN_IN_PLACE)
-	install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/mods/mods_here.txt" DESTINATION "${SHAREDIR}/mods")
-	install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/textures/texture_packs_here.txt" DESTINATION "${SHAREDIR}/textures")
-endif()
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/mods/mods_here.txt" DESTINATION "${SHAREDIR}/mods")
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/textures/texture_packs_here.txt" DESTINATION "${SHAREDIR}/textures")
 
 set(INSTALL_DEVTEST FALSE CACHE BOOL "Install Development Test")
 
@@ -258,50 +226,9 @@ cpack_add_component(Docs
 	DESCRIPTION "Documentation about Minetest and Minetest modding"
 )
 
-if(WIN32)
-	# Include all dynamically linked runtime libraries such as MSVCRxxx.dll
-	include(InstallRequiredSystemLibraries)
-
-	if(RUN_IN_PLACE)
-		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-			set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${VERSION_STRING}-win64")
-		else()
-			set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${VERSION_STRING}-win32")
-		endif()
-
-		set(CPACK_GENERATOR ZIP)
-
-	else()
-		set(CPACK_GENERATOR WIX)
-		set(CPACK_PACKAGE_NAME "${PROJECT_NAME_CAPITALIZED}")
-		set(CPACK_PACKAGE_INSTALL_DIRECTORY ".")
-		set(CPACK_PACKAGE_EXECUTABLES ${PROJECT_NAME} "${PROJECT_NAME_CAPITALIZED}")
-		set(CPACK_CREATE_DESKTOP_LINKS ${PROJECT_NAME})
-		set(CPACK_PACKAGING_INSTALL_PREFIX "/${PROJECT_NAME_CAPITALIZED}")
-
-		set(CPACK_WIX_PRODUCT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/misc/minetest-icon.ico")
-		# Supported languages can be found at
-		# http://wixtoolset.org/documentation/manual/v3/wixui/wixui_localization.html
-		#set(CPACK_WIX_CULTURES "ar-SA,bg-BG,ca-ES,hr-HR,cs-CZ,da-DK,nl-NL,en-US,et-EE,fi-FI,fr-FR,de-DE")
-		set(CPACK_WIX_UI_BANNER "${CMAKE_CURRENT_SOURCE_DIR}/misc/CPACK_WIX_UI_BANNER.BMP")
-		set(CPACK_WIX_UI_DIALOG "${CMAKE_CURRENT_SOURCE_DIR}/misc/CPACK_WIX_UI_DIALOG.BMP")
-
-		set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/doc/lgpl-2.1.txt")
-
-		# The correct way would be to include both x32 and x64 into one installer
-		# and install the appropriate one.
-		# CMake does not support that, so there are two separate GUID's
-		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-			set(CPACK_WIX_UPGRADE_GUID "745A0FB3-5552-44CA-A587-A91C397CCC56")
-		else()
-			set(CPACK_WIX_UPGRADE_GUID "814A2E2D-2779-4BBD-9ACD-FC3BD51FBBA2")
-		endif()
-	endif()
-else()
-	set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${VERSION_STRING}-linux")
-	set(CPACK_GENERATOR TGZ)
-	set(CPACK_SOURCE_GENERATOR TGZ)
-endif()
+set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${VERSION_STRING}-linux")
+set(CPACK_GENERATOR TGZ)
+set(CPACK_SOURCE_GENERATOR TGZ)
 
 include(CPack)
 

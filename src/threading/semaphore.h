@@ -36,9 +36,5 @@ public:
 	bool wait(unsigned int time_ms);
 
 private:
-#if defined(WIN32)
-	HANDLE semaphore;
-#else
 	sem_t semaphore;
-#endif
 };
