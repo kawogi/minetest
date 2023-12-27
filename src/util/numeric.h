@@ -25,8 +25,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "irr_v2d.h"
 #include "irr_v3d.h"
 #include "irr_aabb3d.h"
-#include "SColor.h"
-#include <matrix4.h>
+#include "irrlicht/SColor.h"
+#include "irrlicht/matrix4.h"
 #include <cmath>
 
 #define rangelim(d, min, max) ((d) < (min) ? (min) : ((d) > (max) ? (max) : (d)))

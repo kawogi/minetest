@@ -36,7 +36,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <mutex>
 #include "irr_v3d.h"
 #include "util/basic_macros.h"
-#include "line3d.h"
+#include "irrlicht/line3d.h"
 
 class IGameDef;
 class Map;

@@ -183,16 +183,6 @@ int main(int argc, char *argv[])
 	if (g_settings->getBool("enable_console"))
 		porting::attachOrCreateConsole();
 
-	// Run unit tests
-	if (cmd_args.getFlag("run-unittests")) {
-#if BUILD_UNITTESTS
-		if (cmd_args.exists("test-module"))
-			return run_tests(cmd_args.get("test-module")) ? 0 : 1;
-		else
-			return run_tests() ? 0 : 1;
-	}
-#endif
-
 	GameStartData game_params;
 	porting::attachOrCreateConsole();
 	game_params.is_dedicated_server = true;
@@ -926,24 +916,22 @@ static bool run_dedicated_server(const GameParams &game_params, const Settings &
 		return false;
 	}
 
-	if (cmd_args.exists("terminal")) {
-		try {
-			// Create server
-			Server server(game_params.world_path, game_params.game_spec, false,
-				bind_addr, true);
-			server.start();
+	try {
+		// Create server
+		Server server(game_params.world_path, game_params.game_spec, false,
+			bind_addr, true);
+		server.start();
 
-			// Run server
-			bool &kill = *porting::signal_handler_killstatus();
-			dedicated_server_loop(server, kill);
+		// Run server
+		bool &kill = *porting::signal_handler_killstatus();
+		dedicated_server_loop(server, kill);
 
-		} catch (const ModError &e) {
-			errorstream << "ModError: " << e.what() << std::endl;
-			return false;
-		} catch (const ServerError &e) {
-			errorstream << "ServerError: " << e.what() << std::endl;
-			return false;
-		}
+	} catch (const ModError &e) {
+		errorstream << "ModError: " << e.what() << std::endl;
+		return false;
+	} catch (const ServerError &e) {
+		errorstream << "ServerError: " << e.what() << std::endl;
+		return false;
 	}
 
 	return true;

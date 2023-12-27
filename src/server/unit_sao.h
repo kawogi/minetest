@@ -22,7 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "object_properties.h"
 #include "serveractiveobject.h"
-#include <quaternion.h>
+#include "irrlicht/quaternion.h"
 #include "util/numeric.h"
 
 class UnitSAO : public ServerActiveObject

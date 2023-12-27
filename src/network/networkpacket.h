@@ -22,7 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "util/pointer.h"
 #include "util/numeric.h"
 #include "networkprotocol.h"
-#include <SColor.h>
+#include "irrlicht/SColor.h"
 
 class NetworkPacket
 {

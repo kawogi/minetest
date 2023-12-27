@@ -317,8 +317,6 @@ endif()
 add_executable(${PROJECT_NAME}server ${server_SRCS} ${extra_windows_SRCS})
 add_dependencies(${PROJECT_NAME}server GenerateVersion)
 
-get_target_property(
-	IRRLICHT_INCLUDES IrrlichtMt::IrrlichtMt INTERFACE_INCLUDE_DIRECTORIES)
 # Doesn't work without PRIVATE/PUBLIC/INTERFACE mode specified.
 target_include_directories(${PROJECT_NAME}server PRIVATE ${IRRLICHT_INCLUDES})
 target_link_libraries(

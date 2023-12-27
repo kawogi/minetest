@@ -19,8 +19,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #pragma once
 #include <ostream>
-#include <vector2d.h>
-#include <vector3d.h>
+#include "irrlicht/vector2d.h"
+#include "irrlicht/vector3d.h"
 
 namespace irr::core {
 

@@ -21,7 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "irrlichttypes.h"
 
-#include <vector2d.h>
+#include "irrlicht/vector2d.h"
 
 typedef core::vector2d<f32> v2f;
 typedef core::vector2d<s16> v2s16;

@@ -21,7 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #pragma once
 
-#include <matrix4.h>
+#include "irrlicht/matrix4.h"
 #include "noise.h"
 
 class MMVManip;

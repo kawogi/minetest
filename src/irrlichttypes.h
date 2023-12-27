@@ -25,7 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
  */
 #include <cstdint>
 
-#include <irrTypes.h>
+#include "irrlicht/irrTypes.h"
 
 using namespace irr;
 
