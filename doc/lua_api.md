@@ -10635,13 +10635,6 @@ Used by `minetest.register_authentication_handler`.
 }
 ```
 
-Bit Library
------------
-
-Functions: bit.tobit, bit.tohex, bit.bnot, bit.band, bit.bor, bit.bxor, bit.lshift, bit.rshift, bit.arshift, bit.rol, bit.ror, bit.bswap
-
-See http://bitop.luajit.org/ for advanced information.
-
 Error Handling
 --------------
 

@@ -42,11 +42,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 // for version information only
 extern "C" {
-#if USE_LUAJIT
 	#include <luajit.h>
-#else
-	#include <lua.h>
-#endif
 }
 
 #define DEBUGFILE "debug.txt"

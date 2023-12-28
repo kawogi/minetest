@@ -172,9 +172,7 @@ void ScriptApiBase::clientOpenLibs(lua_State *L)
 		{ LUA_STRLIBNAME,  luaopen_string  },
 		{ LUA_MATHLIBNAME, luaopen_math    },
 		{ LUA_DBLIBNAME,   luaopen_debug   },
-#if USE_LUAJIT
 		{ LUA_JITLIBNAME,  luaopen_jit     },
-#endif
 	};
 
 	for (const auto &lib : m_libs) {

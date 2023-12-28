@@ -24,11 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <stdexcept>
 
 extern "C" {
-#if USE_LUAJIT
-	#include <luajit.h>
-#else
-	#include <lua.h>
-#endif
+#include <luajit.h>
 #include <lauxlib.h>
 }
 
@@ -124,13 +120,9 @@ void TestLua::testCxxExceptions()
 {
 	lua_State *L = luaL_newstate();
 
-#if USE_LUAJIT
 	lua_pushlightuserdata(L, reinterpret_cast<void*>(wrapper));
 	luaJIT_setmode(L, -1, LUAJIT_MODE_WRAPCFUNC | LUAJIT_MODE_ON);
 	lua_pop(L, 1);
-#else
-	lua_atccall(L, wrapper);
-#endif
 
 	lua_pushcfunction(L, [](lua_State *L) -> int {
 		throw std::runtime_error("example");

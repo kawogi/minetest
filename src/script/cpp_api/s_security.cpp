@@ -136,7 +136,6 @@ void ScriptApiSecurity::initializeSecurity()
 		"path",
 		"searchpath",
 	};
-#if USE_LUAJIT
 	static const char *jit_whitelist[] = {
 		"arch",
 		"flush",
@@ -148,7 +147,6 @@ void ScriptApiSecurity::initializeSecurity()
 		"version",
 		"version_num",
 	};
-#endif
 	m_secure = true;
 
 	lua_State *L = getStack();
@@ -235,7 +233,6 @@ void ScriptApiSecurity::initializeSecurity()
 	lua_setglobal(L, "package");
 	lua_pop(L, 1);  // Pop old package
 
-#if USE_LUAJIT
 	// Copy safe jit functions, if they exist
 	lua_getfield(L, -1, "jit");
 	if (!lua_isnil(L, -1)) {
@@ -244,7 +241,6 @@ void ScriptApiSecurity::initializeSecurity()
 		lua_setglobal(L, "jit");
 	}
 	lua_pop(L, 1);  // Pop old jit
-#endif
 
 	// Get rid of 'core' in the old globals, we don't want anyone thinking it's
 	// safe or even usable.
@@ -312,7 +308,6 @@ void ScriptApiSecurity::initializeSecurityClient()
 		"traceback"
 	};
 
-#if USE_LUAJIT
 	static const char *jit_whitelist[] = {
 		"arch",
 		"flush",
@@ -324,7 +319,6 @@ void ScriptApiSecurity::initializeSecurityClient()
 		"version",
 		"version_num",
 	};
-#endif
 
 	m_secure = true;
 
@@ -364,14 +358,12 @@ void ScriptApiSecurity::initializeSecurityClient()
 	lua_setfield(L, -3, "debug");
 	lua_pop(L, 1);  // Pop old debug
 
-#if USE_LUAJIT
 	// Copy safe jit functions, if they exist
 	lua_getglobal(L, "jit");
 	lua_newtable(L);
 	copy_safe(L, jit_whitelist, sizeof(jit_whitelist));
 	lua_setfield(L, -3, "jit");
 	lua_pop(L, 1);  // Pop old jit
-#endif
 
 	// Set the environment to the one we created earlier
 	setLuaEnv(L, thread);

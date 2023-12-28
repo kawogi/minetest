@@ -310,13 +310,6 @@ target_link_libraries(
 )
 set_target_properties(${PROJECT_NAME}server PROPERTIES
 	COMPILE_DEFINITIONS "SERVER")
-if(NOT USE_LUAJIT)
-	set_target_properties(${PROJECT_NAME}server PROPERTIES
-		# This is necessary for dynamic Lua modules
-		# to work when Lua is statically linked (issue #10806)
-		ENABLE_EXPORTS 1
-	)
-endif()
 
 if (USE_GETTEXT)
 	target_link_libraries(${PROJECT_NAME}server ${GETTEXT_LIBRARY})
@@ -352,39 +345,21 @@ include(CheckCSourceCompiles)
 include(CheckSymbolExists)
 
 set(CMAKE_REQUIRED_INCLUDES ${LUA_INCLUDE_DIR})
-if(USE_LUAJIT)
-	set(CMAKE_REQUIRED_LIBRARIES ${LUA_LIBRARY})
-	# LuaJIT provides exactly zero ways to determine how recent it is (the version
-	# is unchanged since 2017), however it happens that string buffers were added
-	# after the changes which we care about so that works as an indicator.
-	# (https://github.com/LuaJIT/LuaJIT/commit/4c6b669 March 2021)
-	unset(HAVE_RECENT_LJ CACHE)
-	check_symbol_exists(luaopen_string_buffer "lualib.h" HAVE_RECENT_LJ)
-	if(NOT HAVE_RECENT_LJ)
-		string(CONCAT explanation_msg
-			"You are using a relatively old version of LuaJIT. We recommend "
-			"running a recent version (from git) as older ones are known not "
-			"to build/work correctly in all cases.\n"
-			"THIS APPLIES ESPECIALLY ON macOS OR Linux/aarch64!")
-		message(WARNING ${explanation_msg})
-	endif()
-elseif(NOT MSVC)
-	set(CMAKE_REQUIRED_LIBRARIES "")
-	unset(HAVE_ATCCALL CACHE)
-	# Note: we need to check the function without having the library
-	#       available for linking, so check_symbol_exists won't work.
-	# Incidentally this doesn't seem to work on MSVC...
-	check_c_source_compiles("#include <lua.h>\nint main(){return sizeof(lua_atccall);}" HAVE_ATCCALL)
-	if(NOT HAVE_ATCCALL)
-		string(CONCAT explanation_msg
-			"It looks like you're trying to build Minetest using a system-wide "
-			"Lua installation. This is no longer supported because PUC Lua "
-			"cannot interoperate with C++ correctly. Read src/unittest/test_lua.cpp "
-			" for technical details.")
-		message(FATAL_ERROR ${explanation_msg})
-	endif()
+set(CMAKE_REQUIRED_LIBRARIES ${LUA_LIBRARY})
+# LuaJIT provides exactly zero ways to determine how recent it is (the version
+# is unchanged since 2017), however it happens that string buffers were added
+# after the changes which we care about so that works as an indicator.
+# (https://github.com/LuaJIT/LuaJIT/commit/4c6b669 March 2021)
+unset(HAVE_RECENT_LJ CACHE)
+check_symbol_exists(luaopen_string_buffer "lualib.h" HAVE_RECENT_LJ)
+if(NOT HAVE_RECENT_LJ)
+	string(CONCAT explanation_msg
+		"You are using a relatively old version of LuaJIT. We recommend "
+		"running a recent version (from git) as older ones are known not "
+		"to build/work correctly in all cases.\n"
+		"THIS APPLIES ESPECIALLY ON macOS OR Linux/aarch64!")
+	message(WARNING ${explanation_msg})
 endif()
-
 
 # GCC or compatible compilers such as Clang
 set(WARNING_FLAGS "-Wall -Wextra")
