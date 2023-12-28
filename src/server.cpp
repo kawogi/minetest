@@ -254,7 +254,7 @@ Server::Server(
 	if (!gamespec.isValid())
 		throw ServerError("Supplied invalid gamespec");
 
-		m_metrics_backend = std::make_unique<MetricsBackend>();
+	m_metrics_backend = std::make_unique<MetricsBackend>();
 
 	m_uptime_counter = m_metrics_backend->addCounter("minetest_core_server_uptime", "Server uptime (in seconds)");
 	m_player_gauge = m_metrics_backend->addGauge("minetest_core_player_number", "Number of connected players");
