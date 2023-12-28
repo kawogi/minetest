@@ -36,29 +36,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include <unistd.h>
 
-#if (defined(__linux__) || defined(__GNU__)) && !defined(_GNU_SOURCE)
-	#define _GNU_SOURCE
-#endif
-
 #define sleep_ms(x) usleep((x)*1000)
 #define sleep_us(x) usleep(x)
-
-// strlcpy is missing from glibc.  thanks a lot, drepper.
-// strlcpy is also missing from AIX and HP-UX because they aim to be weird.
-// We can't simply alias strlcpy to MSVC's strcpy_s, since strcpy_s by
-// default raises an assertion error and aborts the program if the buffer is
-// too small.
-#if defined(__FreeBSD__) || defined(__NetBSD__)    || \
-	defined(__OpenBSD__) || defined(__DragonFly__) || \
-	defined(__sun)       || defined(sun)           || \
-	defined(__QNX__)     || defined(__QNXNTO__)
-	#define HAVE_STRLCPY
-#endif
-
-// So we need to define our own.
-#ifndef HAVE_STRLCPY
-	#define strlcpy(d, s, n) mystrlcpy(d, s, n)
-#endif
+#define strlcpy(d, s, n) mystrlcpy(d, s, n)
 
 #include <sys/time.h>
 #include <ctime>
@@ -203,36 +183,7 @@ inline u64 getDeltaMs(u64 old_time_ms, u64 new_time_ms)
 
 inline const char *getPlatformName()
 {
-	return
-#if defined(__linux__)
-	"Linux"
-#elif defined(__DragonFly__) || defined(__FreeBSD__) || \
-		defined(__NetBSD__) || defined(__OpenBSD__)
-	"BSD"
-#elif defined(_AIX)
-	"AIX"
-#elif defined(__hpux)
-	"HP-UX"
-#elif defined(__sun) || defined(sun)
-	#if defined(__SVR4)
-		"Solaris"
-	#else
-		"SunOS"
-	#endif
-#elif defined(__HAIKU__)
-	"Haiku"
-#elif defined(__CYGWIN__)
-	"Cygwin"
-#elif defined(__unix__) || defined(__unix)
-	#if defined(_POSIX_VERSION)
-		"POSIX"
-	#else
-		"Unix"
-	#endif
-#else
-	"?"
-#endif
-	;
+	return "Linux";
 }
 
 bool secure_rand_fill_buf(void *buf, size_t len);

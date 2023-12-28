@@ -37,27 +37,11 @@ DEALINGS IN THE SOFTWARE.
 	#include <sched.h>
 #endif
 
-// for bindToProcessor
-#if __FreeBSD_version >= 702106
-	typedef cpuset_t cpu_set_t;
-#elif defined(__sun) || defined(sun)
-	#include <sys/types.h>
-	#include <sys/processor.h>
-	#include <sys/procset.h>
-#elif defined(_AIX)
-	#include <sys/processor.h>
-	#include <sys/thread.h>
-#endif
-
-
 Thread::Thread(const std::string &name) :
 	m_name(name),
 	m_request_stop(false),
 	m_running(false)
 {
-#ifdef _AIX
-	m_kernel_thread_id = -1;
-#endif
 }
 
 
@@ -150,10 +134,6 @@ bool Thread::getReturnValue(void **ret)
 
 void Thread::threadProc(Thread *thr)
 {
-#ifdef _AIX
-	thr->m_kernel_thread_id = thread_self();
-#endif
-
 	thr->setName(thr->m_name);
 
 	g_logger.registerThread(thr->m_name);
@@ -209,42 +189,12 @@ unsigned int Thread::getNumberOfProcessors()
 
 bool Thread::bindToProcessor(unsigned int proc_number)
 {
-#if __FreeBSD_version >= 702106 || defined(__linux__) || defined(__DragonFly__)
-
 	cpu_set_t cpuset;
 
 	CPU_ZERO(&cpuset);
 	CPU_SET(proc_number, &cpuset);
 
 	return pthread_setaffinity_np(getThreadHandle(), sizeof(cpuset), &cpuset) == 0;
-#elif defined(__NetBSD__)
-
-	cpuset_t *cpuset = cpuset_create();
-	if (cpuset == NULL)
-		return false;
-	int r = pthread_setaffinity_np(getThreadHandle(), cpuset_size(cpuset), cpuset);
-	cpuset_destroy(cpuset);
-	return r == 0;
-#elif defined(__sun) || defined(sun)
-
-	return processor_bind(P_LWPID, P_MYID, proc_number, NULL) == 0
-
-#elif defined(_AIX)
-
-	return bindprocessor(BINDTHREAD, m_kernel_thread_id, proc_number) == 0;
-
-#elif defined(__hpux) || defined(hpux)
-
-	pthread_spu_t answer;
-
-	return pthread_processor_bind_np(PTHREAD_BIND_ADVISORY_NP,
-			&answer, proc_number, getThreadHandle()) == 0;
-
-#else
-
-	return false;
-
-#endif
 }
 
 
