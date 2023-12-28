@@ -357,11 +357,6 @@ namespace core
 	#define	F32_EQUAL_0(n)		((n) == 0.0f)
 	#define	F32_A_GREATER_B(a,b)	((a) > (b))
 
-#ifndef REALINLINE
-	#define REALINLINE inline
-#endif
-
-
 	// NOTE: This is not as exact as the c99/c++11 round function, especially at high numbers starting with 8388609
 	//       (only low number which seems to go wrong is 0.49999997 which is rounded to 1)
 	//      Also negative 0.5 is rounded up not down unlike with the standard function (p.E. input -0.5 will be 0 and not -1)
@@ -371,78 +366,78 @@ namespace core
 	}
 
 	// calculate: sqrt ( x )
-	REALINLINE f32 squareroot(const f32 f)
+	inline f32 squareroot(const f32 f)
 	{
 		return sqrtf(f);
 	}
 
 	// calculate: sqrt ( x )
-	REALINLINE f64 squareroot(const f64 f)
+	inline f64 squareroot(const f64 f)
 	{
 		return sqrt(f);
 	}
 
 	// calculate: sqrt ( x )
-	REALINLINE s32 squareroot(const s32 f)
+	inline s32 squareroot(const s32 f)
 	{
 		return static_cast<s32>(squareroot(static_cast<f32>(f)));
 	}
 
 	// calculate: sqrt ( x )
-	REALINLINE s64 squareroot(const s64 f)
+	inline s64 squareroot(const s64 f)
 	{
 		return static_cast<s64>(squareroot(static_cast<f64>(f)));
 	}
 
 	// calculate: 1 / sqrt ( x )
-	REALINLINE f64 reciprocal_squareroot(const f64 x)
+	inline f64 reciprocal_squareroot(const f64 x)
 	{
 		return 1.0 / sqrt(x);
 	}
 
 	// calculate: 1 / sqrtf ( x )
-	REALINLINE f32 reciprocal_squareroot(const f32 f)
+	inline f32 reciprocal_squareroot(const f32 f)
 	{
 		return 1.f / sqrtf(f);
 	}
 
 	// calculate: 1 / sqrtf( x )
-	REALINLINE s32 reciprocal_squareroot(const s32 x)
+	inline s32 reciprocal_squareroot(const s32 x)
 	{
 		return static_cast<s32>(reciprocal_squareroot(static_cast<f32>(x)));
 	}
 
 	// calculate: 1 / x
-	REALINLINE f32 reciprocal( const f32 f )
+	inline f32 reciprocal( const f32 f )
 	{
 		return 1.f / f;
 	}
 
 	// calculate: 1 / x
-	REALINLINE f64 reciprocal ( const f64 f )
+	inline f64 reciprocal ( const f64 f )
 	{
 		return 1.0 / f;
 	}
 
 
 	// calculate: 1 / x, low precision allowed
-	REALINLINE f32 reciprocal_approxim ( const f32 f )
+	inline f32 reciprocal_approxim ( const f32 f )
 	{
 		return 1.f / f;
 	}
 
-	REALINLINE s32 floor32(f32 x)
+	inline s32 floor32(f32 x)
 	{
 		return (s32) floorf ( x );
 	}
 
-	REALINLINE s32 ceil32 ( f32 x )
+	inline s32 ceil32 ( f32 x )
 	{
 		return (s32) ceilf ( x );
 	}
 
 	// NOTE: Please check round_ documentation about some inaccuracies in this compared to standard library round function.
-	REALINLINE s32 round32(f32 x)
+	inline s32 round32(f32 x)
 	{
 		return (s32) round_(x);
 	}
