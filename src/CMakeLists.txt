@@ -37,23 +37,6 @@ set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING
 mark_as_advanced(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
 
-option(ENABLE_CURL "Enable cURL support for fetching media" TRUE)
-set(USE_CURL FALSE)
-
-if(ENABLE_CURL)
-	find_package(CURL)
-	if (CURL_FOUND)
-		message(STATUS "cURL support enabled.")
-		set(USE_CURL TRUE)
-	endif()
-else()
-	mark_as_advanced(CLEAR CURL_LIBRARY CURL_INCLUDE_DIR)
-endif()
-
-if(NOT USE_CURL)
-	message(WARNING "cURL is required to announce to the server list")
-endif()
-
 option(ENABLE_GETTEXT "Use GetText for internationalization" FALSE)
 set(USE_GETTEXT FALSE)
 
@@ -303,11 +286,6 @@ if(USE_GETTEXT)
 	include_directories(${GETTEXT_INCLUDE_DIR})
 endif()
 
-if(USE_CURL)
-	include_directories(${CURL_INCLUDE_DIR})
-endif()
-
-
 # When cross-compiling assume the user doesn't want to run the executable anyway,
 # otherwise place it in <source dir>/bin/ since Minetest can only run from there.
 if(NOT CMAKE_CROSSCOMPILING)
@@ -348,12 +326,6 @@ if (USE_PROMETHEUS)
 endif()
 if (USE_SPATIAL)
 	target_link_libraries(${PROJECT_NAME}server ${SPATIAL_LIBRARY})
-endif()
-if(USE_CURL)
-	target_link_libraries(
-		${PROJECT_NAME}server
-		${CURL_LIBRARY}
-	)
 endif()
 
 # See issue #4638

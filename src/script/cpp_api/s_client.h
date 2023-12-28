@@ -25,10 +25,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "util/string.h"
 #include "util/pointedthing.h"
 
-#ifdef _CRT_MSVCP_CURRENT
-#include <cstdint>
-#endif
-
 class ClientEnvironment;
 struct ItemStack;
 class Inventory;

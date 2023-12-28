@@ -97,10 +97,6 @@ add_cmake_libs () {
 		-DOPENAL_LIBRARY=$libdir/openal/lib/libOpenAL32.dll.a
 		-DOPENAL_DLL=$libdir/openal/bin/OpenAL32.dll
 
-		-DCURL_DLL=$libdir/curl/bin/libcurl-4.dll
-		-DCURL_INCLUDE_DIR=$libdir/curl/include
-		-DCURL_LIBRARY=$libdir/curl/lib/libcurl.dll.a
-
 		-DGETTEXT_MSGFMT=`command -v msgfmt`
 		-DGETTEXT_DLL="$gettext_dlls"
 		-DGETTEXT_INCLUDE_DIR=$libdir/gettext/include

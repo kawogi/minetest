@@ -225,9 +225,7 @@ static bool find_packer(const char *regname, PackerTuple &out)
 
 static bool find_packer(lua_State *L, int idx, PackerTuple &out)
 {
-#ifndef NDEBUG
 	StackChecker checker(L);
-#endif
 
 	// retrieve metatable of the object
 	if (lua_getmetatable(L, idx) != 1)
@@ -276,11 +274,9 @@ static VectorRef<PackedInstr> record_object(lua_State *L, int idx, PackedValue &
 static VectorRef<PackedInstr> pack_inner(lua_State *L, int idx, int vidx, PackedValue &pv,
 		std::unordered_map<const void *, s32> &seen)
 {
-#ifndef NDEBUG
 	StackChecker checker(L);
 	assert(idx > 0);
 	assert(vidx > 0);
-#endif
 
 	switch (lua_type(L, idx)) {
 		case LUA_TNONE:
@@ -536,7 +532,6 @@ PackedValue::~PackedValue()
 // script_dump_packed
 //
 
-#ifndef NDEBUG
 void script_dump_packed(const PackedValue *val)
 {
 	printf("instruction stream: [\n");
@@ -593,4 +588,3 @@ void script_dump_packed(const PackedValue *val)
 	}
 	printf("]\n");
 }
-#endif

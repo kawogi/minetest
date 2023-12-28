@@ -32,11 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 extern "C" {
 #include "lualib.h"
-#if USE_LUAJIT
-	#include "luajit.h"
-#else
-	#include "bit.h"
-#endif
+#include "luajit.h"
 }
 
 #include <cstdio>
@@ -104,14 +100,9 @@ ScriptApiBase::ScriptApiBase(ScriptingType type):
 	lua_rawseti(m_luastack, LUA_REGISTRYINDEX, CUSTOM_RIDX_ERROR_HANDLER);
 
 	// Add a C++ wrapper function to catch exceptions thrown in Lua -> C++ calls
-#if USE_LUAJIT
 	lua_pushlightuserdata(m_luastack, (void*) script_exception_wrapper);
 	luaJIT_setmode(m_luastack, -1, LUAJIT_MODE_WRAPCFUNC | LUAJIT_MODE_ON);
 	lua_pop(m_luastack, 1);
-#else
-	// (This is a custom API from the bundled Lua.)
-	lua_atccall(m_luastack, script_exception_wrapper);
-#endif
 
 	// Add basic globals
 

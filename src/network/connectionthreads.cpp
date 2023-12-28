@@ -31,15 +31,10 @@ namespace con
 /******************************************************************************/
 /* defines used for debugging and profiling                                   */
 /******************************************************************************/
-#ifdef NDEBUG
-#define PROFILE(a)
-#undef DEBUG_CONNECTION_KBPS
-#else
 /* this mutex is used to achieve log message consistency */
 #define PROFILE(a) a
 //#define DEBUG_CONNECTION_KBPS
 #undef DEBUG_CONNECTION_KBPS
-#endif
 
 // TODO: Clean this up.
 #define LOG(a) a
@@ -789,75 +784,12 @@ void *ConnectionReceiveThread::run()
 
 	bool packet_queued = true;
 
-#ifdef DEBUG_CONNECTION_KBPS
-	u64 curtime = porting::getTimeMs();
-	u64 lasttime = curtime;
-	float debug_print_timer = 0.0;
-#endif
-
 	while (!stopRequested()) {
 		PROFILE(ScopeProfiler
 		sp(g_profiler, ThreadIdentifier.str(), SPT_AVG));
 
-#ifdef DEBUG_CONNECTION_KBPS
-		lasttime = curtime;
-		curtime = porting::getTimeMs();
-		float dtime = CALC_DTIME(lasttime,curtime);
-#endif
-
 		/* receive packets */
 		receive(packetdata, packet_queued);
-
-#ifdef DEBUG_CONNECTION_KBPS
-		debug_print_timer += dtime;
-		if (debug_print_timer > 20.0) {
-			debug_print_timer -= 20.0;
-
-			std::vector<session_t> peerids = m_connection->getPeerIDs();
-
-			for (auto id : peerids)
-			{
-				PeerHelper peer = m_connection->getPeerNoEx(id);
-				if (!peer)
-					continue;
-
-				float peer_current = 0.0;
-				float peer_loss = 0.0;
-				float avg_rate = 0.0;
-				float avg_loss = 0.0;
-
-				for(u16 j=0; j<CHANNEL_COUNT; j++)
-				{
-					peer_current +=peer->channels[j].getCurrentDownloadRateKB();
-					peer_loss += peer->channels[j].getCurrentLossRateKB();
-					avg_rate += peer->channels[j].getAvgDownloadRateKB();
-					avg_loss += peer->channels[j].getAvgLossRateKB();
-				}
-
-				std::stringstream output;
-				output << std::fixed << std::setprecision(1);
-				output << "OUT to Peer " << *i << " RATES (good / loss) " << std::endl;
-				output << "\tcurrent (sum): " << peer_current << "kb/s "<< peer_loss << "kb/s" << std::endl;
-				output << "\taverage (sum): " << avg_rate << "kb/s "<< avg_loss << "kb/s" << std::endl;
-				output << std::setfill(' ');
-				for(u16 j=0; j<CHANNEL_COUNT; j++)
-				{
-					output << "\tcha " << j << ":"
-						<< " CUR: " << std::setw(6) << peer->channels[j].getCurrentDownloadRateKB() <<"kb/s"
-						<< " AVG: " << std::setw(6) << peer->channels[j].getAvgDownloadRateKB() <<"kb/s"
-						<< " MAX: " << std::setw(6) << peer->channels[j].getMaxDownloadRateKB() <<"kb/s"
-						<< " /"
-						<< " CUR: " << std::setw(6) << peer->channels[j].getCurrentLossRateKB() <<"kb/s"
-						<< " AVG: " << std::setw(6) << peer->channels[j].getAvgLossRateKB() <<"kb/s"
-						<< " MAX: " << std::setw(6) << peer->channels[j].getMaxLossRateKB() <<"kb/s"
-						<< " / WS: " << peer->channels[j].getWindowSize()
-						<< std::endl;
-				}
-
-				fprintf(stderr,"%s\n",output.str().c_str());
-			}
-		}
-#endif
 	}
 
 	PROFILE(g_profiler->remove(ThreadIdentifier.str()));

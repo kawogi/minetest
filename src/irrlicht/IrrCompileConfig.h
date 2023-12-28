@@ -20,7 +20,3 @@
 #include <stdio.h> // TODO: Although included elsewhere this is required at least for mingw
 
 #define IRRCALLCONV
-
-#ifndef IRRLICHT_API
-#define IRRLICHT_API
-#endif

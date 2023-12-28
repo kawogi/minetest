@@ -43,10 +43,6 @@ DungeonGen::DungeonGen(const NodeDefManager *ndef,
 	this->ndef      = ndef;
 	this->gennotify = gennotify;
 
-#ifdef DGEN_USE_TORCHES
-	c_torch  = ndef->getId("default:torch");
-#endif
-
 	if (dparams) {
 		dp = *dparams;
 	} else {
@@ -203,11 +199,6 @@ void DungeonGen::makeDungeon(v3s16 start_padding)
 		v3s16 room_center = roomplace + v3s16(roomsize.X / 2, 1, roomsize.Z / 2);
 		if (gennotify)
 			gennotify->addEvent(dp.notifytype, room_center);
-
-#ifdef DGEN_USE_TORCHES
-		// Place torch at room center (for testing)
-		vm->m_data[vm->m_area.index(room_center)] = MapNode(c_torch);
-#endif
 
 		// Quit if last room
 		if (i + 1 == dp.num_rooms)
@@ -390,11 +381,6 @@ void DungeonGen::makeHole(v3s16 place)
 void DungeonGen::makeDoor(v3s16 doorplace, v3s16 doordir)
 {
 	makeHole(doorplace);
-
-#ifdef DGEN_USE_TORCHES
-	// Place torch (for testing)
-	vm->m_data[vm->m_area.index(doorplace)] = MapNode(c_torch);
-#endif
 }
 
 

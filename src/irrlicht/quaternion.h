@@ -43,10 +43,8 @@ class quaternion
 		//! Constructor which converts Euler angles (radians) to a quaternion
 		quaternion(const vector3df& vec);
 
-#ifndef IRR_TEST_BROKEN_QUATERNION_USE
 		//! Constructor which converts a matrix to a quaternion
 		quaternion(const matrix4& mat);
-#endif
 
 		//! Equality operator
 		bool operator==(const quaternion& other) const;
@@ -54,10 +52,8 @@ class quaternion
 		//! inequality operator
 		bool operator!=(const quaternion& other) const;
 
-#ifndef IRR_TEST_BROKEN_QUATERNION_USE
 		//! Matrix assignment operator
 		inline quaternion& operator=(const matrix4& other);
-#endif
 
 		//! Add operator
 		quaternion operator+(const quaternion& other) const;
@@ -100,10 +96,9 @@ class quaternion
 		//! Normalizes the quaternion
 		inline quaternion& normalize();
 
-#ifndef IRR_TEST_BROKEN_QUATERNION_USE
 		//! Creates a matrix from this quaternion
 		matrix4 getMatrix() const;
-#endif
+
 		//! Faster method to create a rotation matrix, you should normalize the quaternion before!
 		void getMatrixFast(matrix4 &dest) const;
 
@@ -213,13 +208,11 @@ inline quaternion::quaternion(const vector3df& vec)
 	set(vec.X,vec.Y,vec.Z);
 }
 
-#ifndef IRR_TEST_BROKEN_QUATERNION_USE
 // Constructor which converts a matrix to a quaternion
 inline quaternion::quaternion(const matrix4& mat)
 {
 	(*this) = mat;
 }
-#endif
 
 // equal operator
 inline bool quaternion::operator==(const quaternion& other) const
@@ -236,7 +229,6 @@ inline bool quaternion::operator!=(const quaternion& other) const
 	return !(*this == other);
 }
 
-#ifndef IRR_TEST_BROKEN_QUATERNION_USE
 // matrix assignment operator
 inline quaternion& quaternion::operator=(const matrix4& m)
 {
@@ -294,7 +286,6 @@ inline quaternion& quaternion::operator=(const matrix4& m)
 
 	return normalize();
 }
-#endif
 
 
 // multiplication operator
@@ -340,7 +331,6 @@ inline quaternion quaternion::operator+(const quaternion& b) const
 	return quaternion(X+b.X, Y+b.Y, Z+b.Z, W+b.W);
 }
 
-#ifndef IRR_TEST_BROKEN_QUATERNION_USE
 // Creates a matrix from this quaternion
 inline matrix4 quaternion::getMatrix() const
 {
@@ -348,7 +338,6 @@ inline matrix4 quaternion::getMatrix() const
 	getMatrix(m);
 	return m;
 }
-#endif
 
 //! Faster method to create a rotation matrix, you should normalize the quaternion before!
 inline void quaternion::getMatrixFast( matrix4 &dest) const

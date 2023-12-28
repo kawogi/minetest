@@ -40,11 +40,7 @@ namespace con
 /******************************************************************************/
 /* defines used for debugging and profiling                                   */
 /******************************************************************************/
-#ifdef NDEBUG
-	#define PROFILE(a)
-#else
-	#define PROFILE(a) a
-#endif
+#define PROFILE(a) a
 
 // TODO: Clean this up.
 #define LOG(a) a

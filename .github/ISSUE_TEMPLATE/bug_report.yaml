@@ -24,7 +24,6 @@ body:
         Using Irrlicht 1.9.0mt9
         Using LuaJIT 2.1.0-beta3
         BUILD_TYPE=Release
-        USE_CURL=1
         USE_GETTEXT=1
         USE_SOUND=1
         STATIC_SHAREDIR="."

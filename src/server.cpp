@@ -722,29 +722,6 @@ void Server::AsyncRunStep(bool initial_step)
 	}
 
 
-#if USE_CURL
-	// send masterserver announce
-	{
-		float &counter = m_masterserver_timer;
-		if (!isSingleplayer() && (!counter || counter >= 300.0) &&
-				g_settings->getBool("server_announce")) {
-			ServerList::sendAnnounce(counter ? ServerList::AA_UPDATE :
-						ServerList::AA_START,
-					m_bind_addr.getPort(),
-					m_clients.getPlayerNames(),
-					m_uptime_counter->get(),
-					m_env->getGameTime(),
-					m_lag_gauge->get(),
-					m_gamespec.id,
-					Mapgen::getMapgenName(m_emerge->mgparams->mgtype),
-					m_modmgr->getMods(),
-					m_dedicated);
-			counter = 0.01;
-		}
-		counter += dtime;
-	}
-#endif
-
 	/*
 		Check added and deleted active objects
 	*/
@@ -3916,11 +3893,6 @@ void dedicated_server_loop(Server &server, bool &kill)
 	}
 
 	infostream << "Dedicated server quitting" << std::endl;
-#if USE_CURL
-	if (g_settings->getBool("server_announce"))
-		ServerList::sendAnnounce(ServerList::AA_DELETE,
-			server.m_bind_addr.getPort());
-#endif
 }
 
 /*
