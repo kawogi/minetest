@@ -30,11 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 // Whether to catch all std::exceptions.
 // When "catching", the program will abort with an error message.
 // In debug mode, leave these for the debugger and don't catch them.
-#ifdef NDEBUG
-	#define CATCH_UNHANDLED_EXCEPTIONS 1
-#else
-	#define CATCH_UNHANDLED_EXCEPTIONS 0
-#endif
+#define CATCH_UNHANDLED_EXCEPTIONS 0
 
 /* Abort program execution immediately
  */
