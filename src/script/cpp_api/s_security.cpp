@@ -371,13 +371,13 @@ void ScriptApiSecurity::initializeSecurityClient()
 
 int ScriptApiSecurity::getThread(lua_State *L)
 {
-#if LUA_VERSION_NUM <= 501
+// #if LUA_VERSION_NUM <= 501
 	int is_main = lua_pushthread(L);  // Push the main thread
 	FATAL_ERROR_IF(!is_main, "Security: ScriptApi's Lua state "
 		"isn't the main Lua thread!");
 	return lua_gettop(L);
-#endif
-	return 0;
+// #endif
+// 	return 0;
 }
 
 void ScriptApiSecurity::createEmptyEnv(lua_State *L)
@@ -389,15 +389,15 @@ void ScriptApiSecurity::createEmptyEnv(lua_State *L)
 
 void ScriptApiSecurity::setLuaEnv(lua_State *L, int thread)
 {
-#if LUA_VERSION_NUM >= 502  // Lua >= 5.2
-	// Set the global environment
-	lua_rawseti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
-#else  // Lua <= 5.1
+// #if LUA_VERSION_NUM >= 502  // Lua >= 5.2
+// 	// Set the global environment
+// 	lua_rawseti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
+// #else  // Lua <= 5.1
 	// Set the environment of the main thread
 	FATAL_ERROR_IF(!lua_setfenv(L, thread), "Security: Unable to set "
 		"environment of the main Lua thread!");
 	lua_pop(L, 1);  // Pop thread
-#endif
+// #endif
 }
 
 bool ScriptApiSecurity::isSecure(lua_State *L)
