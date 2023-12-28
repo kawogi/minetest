@@ -27,36 +27,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "nodedef.h"
 #include "irrlicht/printing.h"
 
-//#define PATHFINDER_DEBUG
-//#define PATHFINDER_CALC_TIME
-
-#ifdef PATHFINDER_DEBUG
-	#include <string>
-#endif
-#ifdef PATHFINDER_DEBUG
-	#include <iomanip>
-#endif
-#ifdef PATHFINDER_CALC_TIME
-	#include <sys/time.h>
-#endif
-
 /******************************************************************************/
 /* Typedefs and macros                                                        */
 /******************************************************************************/
 
 #define LVL "(" << level << ")" <<
 
-#ifdef PATHFINDER_DEBUG
-#define DEBUG_OUT(a)     std::cout << a
-#define INFO_TARGET      std::cout
-#define VERBOSE_TARGET   std::cout
-#define ERROR_TARGET     std::cout
-#else
 #define DEBUG_OUT(a)     while(0)
 #define INFO_TARGET      infostream << "Pathfinder: "
 #define VERBOSE_TARGET   verbosestream << "Pathfinder: "
 #define ERROR_TARGET     warningstream << "Pathfinder: "
-#endif
 
 #define PATHFINDER_MAX_WAYPOINTS 700
 
@@ -328,53 +308,6 @@ private:
 
 	friend class PathfinderCompareHeuristic;
 
-#ifdef PATHFINDER_DEBUG
-
-	/**
-	 * print collected cost information
-	 */
-	void printCost();
-
-	/**
-	 * print collected cost information in a specific direction
-	 * @param dir direction to print
-	 */
-	void printCost(PathDirections dir);
-
-	/**
-	 * print type of node as evaluated
-	 */
-	void printType();
-
-	/**
-	 * print pathlenght for all nodes in search area
-	 */
-	void printPathLen();
-
-	/**
-	 * print a path
-	 * @param path path to show
-	 */
-	void printPath(std::vector<v3s16> path);
-
-	/**
-	 * print y direction for all movements
-	 */
-	void printYdir();
-
-	/**
-	 * print y direction for moving in a specific direction
-	 * @param dir direction to show data
-	 */
-	void printYdir(PathDirections dir);
-
-	/**
-	 * helper function to translate a direction to speaking text
-	 * @param dir direction to translate
-	 * @return textual name of direction
-	 */
-	std::string dirToName(PathDirections dir);
-#endif
 };
 
 /** Helper class for the open list priority queue in the A* pathfinder
@@ -610,10 +543,6 @@ std::vector<v3s16> Pathfinder::getPath(v3s16 source,
 							unsigned int max_drop,
 							PathAlgorithm algo)
 {
-#ifdef PATHFINDER_CALC_TIME
-	timespec ts;
-	clock_gettime(CLOCK_REALTIME, &ts);
-#endif
 	std::vector<v3s16> retval;
 
 	//initialization
@@ -658,11 +587,6 @@ std::vector<v3s16> Pathfinder::getPath(v3s16 source,
 	} else {
 		m_nodes_container = new ArrayGridNodeContainer(this, diff);
 	}
-#ifdef PATHFINDER_DEBUG
-	printType();
-	printCost();
-	printYdir();
-#endif
 
 	//fail if source or destination is walkable
 	MapNode node_at_pos = m_map->getNode(destination);
@@ -735,11 +659,6 @@ std::vector<v3s16> Pathfinder::getPath(v3s16 source,
 
 	if (update_cost_retval) {
 
-#ifdef PATHFINDER_DEBUG
-		std::cout << "Path to target found!" << std::endl;
-		printPathLen();
-#endif
-
 		//find path
 		std::vector<v3s16> index_path;
 		buildPath(index_path, EndIndex);
@@ -748,10 +667,6 @@ std::vector<v3s16> Pathfinder::getPath(v3s16 source,
 		//The "true" start or end position might be missing
 		//since those have been given special treatment.
 
-#ifdef PATHFINDER_DEBUG
-		std::cout << "Index path:" << std::endl;
-		printPath(index_path);
-#endif
 		//from here we'll make the final changes to the path
 		std::vector<v3s16> full_path;
 
@@ -781,30 +696,9 @@ std::vector<v3s16> Pathfinder::getPath(v3s16 source,
 		}
 
 		//Done! We now have a complete path of normal positions.
-
-
-#ifdef PATHFINDER_DEBUG
-		std::cout << "Full path:" << std::endl;
-		printPath(full_path);
-#endif
-#ifdef PATHFINDER_CALC_TIME
-		timespec ts2;
-		clock_gettime(CLOCK_REALTIME, &ts2);
-
-		int ms = (ts2.tv_nsec - ts.tv_nsec)/(1000*1000);
-		int us = ((ts2.tv_nsec - ts.tv_nsec) - (ms*1000*1000))/1000;
-		int ns = ((ts2.tv_nsec - ts.tv_nsec) - ( (ms*1000*1000) + (us*1000)));
-
-
-		std::cout << "Calculating path took: " << (ts2.tv_sec - ts.tv_sec) <<
-				"s " << ms << "ms " << us << "us " << ns << "ns " << std::endl;
-#endif
 		return full_path;
 	}
 	else {
-#ifdef PATHFINDER_DEBUG
-		printPathLen();
-#endif
 		INFO_TARGET << "No path found" << std::endl;
 	}
 
@@ -1267,176 +1161,3 @@ v3s16 Pathfinder::walkDownwards(v3s16 pos, unsigned int max_down) {
 	}
 	return pos;
 }
-
-#ifdef PATHFINDER_DEBUG
-
-/******************************************************************************/
-void Pathfinder::printCost()
-{
-	printCost(DIR_XP);
-	printCost(DIR_XM);
-	printCost(DIR_ZP);
-	printCost(DIR_ZM);
-}
-
-/******************************************************************************/
-void Pathfinder::printYdir()
-{
-	printYdir(DIR_XP);
-	printYdir(DIR_XM);
-	printYdir(DIR_ZP);
-	printYdir(DIR_ZM);
-}
-
-/******************************************************************************/
-void Pathfinder::printCost(PathDirections dir)
-{
-	std::cout << "Cost in direction: " << dirToName(dir) << std::endl;
-	std::cout << std::setfill('-') << std::setw(80) << "-" << std::endl;
-	std::cout << std::setfill(' ');
-	for (int y = 0; y < m_max_index_y; y++) {
-
-		std::cout << "Level: " << y << std::endl;
-
-		std::cout << std::setw(4) << " " << "  ";
-		for (int x = 0; x < m_max_index_x; x++) {
-			std::cout << std::setw(4) << x;
-		}
-		std::cout << std::endl;
-
-		for (int z = 0; z < m_max_index_z; z++) {
-			std::cout << std::setw(4) << z <<": ";
-			for (int x = 0; x < m_max_index_x; x++) {
-				if (getIdxElem(x, y, z).directions[dir].valid)
-					std::cout << std::setw(4)
-						<< getIdxElem(x, y, z).directions[dir].value;
-				else
-					std::cout << std::setw(4) << "-";
-				}
-			std::cout << std::endl;
-		}
-		std::cout << std::endl;
-	}
-}
-
-/******************************************************************************/
-void Pathfinder::printYdir(PathDirections dir)
-{
-	std::cout << "Height difference in direction: " << dirToName(dir) << std::endl;
-	std::cout << std::setfill('-') << std::setw(80) << "-" << std::endl;
-	std::cout << std::setfill(' ');
-	for (int y = 0; y < m_max_index_y; y++) {
-
-		std::cout << "Level: " << y << std::endl;
-
-		std::cout << std::setw(4) << " " << "  ";
-		for (int x = 0; x < m_max_index_x; x++) {
-			std::cout << std::setw(4) << x;
-		}
-		std::cout << std::endl;
-
-		for (int z = 0; z < m_max_index_z; z++) {
-			std::cout << std::setw(4) << z <<": ";
-			for (int x = 0; x < m_max_index_x; x++) {
-				if (getIdxElem(x, y, z).directions[dir].valid)
-					std::cout << std::setw(4)
-						<< getIdxElem(x, y, z).directions[dir].y_change;
-				else
-					std::cout << std::setw(4) << "-";
-				}
-			std::cout << std::endl;
-		}
-		std::cout << std::endl;
-	}
-}
-
-/******************************************************************************/
-void Pathfinder::printType()
-{
-	std::cout << "Type of node:" << std::endl;
-	std::cout << std::setfill('-') << std::setw(80) << "-" << std::endl;
-	std::cout << std::setfill(' ');
-	for (int y = 0; y < m_max_index_y; y++) {
-
-		std::cout << "Level: " << y << std::endl;
-
-		std::cout << std::setw(3) << " " << "  ";
-		for (int x = 0; x < m_max_index_x; x++) {
-			std::cout << std::setw(3) << x;
-		}
-		std::cout << std::endl;
-
-		for (int z = 0; z < m_max_index_z; z++) {
-			std::cout << std::setw(3) << z <<": ";
-			for (int x = 0; x < m_max_index_x; x++) {
-				char toshow = getIdxElem(x, y, z).type;
-				std::cout << std::setw(3) << toshow;
-			}
-			std::cout << std::endl;
-		}
-		std::cout << std::endl;
-	}
-	std::cout << std::endl;
-}
-
-/******************************************************************************/
-void Pathfinder::printPathLen()
-{
-	std::cout << "Pathlen:" << std::endl;
-		std::cout << std::setfill('-') << std::setw(80) << "-" << std::endl;
-		std::cout << std::setfill(' ');
-		for (int y = 0; y < m_max_index_y; y++) {
-
-			std::cout << "Level: " << y << std::endl;
-
-			std::cout << std::setw(3) << " " << "  ";
-			for (int x = 0; x < m_max_index_x; x++) {
-				std::cout << std::setw(3) << x;
-			}
-			std::cout << std::endl;
-
-			for (int z = 0; z < m_max_index_z; z++) {
-				std::cout << std::setw(3) << z <<": ";
-				for (int x = 0; x < m_max_index_x; x++) {
-					std::cout << std::setw(3) << getIdxElem(x, y, z).totalcost;
-				}
-				std::cout << std::endl;
-			}
-			std::cout << std::endl;
-		}
-		std::cout << std::endl;
-}
-
-/******************************************************************************/
-std::string Pathfinder::dirToName(PathDirections dir)
-{
-	switch (dir) {
-	case DIR_XP:
-		return "XP";
-		break;
-	case DIR_XM:
-		return "XM";
-		break;
-	case DIR_ZP:
-		return "ZP";
-		break;
-	case DIR_ZM:
-		return "ZM";
-		break;
-	default:
-		return "UKN";
-	}
-}
-
-/******************************************************************************/
-void Pathfinder::printPath(const std::vector<v3s16> &path)
-{
-	unsigned int current = 0;
-	for (std::vector<v3s16>::iterator i = path.begin();
-			i != path.end(); ++i) {
-		std::cout << std::setw(3) << current << ":" << *i << std::endl;
-		current++;
-	}
-}
-
-#endif

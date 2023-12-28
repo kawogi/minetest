@@ -248,15 +248,10 @@ struct SRPUser {
 static int hash_init(SRP_HashAlgorithm alg, HashCTX *c)
 {
 	switch (alg) {
-#ifdef CSRP_USE_SHA1
-		case SRP_SHA1: return SHA1_Init(&c->sha);
-#endif
 		/*
 		case SRP_SHA224: return SHA224_Init(&c->sha256);
 		*/
-#ifdef CSRP_USE_SHA256
 		case SRP_SHA256: return SHA256_Init(&c->sha256);
-#endif
 		/*
 		case SRP_SHA384: return SHA384_Init(&c->sha512);
 		case SRP_SHA512: return SHA512_Init(&c->sha512);
@@ -267,15 +262,10 @@ static int hash_init(SRP_HashAlgorithm alg, HashCTX *c)
 static int hash_update( SRP_HashAlgorithm alg, HashCTX *c, const void *data, size_t len )
 {
 	switch (alg) {
-#ifdef CSRP_USE_SHA1
-		case SRP_SHA1: return SHA1_Update(&c->sha, data, len);
-#endif
 		/*
 		case SRP_SHA224: return SHA224_Update(&c->sha256, data, len);
 		*/
-#ifdef CSRP_USE_SHA256
 		case SRP_SHA256: return SHA256_Update(&c->sha256, data, len);
-#endif
 		/*
 		case SRP_SHA384: return SHA384_Update(&c->sha512, data, len);
 		case SRP_SHA512: return SHA512_Update(&c->sha512, data, len);
@@ -286,15 +276,10 @@ static int hash_update( SRP_HashAlgorithm alg, HashCTX *c, const void *data, siz
 static int hash_final( SRP_HashAlgorithm alg, HashCTX *c, unsigned char *md )
 {
 	switch (alg) {
-#ifdef CSRP_USE_SHA1
-		case SRP_SHA1: return SHA1_Final(md, &c->sha);
-#endif
 		/*
 		case SRP_SHA224: return SHA224_Final(md, &c->sha256);
 		*/
-#ifdef CSRP_USE_SHA256
 		case SRP_SHA256: return SHA256_Final(md, &c->sha256);
-#endif
 		/*
 		case SRP_SHA384: return SHA384_Final(md, &c->sha512);
 		case SRP_SHA512: return SHA512_Final(md, &c->sha512);
@@ -305,15 +290,10 @@ static int hash_final( SRP_HashAlgorithm alg, HashCTX *c, unsigned char *md )
 static unsigned char *hash(SRP_HashAlgorithm alg, const unsigned char *d, size_t n, unsigned char *md)
 {
 	switch (alg) {
-#ifdef CSRP_USE_SHA1
-		case SRP_SHA1: return SHA1(d, n, md);
-#endif
 		/*
 		case SRP_SHA224: return SHA224( d, n, md );
 		*/
-#ifdef CSRP_USE_SHA256
 		case SRP_SHA256: return SHA256(d, n, md);
-#endif
 		/*
 		case SRP_SHA384: return SHA384( d, n, md );
 		case SRP_SHA512: return SHA512( d, n, md );
@@ -324,15 +304,10 @@ static unsigned char *hash(SRP_HashAlgorithm alg, const unsigned char *d, size_t
 static size_t hash_length(SRP_HashAlgorithm alg)
 {
 	switch (alg) {
-#ifdef CSRP_USE_SHA1
-		case SRP_SHA1: return SHA_DIGEST_LENGTH;
-#endif
 		/*
 		case SRP_SHA224: return SHA224_DIGEST_LENGTH;
 		*/
-#ifdef CSRP_USE_SHA256
 		case SRP_SHA256: return SHA256_DIGEST_LENGTH;
-#endif
 		/*
 		case SRP_SHA384: return SHA384_DIGEST_LENGTH;
 		case SRP_SHA512: return SHA512_DIGEST_LENGTH;

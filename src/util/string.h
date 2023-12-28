@@ -385,42 +385,6 @@ inline T from_string(const std::string &str)
 /// Returns a 64-bit signed value represented by the string \p str (decimal).
 inline s64 stoi64(const std::string &str) { return from_string<s64>(str); }
 
-#if __cplusplus < 201103L
-namespace std {
-
-/// Returns a string representing the value \p val.
-template <typename T>
-inline string to_string(T val)
-{
-	ostringstream oss;
-	oss << val;
-	return oss.str();
-}
-#define DEFINE_STD_TOSTRING_FLOATINGPOINT(T)		\
-	template <>					\
-	inline string to_string<T>(T val)		\
-	{						\
-		ostringstream oss;			\
-		oss << std::fixed			\
-			<< std::setprecision(6)		\
-			<< val;				\
-		return oss.str();			\
-	}
-DEFINE_STD_TOSTRING_FLOATINGPOINT(float)
-DEFINE_STD_TOSTRING_FLOATINGPOINT(double)
-DEFINE_STD_TOSTRING_FLOATINGPOINT(long double)
-
-#undef DEFINE_STD_TOSTRING_FLOATINGPOINT
-
-/// Returns a wide string representing the value \p val
-template <typename T>
-inline wstring to_wstring(T val)
-{
-	return utf8_to_wide(to_string(val));
-}
-}
-#endif
-
 /// Returns a string representing the decimal value of the 32-bit value \p i.
 inline std::string itos(s32 i) { return std::to_string(i); }
 /// Returns a string representing the decimal value of the 64-bit value \p i.

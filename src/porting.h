@@ -110,20 +110,7 @@ std::string get_sysinfo();
 // Monotonic timer
 inline void os_get_clock(struct timespec *ts)
 {
-#if defined(CLOCK_MONOTONIC_RAW)
 	clock_gettime(CLOCK_MONOTONIC_RAW, ts);
-#elif defined(_POSIX_MONOTONIC_CLOCK) && _POSIX_MONOTONIC_CLOCK > 0
-	clock_gettime(CLOCK_MONOTONIC, ts);
-#else
-# if defined(_POSIX_MONOTONIC_CLOCK) && _POSIX_MONOTONIC_CLOCK == 0
-	// zero means it might be supported at runtime
-	if (clock_gettime(CLOCK_MONOTONIC, ts) == 0)
-		return;
-# endif
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	TIMEVAL_TO_TIMESPEC(&tv, ts);
-#endif
 }
 
 inline u64 getTimeS()

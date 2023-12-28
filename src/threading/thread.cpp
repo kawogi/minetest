@@ -29,13 +29,7 @@ DEALINGS IN THE SOFTWARE.
 #include "porting.h"
 
 // for setName
-#if defined(__linux__)
-	#include <sys/prctl.h>
-#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
-	#include <pthread_np.h>
-#elif defined(__NetBSD__)
-	#include <sched.h>
-#endif
+#include <sys/prctl.h>
 
 Thread::Thread(const std::string &name) :
 	m_name(name),
@@ -156,28 +150,10 @@ void Thread::threadProc(Thread *thr)
 
 void Thread::setName(const std::string &name)
 {
-#if defined(__linux__)
-
 	// It would be cleaner to do this with pthread_setname_np,
 	// which was added to glibc in version 2.12, but some major
 	// distributions are still runing 2.11 and previous versions.
 	prctl(PR_SET_NAME, name.c_str());
-
-#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
-
-	pthread_set_name_np(pthread_self(), name.c_str());
-
-#elif defined(__NetBSD__)
-
-	pthread_setname_np(pthread_self(), "%s", const_cast<char*>(name.c_str()));
-
-#elif defined(__HAIKU__)
-
-	rename_thread(find_thread(NULL), name.c_str());
-
-#else
-	#warning "Unrecognized platform, thread names will not be available."
-#endif
 }
 
 

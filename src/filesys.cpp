@@ -72,10 +72,8 @@ std::vector<DirListNode> GetDirListing(const std::string &pathstring)
 
 			Also we don't know whether symlinks are directories or not.
 		*/
-#ifdef _DIRENT_HAVE_D_TYPE
 		if(dirp->d_type != DT_UNKNOWN && dirp->d_type != DT_LNK)
 			isdir = (dirp->d_type == DT_DIR);
-#endif /* _DIRENT_HAVE_D_TYPE */
 
 		/*
 			Was d_type DT_UNKNOWN, DT_LNK or nonexistent?

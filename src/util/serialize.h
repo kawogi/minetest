@@ -25,13 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "ieee_float.h"
 
 #include "config.h"
-#if HAVE_ENDIAN_H
-	#if defined(__FreeBSD__) || defined(__DragonFly__)
-		#include <sys/endian.h>
-	#else
-		#include <endian.h>
-	#endif
-#endif
+#include <endian.h>
 #include <cstring> // for memcpy
 #include <iostream>
 #include <string>
@@ -57,7 +51,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 extern FloatType g_serialize_f32_type;
 
-#if HAVE_ENDIAN_H
 // use machine native byte swapping routines
 // Note: memcpy below is optimized out by modern compilers
 
@@ -99,59 +92,6 @@ inline void writeU64(u8 *data, u64 i)
 	u64 val = htobe64(i);
 	memcpy(data, &val, 8);
 }
-
-#else
-// generic byte-swapping implementation
-
-inline u16 readU16(const u8 *data)
-{
-	return
-		((u16)data[0] << 8) | ((u16)data[1] << 0);
-}
-
-inline u32 readU32(const u8 *data)
-{
-	return
-		((u32)data[0] << 24) | ((u32)data[1] << 16) |
-		((u32)data[2] <<  8) | ((u32)data[3] <<  0);
-}
-
-inline u64 readU64(const u8 *data)
-{
-	return
-		((u64)data[0] << 56) | ((u64)data[1] << 48) |
-		((u64)data[2] << 40) | ((u64)data[3] << 32) |
-		((u64)data[4] << 24) | ((u64)data[5] << 16) |
-		((u64)data[6] <<  8) | ((u64)data[7] << 0);
-}
-
-inline void writeU16(u8 *data, u16 i)
-{
-	data[0] = (i >> 8) & 0xFF;
-	data[1] = (i >> 0) & 0xFF;
-}
-
-inline void writeU32(u8 *data, u32 i)
-{
-	data[0] = (i >> 24) & 0xFF;
-	data[1] = (i >> 16) & 0xFF;
-	data[2] = (i >>  8) & 0xFF;
-	data[3] = (i >>  0) & 0xFF;
-}
-
-inline void writeU64(u8 *data, u64 i)
-{
-	data[0] = (i >> 56) & 0xFF;
-	data[1] = (i >> 48) & 0xFF;
-	data[2] = (i >> 40) & 0xFF;
-	data[3] = (i >> 32) & 0xFF;
-	data[4] = (i >> 24) & 0xFF;
-	data[5] = (i >> 16) & 0xFF;
-	data[6] = (i >>  8) & 0xFF;
-	data[7] = (i >>  0) & 0xFF;
-}
-
-#endif // HAVE_ENDIAN_H
 
 //////////////// read routines ////////////////
 

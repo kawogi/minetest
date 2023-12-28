@@ -19,14 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "version.h"
 #include "config.h"
-
-#if USE_CMAKE_CONFIG_H
-	#include "cmake_config_githash.h"
-#endif
-
-#ifndef VERSION_GITHASH
-	#define VERSION_GITHASH VERSION_STRING
-#endif
+#include "cmake_config_githash.h"
 
 #define STRINGIFY(x) #x
 #define STR(x) STRINGIFY(x)

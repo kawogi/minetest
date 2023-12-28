@@ -25,23 +25,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "porting.h"
 
-#if defined(__FreeBSD__)  || defined(__NetBSD__) || defined(__DragonFly__) || defined(__OpenBSD__)
-	#include <sys/types.h>
-	#include <sys/sysctl.h>
-	extern char **environ;
-#endif
 #include <unistd.h>
 #include <sys/utsname.h>
 #include <spawn.h>
-#if defined(__hpux)
-	#define _PSTAT64
-	#include <sys/pstat.h>
-#endif
-
-#if defined(__HAIKU__)
-	#include <FindDirectory.h>
-#endif
-
 #include "config.h"
 #include "debug.h"
 #include "filesys.h"
@@ -165,9 +151,6 @@ bool getExecPathFromProcfs(char *buf, size_t buflen)
 	return true;
 }
 
-//// Windows
-#if defined(__linux__)
-
 bool getCurrentExecPath(char *buf, size_t len)
 {
 	if (!getExecPathFromProcfs(buf, len))
@@ -176,77 +159,6 @@ bool getCurrentExecPath(char *buf, size_t len)
 	return true;
 }
 
-//// FreeBSD, NetBSD, DragonFlyBSD
-#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
-
-bool getCurrentExecPath(char *buf, size_t len)
-{
-	// Try getting path from procfs first, since valgrind
-	// doesn't work with the latter
-	if (getExecPathFromProcfs(buf, len))
-		return true;
-
-	int mib[4];
-
-	mib[0] = CTL_KERN;
-	mib[1] = KERN_PROC;
-	mib[2] = KERN_PROC_PATHNAME;
-	mib[3] = -1;
-
-	if (sysctl(mib, 4, buf, &len, NULL, 0) == -1)
-		return false;
-
-	return true;
-}
-
-#elif defined(__HAIKU__)
-
-bool getCurrentExecPath(char *buf, size_t len)
-{
-	return find_path(B_APP_IMAGE_SYMBOL, B_FIND_PATH_IMAGE_PATH, NULL, buf, len) == B_OK;
-}
-
-//// Solaris
-#elif defined(__sun) || defined(sun)
-
-bool getCurrentExecPath(char *buf, size_t len)
-{
-	const char *exec = getexecname();
-	if (exec == NULL)
-		return false;
-
-	if (strlcpy(buf, exec, len) >= len)
-		return false;
-
-	return true;
-}
-
-
-// HP-UX
-#elif defined(__hpux)
-
-bool getCurrentExecPath(char *buf, size_t len)
-{
-	struct pst_status psts;
-
-	if (pstat_getproc(&psts, sizeof(psts), 0, getpid()) == -1)
-		return false;
-
-	if (pstat_getpathname(buf, len, &psts.pst_fid_text) == -1)
-		return false;
-
-	return true;
-}
-
-
-#else
-
-bool getCurrentExecPath(char *buf, size_t len)
-{
-	return false;
-}
-
-#endif
 
 
 //// Non-Windows
@@ -261,8 +173,6 @@ const char *getHomeOrFail()
 
 
 //// Linux
-#if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
-
 bool setSystemPaths()
 {
 	char buf[BUFSIZ];
@@ -316,24 +226,6 @@ bool setSystemPaths()
 
 	return true;
 }
-
-#else
-
-bool setSystemPaths()
-{
-	path_share = STATIC_SHAREDIR;
-	const char *const minetest_user_path = getenv("MINETEST_USER_PATH");
-	if (minetest_user_path && minetest_user_path[0] != '\0') {
-		path_user = std::string(minetest_user_path);
-	} else {
-		path_user  = std::string(getHomeOrFail()) + DIR_DELIM "."
-			+ lowercase(PROJECT_NAME);
-	}
-	return true;
-}
-
-
-#endif
 
 void migrateCachePath()
 {

@@ -28,10 +28,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "util/timetaker.h"
 #include "profiler.h"
 
-#ifdef __FAST_MATH__
-#warning "-ffast-math is known to cause bugs in collision code, do not use!"
-#endif
-
 struct NearbyCollisionInfo {
 	// node
 	NearbyCollisionInfo(bool is_ul, int bouncy, const v3s16 &pos,

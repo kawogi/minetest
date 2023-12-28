@@ -61,17 +61,7 @@ static bool convert(const char *to, const char *from, char *outbuf,
 	return true;
 }
 
-#if defined(__NetBSD__) || defined(__OpenBSD__) || defined(__FreeBSD__)
-	// NetBSD does not allow "WCHAR_T" as a charset input to iconv.
-	#include <sys/endian.h>
-	#if BYTE_ORDER == BIG_ENDIAN
-	const char *DEFAULT_ENCODING = "UTF-32BE";
-	#else
-	const char *DEFAULT_ENCODING = "UTF-32LE";
-	#endif
-#else
 const char *DEFAULT_ENCODING = "WCHAR_T";
-#endif
 
 std::wstring utf8_to_wide(const std::string &input)
 {
