@@ -39,9 +39,6 @@ static TestAreaStore g_test_instance;
 void TestAreaStore::runTests(IGameDef *gamedef)
 {
 	TEST(testVectorStore);
-#if USE_SPATIAL
-	TEST(testSpatialStore);
-#endif
 	TEST(testSerialization);
 }
 
@@ -55,10 +52,6 @@ void TestAreaStore::testVectorStore()
 
 void TestAreaStore::testSpatialStore()
 {
-#if USE_SPATIAL
-	SpatialAreaStore store;
-	genericStoreTest(&store);
-#endif
 }
 
 void TestAreaStore::genericStoreTest(AreaStore *store)

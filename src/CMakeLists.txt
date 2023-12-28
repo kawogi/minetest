@@ -37,26 +37,8 @@ set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING
 mark_as_advanced(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
 find_package(SQLite3 REQUIRED)
-
-OPTION(ENABLE_SPATIAL "Enable SpatialIndex AreaStore backend" TRUE)
-set(USE_SPATIAL FALSE)
-
-if(ENABLE_SPATIAL)
-	find_library(SPATIAL_LIBRARY spatialindex)
-	find_path(SPATIAL_INCLUDE_DIR spatialindex/SpatialIndex.h)
-	if(SPATIAL_LIBRARY AND SPATIAL_INCLUDE_DIR)
-		set(USE_SPATIAL TRUE)
-		message(STATUS "SpatialIndex AreaStore backend enabled.")
-		include_directories(${SPATIAL_INCLUDE_DIR})
-	else(SPATIAL_LIBRARY AND SPATIAL_INCLUDE_DIR)
-		message(STATUS "SpatialIndex not found!")
-	endif(SPATIAL_LIBRARY AND SPATIAL_INCLUDE_DIR)
-endif(ENABLE_SPATIAL)
-
-
 find_package(ZLIB REQUIRED)
 find_package(Zstd REQUIRED)
-
 
 if(NOT MSVC)
 	set(USE_GPROF FALSE CACHE BOOL "Use -pg flag for g++")
@@ -267,10 +249,6 @@ target_link_libraries(
 )
 set_target_properties(${PROJECT_NAME}server PROPERTIES
 	COMPILE_DEFINITIONS "SERVER")
-
-if (USE_SPATIAL)
-	target_link_libraries(${PROJECT_NAME}server ${SPATIAL_LIBRARY})
-endif()
 
 # See issue #4638
 FILE(READ "${CMAKE_SOURCE_DIR}/src/unsupported_language_list.txt" GETTEXT_BLACKLISTED_LOCALES)
