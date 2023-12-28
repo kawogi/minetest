@@ -51,10 +51,6 @@ else()
 	message(STATUS "GetText disabled.")
 endif()
 
-
-option(ENABLE_SOUND "Enable sound" TRUE)
-set(USE_SOUND FALSE)
-
 find_package(SQLite3 REQUIRED)
 
 OPTION(ENABLE_PROMETHEUS "Enable prometheus client support" FALSE)
