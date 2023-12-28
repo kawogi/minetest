@@ -23,7 +23,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "irrlicht/printing.h"
 #include "chat_interface.h"
 #include "debug.h"
-#include "unittest/test.h"
 #include "server.h"
 #include "filesys.h"
 #include "version.h"
@@ -252,8 +251,6 @@ static void set_allowed_options(OptionList *allowed_options)
 			_("Load configuration from specified file"))));
 	allowed_options->insert(std::make_pair("port", ValueSpec(VALUETYPE_STRING,
 			_("Set network port (UDP)"))));
-	allowed_options->insert(std::make_pair("run-unittests", ValueSpec(VALUETYPE_FLAG,
-			_("Run the unit tests and exit"))));
 	allowed_options->insert(std::make_pair("test-module", ValueSpec(VALUETYPE_STRING,
 			_("Only run the specified test module"))));
 	allowed_options->insert(std::make_pair("map-dir", ValueSpec(VALUETYPE_STRING,

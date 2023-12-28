@@ -37,13 +37,7 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug)
 	set(VERSION_STRING "${VERSION_STRING}-debug")
 endif()
 
-# Configuration options
-set(BUILD_UNITTESTS TRUE CACHE BOOL "Build unittests")
-set(BUILD_DOCUMENTATION TRUE CACHE BOOL "Build documentation")
-
 message(STATUS "*** Will build version ${VERSION_STRING} ***")
-message(STATUS "BUILD_UNITTESTS: " ${BUILD_UNITTESTS})
-message(STATUS "BUILD_DOCUMENTATION: " ${BUILD_DOCUMENTATION})
 
 set(WARN_ALL TRUE CACHE BOOL "Enable -Wall for Release build")
 
@@ -51,9 +45,6 @@ if(NOT CMAKE_BUILD_TYPE)
 	# Default to release
 	set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type: Debug or Release" FORCE)
 endif()
-
-set(ENABLE_UPDATE_CHECKER (NOT ${DEVELOPMENT_BUILD}) CACHE BOOL
-	"Whether to enable update checks by default")
 
 # Included stuff
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
@@ -192,18 +183,3 @@ set(CPACK_GENERATOR TGZ)
 set(CPACK_SOURCE_GENERATOR TGZ)
 
 include(CPack)
-
-
-# Add a target to generate API documentation with Doxygen
-if(BUILD_DOCUMENTATION)
-	find_package(Doxygen)
-	if(DOXYGEN_FOUND)
-		configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in
-				${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile @ONLY)
-		add_custom_target(doc
-			${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile
-			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc
-			COMMENT "Generating API documentation with Doxygen" VERBATIM
-		)
-	endif()
-endif()

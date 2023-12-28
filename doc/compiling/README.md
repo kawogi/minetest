@@ -8,8 +8,6 @@
 
 General options and their default values:
 
-    BUILD_UNITTESTS=TRUE       - Build unittest sources
-    BUILD_DOCUMENTATION=TRUE   - Build doxygen documentation
     CMAKE_BUILD_TYPE=Release   - Type of build (Release vs. Debug)
         Release                - Release build
         Debug                  - Debug build
@@ -17,10 +15,7 @@ General options and their default values:
         RelWithDebInfo         - Release build with debug information
         MinSizeRel             - Release build with -Os passed to compiler to make executable as small as possible
     ENABLE_GETTEXT=ON          - Build with Gettext; Allows using translations
-    ENABLE_SOUND=ON            - Build with OpenAL, libogg & libvorbis; in-game sounds
-    ENABLE_SYSTEM_GMP=ON       - Use GMP from system (much faster than bundled mini-gmp)
     ENABLE_SYSTEM_JSONCPP=ON   - Use JsonCPP from system
-    ENABLE_UPDATE_CHECKER=TRUE - Whether to enable update checks by default
     INSTALL_DEVTEST=FALSE      - Whether the Development Test game should be installed alongside Minetest
     USE_GPROF=FALSE            - Enable profiling using GProf
     VERSION_EXTRA=             - Text to append to version (e.g. VERSION_EXTRA=foobar -> Minetest 0.4.9-foobar)

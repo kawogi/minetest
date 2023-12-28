@@ -21,11 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "config.h"
 
-#if USE_SYSTEM_JSONCPP
 #include <json/version.h>
 #include <json/allocator.h>
 #include <json/config.h>
 #include <json/forwards.h>
-#else
-#include <json/json-forwards.h>
-#endif

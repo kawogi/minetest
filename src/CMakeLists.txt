@@ -99,7 +99,6 @@ add_subdirectory(database)
 add_subdirectory(mapgen)
 add_subdirectory(network)
 add_subdirectory(script)
-add_subdirectory(unittest)
 add_subdirectory(util)
 add_subdirectory(irrlicht)
 add_subdirectory(server)
@@ -177,10 +176,6 @@ set(common_SRCS
 	${UTIL_SRCS}
 )
 
-if(BUILD_UNITTESTS)
-	set(common_SRCS ${common_SRCS} ${UNITTEST_SRCS})
-endif()
-
 # # Client sources
 # set(client_SRCS
 # 	${client_SRCS}
@@ -190,10 +185,6 @@ endif()
 # 	${client_irrlicht_SRCS}
 # 	${client_SCRIPT_SRCS}
 # )
-
-# if(BUILD_UNITTESTS)
-# 	set(client_SRCS ${client_SRCS} ${UNITTEST_CLIENT_SRCS})
-# endif()
 
 # list(SORT client_SRCS)
 

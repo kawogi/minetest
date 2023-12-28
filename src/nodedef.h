@@ -36,9 +36,6 @@ class ITextureSource;
 class IShaderSource;
 class IGameDef;
 class NodeResolver;
-#if BUILD_UNITTESTS
-class TestSchematic;
-#endif
 
 enum ContentParamType
 {
@@ -851,10 +848,6 @@ protected:
 	u32 m_nodenames_idx = 0;
 
 private:
-#if BUILD_UNITTESTS
-	// Unittest requires access to m_resolve_done
-	friend class TestSchematic;
-#endif
 	void nodeResolveInternal();
 
 	// Index of the next "m_nnlistsizes" entry to process

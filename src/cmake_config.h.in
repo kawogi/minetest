@@ -15,8 +15,4 @@
 #define BUILD_TYPE "@CMAKE_BUILD_TYPE@"
 #define ICON_DIR "@ICONDIR@"
 #cmakedefine01 DEVELOPMENT_BUILD
-#cmakedefine01 ENABLE_UPDATE_CHECKER
-#cmakedefine01 USE_SYSTEM_GMP
-#cmakedefine01 USE_SYSTEM_JSONCPP
 #cmakedefine01 HAVE_ENDIAN_H
-#cmakedefine01 BUILD_UNITTESTS

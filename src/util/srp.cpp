@@ -37,13 +37,7 @@
 #include <cstdint>
 
 #include <config.h>
-
-#if USE_SYSTEM_GMP
-	#include <gmp.h>
-#else
-	#include <mini-gmp.h>
-#endif
-
+#include <gmp.h>
 #include <util/sha2.h>
 
 #include "srp.h"
