@@ -36,7 +36,4 @@ const char *g_version_hash = VERSION_GITHASH;
 const char *g_build_info =
 	"BUILD_TYPE=" BUILD_TYPE "\n"
 	"STATIC_SHAREDIR=" STR(STATIC_SHAREDIR)
-#if USE_GETTEXT && defined(STATIC_LOCALEDIR)
-	"\n" "STATIC_LOCALEDIR=" STR(STATIC_LOCALEDIR)
-#endif
 ;

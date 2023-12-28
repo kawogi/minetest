@@ -36,21 +36,6 @@ set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING
 # Set some random things default to not being visible in the GUI
 mark_as_advanced(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
-
-option(ENABLE_GETTEXT "Use GetText for internationalization" FALSE)
-set(USE_GETTEXT FALSE)
-
-if(ENABLE_GETTEXT)
-	find_package(GettextLib)
-	if(GETTEXTLIB_FOUND)
-		set(USE_GETTEXT TRUE)
-		message(STATUS "GetText enabled; locales found: ${GETTEXT_AVAILABLE_LOCALES}")
-	endif(GETTEXTLIB_FOUND)
-else()
-	mark_as_advanced(GETTEXT_INCLUDE_DIR GETTEXT_LIBRARY GETTEXT_MSGFMT)
-	message(STATUS "GetText disabled.")
-endif()
-
 find_package(SQLite3 REQUIRED)
 
 OPTION(ENABLE_PROMETHEUS "Enable prometheus client support" FALSE)
@@ -278,10 +263,6 @@ include_directories(SYSTEM
 	${LUA_BIT_INCLUDE_DIR}
 )
 
-if(USE_GETTEXT)
-	include_directories(${GETTEXT_INCLUDE_DIR})
-endif()
-
 # When cross-compiling assume the user doesn't want to run the executable anyway,
 # otherwise place it in <source dir>/bin/ since Minetest can only run from there.
 if(NOT CMAKE_CROSSCOMPILING)
@@ -307,9 +288,6 @@ target_link_libraries(
 set_target_properties(${PROJECT_NAME}server PROPERTIES
 	COMPILE_DEFINITIONS "SERVER")
 
-if (USE_GETTEXT)
-	target_link_libraries(${PROJECT_NAME}server ${GETTEXT_LIBRARY})
-endif()
 if (USE_PROMETHEUS)
 	target_link_libraries(${PROJECT_NAME}server ${PROMETHEUS_LIBRARIES})
 endif()
@@ -404,29 +382,3 @@ endif()
 # Installation
 
 install(TARGETS ${PROJECT_NAME}server DESTINATION ${BINDIR})
-
-if (USE_GETTEXT)
-	set(MO_FILES)
-
-	foreach(LOCALE ${GETTEXT_USED_LOCALES})
-		set(PO_FILE_PATH "${GETTEXT_PO_PATH}/${LOCALE}/${PROJECT_NAME}.po")
-		set_mo_paths(MO_BUILD_PATH MO_DEST_PATH ${LOCALE})
-		set(MO_FILE_PATH "${MO_BUILD_PATH}/${PROJECT_NAME}.mo")
-
-		add_custom_command(OUTPUT ${MO_BUILD_PATH}
-			COMMAND ${CMAKE_COMMAND} -E make_directory ${MO_BUILD_PATH}
-			COMMENT "mo-update [${LOCALE}]: Creating locale directory.")
-
-		add_custom_command(
-			OUTPUT ${MO_FILE_PATH}
-			COMMAND ${GETTEXT_MSGFMT} -o ${MO_FILE_PATH} ${PO_FILE_PATH}
-			DEPENDS ${MO_BUILD_PATH} ${PO_FILE_PATH}
-			WORKING_DIRECTORY "${GETTEXT_PO_PATH}/${LOCALE}"
-			COMMENT "mo-update [${LOCALE}]: Creating mo file."
-			)
-
-		set(MO_FILES ${MO_FILES} ${MO_FILE_PATH})
-	endforeach()
-
-	add_custom_target(translations ALL COMMENT "mo update" DEPENDS ${MO_FILES})
-endif()
