@@ -124,6 +124,7 @@ compile_commands.json
 
 # Optional user provided library folder
 lib/irrlichtmt
+lib/irrlichtmt-disabled
 
 # Generated mod storage database
 client/mod_storage.sqlite

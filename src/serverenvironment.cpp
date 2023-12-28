@@ -40,7 +40,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "filesys.h"
 #include "gameparams.h"
 #include "database/database-sqlite3.h"
-#include "irrlicht_changes/printing.h"
+#include "irrlicht/printing.h"
 #include "server/luaentity_sao.h"
 #include "server/player_sao.h"
 

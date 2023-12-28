@@ -31,7 +31,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "config.h"
 #include "constants.h"
 #include "environment.h"
-#include "irrlicht_changes/printing.h"
+#include "irrlicht/printing.h"
 #include "log.h"
 #include "map.h"
 #include "mapblock.h"

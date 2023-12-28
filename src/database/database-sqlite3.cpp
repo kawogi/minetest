@@ -34,7 +34,7 @@ SQLite format specification:
 #include "porting.h"
 #include "util/string.h"
 #include "remoteplayer.h"
-#include "irrlicht_changes/printing.h"
+#include "irrlicht/printing.h"
 #include "server/player_sao.h"
 
 #include <cassert>

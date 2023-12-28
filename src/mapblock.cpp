@@ -25,7 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "nodedef.h"
 #include "nodemetadata.h"
 #include "gamedef.h"
-#include "irrlicht_changes/printing.h"
+#include "irrlicht/printing.h"
 #include "log.h"
 #include "nameidmapping.h"
 #include "content_mapnode.h"  // For legacy name-id mapping

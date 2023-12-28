@@ -32,7 +32,6 @@ RUN git clone --recursive https://github.com/jupp0r/prometheus-cpp/ && \
 		make && make install && \
 	cd /usr/src/ && \
 	git clone --depth=1 https://github.com/minetest/irrlicht/ -b ${IRRLICHT_VERSION} && \
-		cp -r irrlicht/include /usr/include/irrlichtmt
 
 FROM dev as builder
 

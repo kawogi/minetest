@@ -21,7 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "exceptions.h"
 #include "gamedef.h"
 #include "inventory.h"
-#include "irrlicht_changes/printing.h"
+#include "irrlicht/printing.h"
 #include "log.h"
 #include "util/serialize.h"
 #include "constants.h" // MAP_BLOCKSIZE

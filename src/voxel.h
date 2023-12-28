@@ -27,7 +27,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "mapnode.h"
 #include <set>
 #include <list>
-#include "irrlicht_changes/printing.h"
+#include "irrlicht/printing.h"
 
 class NodeDefManager;
 

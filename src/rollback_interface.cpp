@@ -30,7 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "log.h"
 #include "inventorymanager.h"
 #include "inventory.h"
-#include "irrlicht_changes/printing.h"
+#include "irrlicht/printing.h"
 #include "mapblock.h"
 
 

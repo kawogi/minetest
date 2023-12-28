@@ -30,7 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "settings.h"
 #include "tool.h"
 #include "version.h"
-#include "irrlicht_changes/printing.h"
+#include "irrlicht/printing.h"
 #include "network/connection.h"
 #include "network/networkprotocol.h"
 #include "network/serveropcodes.h"

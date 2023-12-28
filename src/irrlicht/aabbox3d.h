@@ -6,7 +6,7 @@
 
 #include "irrMath.h"
 #include "plane3d.h"
-#include "irrlicht/line3d.h"
+#include "line3d.h"
 
 namespace irr
 {

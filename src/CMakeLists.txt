@@ -175,7 +175,7 @@ add_subdirectory(network)
 add_subdirectory(script)
 add_subdirectory(unittest)
 add_subdirectory(util)
-add_subdirectory(irrlicht_changes)
+add_subdirectory(irrlicht)
 add_subdirectory(server)
 
 set(common_SRCS
@@ -255,21 +255,21 @@ if(BUILD_UNITTESTS)
 	set(common_SRCS ${common_SRCS} ${UNITTEST_SRCS})
 endif()
 
-# Client sources
-set(client_SRCS
-	${client_SRCS}
-	${common_SRCS}
-	${gui_SRCS}
-	${client_network_SRCS}
-	${client_irrlicht_changes_SRCS}
-	${client_SCRIPT_SRCS}
-)
+# # Client sources
+# set(client_SRCS
+# 	${client_SRCS}
+# 	${common_SRCS}
+# 	${gui_SRCS}
+# 	${client_network_SRCS}
+# 	${client_irrlicht_SRCS}
+# 	${client_SCRIPT_SRCS}
+# )
 
-if(BUILD_UNITTESTS)
-	set(client_SRCS ${client_SRCS} ${UNITTEST_CLIENT_SRCS})
-endif()
+# if(BUILD_UNITTESTS)
+# 	set(client_SRCS ${client_SRCS} ${UNITTEST_CLIENT_SRCS})
+# endif()
 
-list(SORT client_SRCS)
+# list(SORT client_SRCS)
 
 # Server sources
 set(server_SRCS

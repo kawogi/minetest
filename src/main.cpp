@@ -20,7 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "irrlichttypes.h" // must be included before anything irrlicht, see comment in the file
 //#include "irrlicht.h" // createDevice
 #include "irrlichttypes_extrabloated.h"
-#include "irrlicht_changes/printing.h"
+#include "irrlicht/printing.h"
 #include "chat_interface.h"
 #include "debug.h"
 #include "unittest/test.h"

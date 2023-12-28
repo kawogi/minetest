@@ -24,7 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <vector>
 #include <ctgmath>
 #include <type_traits>
-#include "irrlicht_changes/printing.h"
+#include "irrlicht/printing.h"
 #include "irrlichttypes_bloated.h"
 #include "tileanimation.h"
 #include "mapnode.h"

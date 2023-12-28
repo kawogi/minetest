@@ -25,7 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "pathfinder.h"
 #include "map.h"
 #include "nodedef.h"
-#include "irrlicht_changes/printing.h"
+#include "irrlicht/printing.h"
 
 //#define PATHFINDER_DEBUG
 //#define PATHFINDER_CALC_TIME
