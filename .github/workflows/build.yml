@@ -122,33 +122,6 @@ jobs:
         run: |
           ./util/test_multiplayer.sh
 
-  # Build with prometheus-cpp (server-only)
-  clang_9_prometheus:
-    name: "clang_9 (PROMETHEUS=1)"
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install deps
-        run: |
-          source ./util/ci/common.sh
-          install_linux_deps clang-9
-
-      - name: Build prometheus-cpp
-        run: |
-          ./util/ci/build_prometheus_cpp.sh
-
-      - name: Build
-        run: |
-          ./util/ci/build.sh
-        env:
-          CC: clang-9
-          CXX: clang++-9
-          CMAKE_FLAGS: "-DENABLE_PROMETHEUS=1"
-
-      - name: Test
-        run: |
-          ./bin/minetestserver --run-unittests
-
   docker:
     name: "Docker image"
     runs-on: ubuntu-20.04

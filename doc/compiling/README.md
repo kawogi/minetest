@@ -19,7 +19,6 @@ General options and their default values:
     ENABLE_GETTEXT=ON          - Build with Gettext; Allows using translations
     ENABLE_SPATIAL=ON          - Build with LibSpatial; Speeds up AreaStores
     ENABLE_SOUND=ON            - Build with OpenAL, libogg & libvorbis; in-game sounds
-    ENABLE_PROMETHEUS=OFF      - Build with Prometheus metrics exporter (listens on tcp/30000 by default)
     ENABLE_SYSTEM_GMP=ON       - Use GMP from system (much faster than bundled mini-gmp)
     ENABLE_SYSTEM_JSONCPP=ON   - Use JsonCPP from system
     ENABLE_UPDATE_CHECKER=TRUE - Whether to enable update checks by default

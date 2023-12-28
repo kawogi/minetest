@@ -66,7 +66,3 @@ public:
 			const std::string &name, const std::string &help_str,
 			Labels labels = {});
 };
-
-#if USE_PROMETHEUS
-MetricsBackend *createPrometheusMetricsBackend();
-#endif
