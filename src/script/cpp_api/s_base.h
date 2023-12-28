@@ -38,8 +38,6 @@ extern "C" {
 #include "debug.h"
 #include "config.h"
 
-#define SCRIPTAPI_LOCK_DEBUG
-
 // MUST be an invalid mod name so that mods can't
 // use that name to bypass security!
 #define BUILTIN_MOD_NAME "*builtin*"
@@ -150,10 +148,6 @@ protected:
 	std::recursive_mutex m_luastackmutex;
 	std::string     m_last_run_mod;
 	bool            m_secure = false;
-#ifdef SCRIPTAPI_LOCK_DEBUG
-	int             m_lock_recursion_count{};
-	std::thread::id m_owning_thread;
-#endif
 
 private:
 	static int luaPanic(lua_State *L);

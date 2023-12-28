@@ -45,11 +45,7 @@ extern "C" {
 	so we can use numeric indices freely.
 */
 enum {
-#ifdef LUA_RIDX_LAST
-	CUSTOM_RIDX_BEFORE_ = LUA_RIDX_LAST,
-#else
 	CUSTOM_RIDX_BEFORE_ = 0,
-#endif
 
 	CUSTOM_RIDX_SCRIPTAPI,
 	CUSTOM_RIDX_GLOBALS_BACKUP,

@@ -69,10 +69,6 @@ public:
 ScriptApiBase::ScriptApiBase(ScriptingType type):
 		m_type(type)
 {
-#ifdef SCRIPTAPI_LOCK_DEBUG
-	m_lock_recursion_count = 0;
-#endif
-
 	m_luastack = luaL_newstate();
 	FATAL_ERROR_IF(!m_luastack, "luaL_newstate() failed");
 
@@ -89,11 +85,7 @@ ScriptApiBase::ScriptApiBase(ScriptingType type):
 	lua_call(m_luastack, 1, 0);
 
 	// Make the ScriptApiBase* accessible to ModApiBase
-#if INDIRECT_SCRIPTAPI_RIDX
-	*(void **)(lua_newuserdata(m_luastack, sizeof(void *))) = this;
-#else
 	lua_pushlightuserdata(m_luastack, this);
-#endif
 	lua_rawseti(m_luastack, LUA_REGISTRYINDEX, CUSTOM_RIDX_SCRIPTAPI);
 
 	lua_pushcfunction(m_luastack, script_error_handler);
@@ -250,9 +242,6 @@ void ScriptApiBase::loadScript(const std::string &script_path)
 void ScriptApiBase::runCallbacksRaw(int nargs,
 		RunCallbacksMode mode, const char *fxn)
 {
-#ifdef SCRIPTAPI_LOCK_DEBUG
-	assert(m_lock_recursion_count > 0);
-#endif
 	lua_State *L = getStack();
 	FATAL_ERROR_IF(lua_gettop(L) < nargs + 1, "Not enough arguments");
 
