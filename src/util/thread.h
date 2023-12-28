@@ -203,7 +203,6 @@ public:
 
 	void *run()
 	{
-		BEGIN_DEBUG_EXCEPTION_HANDLER
 
 		while (!stopRequested()) {
 			m_update_sem.wait();
@@ -215,7 +214,6 @@ public:
 			doUpdate();
 		}
 
-		END_DEBUG_EXCEPTION_HANDLER
 
 		return NULL;
 	}

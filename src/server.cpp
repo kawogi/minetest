@@ -95,8 +95,6 @@ private:
 
 void *ServerThread::run()
 {
-	BEGIN_DEBUG_EXCEPTION_HANDLER
-
 	/*
 	 * The real business of the server happens on the ServerThread.
 	 * How this works:
@@ -130,8 +128,6 @@ void *ServerThread::run()
 			m_server->setAsyncFatalError(e);
 		}
 	}
-
-	END_DEBUG_EXCEPTION_HANDLER
 
 	return nullptr;
 }

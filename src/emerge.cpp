@@ -676,8 +676,6 @@ MapBlock *EmergeThread::finishGen(v3s16 pos, BlockMakeData *bmdata,
 
 void *EmergeThread::run()
 {
-	BEGIN_DEBUG_EXCEPTION_HANDLER
-
 	v3s16 pos;
 	std::map<v3s16, MapBlock *> modified_blocks;
 
@@ -754,6 +752,5 @@ void *EmergeThread::run()
 
 	cancelPendingItems();
 
-	END_DEBUG_EXCEPTION_HANDLER
 	return NULL;
 }

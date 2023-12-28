@@ -85,7 +85,6 @@ void *ConnectionSendThread::run()
 	/* if stop is requested don't stop immediately but try to send all        */
 	/* packets first */
 	while (!stopRequested() || packetsQueued()) {
-		BEGIN_DEBUG_EXCEPTION_HANDLER
 		PROFILE(ScopeProfiler sp(g_profiler, ThreadIdentifier.str(), SPT_AVG));
 
 		m_iteration_packets_avaialble = m_max_data_packets_per_iteration;
@@ -123,7 +122,6 @@ void *ConnectionSendThread::run()
 		/* send queued packets */
 		sendPackets(dtime);
 
-		END_DEBUG_EXCEPTION_HANDLER
 	}
 
 	PROFILE(g_profiler->remove(ThreadIdentifier.str()));
@@ -798,7 +796,6 @@ void *ConnectionReceiveThread::run()
 #endif
 
 	while (!stopRequested()) {
-		BEGIN_DEBUG_EXCEPTION_HANDLER
 		PROFILE(ScopeProfiler
 		sp(g_profiler, ThreadIdentifier.str(), SPT_AVG));
 
@@ -861,7 +858,6 @@ void *ConnectionReceiveThread::run()
 			}
 		}
 #endif
-		END_DEBUG_EXCEPTION_HANDLER
 	}
 
 	PROFILE(g_profiler->remove(ThreadIdentifier.str()));

@@ -152,9 +152,6 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	// Debug handler
-	BEGIN_DEBUG_EXCEPTION_HANDLER
-
 	// List gameids if requested
 	if (cmd_args.exists("gameid") && cmd_args.get("gameid") == "list") {
 		list_game_ids();
@@ -202,8 +199,6 @@ int main(int argc, char *argv[])
 		g_settings->updateConfigFile(g_settings_path.c_str());
 
 	print_modified_quicktune_values();
-
-	END_DEBUG_EXCEPTION_HANDLER
 
 	return retval;
 }
